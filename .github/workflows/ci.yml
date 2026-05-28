@@ -1,0 +1,180 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  DOTNET_VERSION: 10.0.x
+
+jobs:
+  test-api:
+    runs-on: ubuntu-latest
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: Test@1234Pass
+          MSSQL_SA_PASSWORD: Test@1234Pass
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S 127.0.0.1 -U sa -P 'Test@1234Pass' -C -Q 'SELECT 1' -b"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --health-start-period 30s
+    env:
+      MSSQL_CONNECTION_STRING: "Server=localhost,1433;Database=BankingAppIntegrationTests;User Id=sa;Password=Test@1234Pass;TrustServerCertificate=True;"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: |
+          dotnet restore BankingApp/tests/BankingApp.Domain.Tests/BankingApp.Domain.Tests.csproj
+          dotnet restore BankingApp/tests/BankingApp.Application.Tests/BankingApp.Application.Tests.csproj
+          dotnet restore BankingApp/tests/BankingApp.Infrastructure.Persistence.Tests/BankingApp.Infrastructure.Persistence.Tests.csproj
+          dotnet restore BankingApp/tests/BankingApp.Infrastructure.Persistence.Tests.Integration/BankingApp.Infrastructure.Persistence.Tests.Integration.csproj
+          dotnet restore BankingApp/tests/BankingApp.Infrastructure.Core.Tests/BankingApp.Infrastructure.Core.Tests.csproj
+          dotnet restore BankingApp/tests/BankingApp.Infrastructure.Http.Tests/BankingApp.Infrastructure.Http.Tests.csproj
+          dotnet restore BankingApp/tests/BankingApp.Api.Tests/BankingApp.Api.Tests.csproj
+          dotnet restore BankingApp/tests/BankingApp.Api.Tests.Integration/BankingApp.Api.Tests.Integration.csproj
+
+      - name: Run domain tests
+        run: dotnet test BankingApp/tests/BankingApp.Domain.Tests/BankingApp.Domain.Tests.csproj --configuration Release --no-restore --logger trx --results-directory TestResults
+
+      - name: Run application tests
+        run: dotnet test BankingApp/tests/BankingApp.Application.Tests/BankingApp.Application.Tests.csproj --configuration Release --no-restore --logger trx --results-directory TestResults
+
+      - name: Run persistence tests
+        run: dotnet test BankingApp/tests/BankingApp.Infrastructure.Persistence.Tests/BankingApp.Infrastructure.Persistence.Tests.csproj --configuration Release --no-restore --logger trx --results-directory TestResults
+
+      - name: Run persistence integration tests
+        run: dotnet test BankingApp/tests/BankingApp.Infrastructure.Persistence.Tests.Integration/BankingApp.Infrastructure.Persistence.Tests.Integration.csproj --configuration Release --no-restore --logger trx --results-directory TestResults
+
+      - name: Run infrastructure core tests
+        run: dotnet test BankingApp/tests/BankingApp.Infrastructure.Core.Tests/BankingApp.Infrastructure.Core.Tests.csproj --configuration Release --no-restore --logger trx --results-directory TestResults
+
+      - name: Run infrastructure HTTP tests
+        run: dotnet test BankingApp/tests/BankingApp.Infrastructure.Http.Tests/BankingApp.Infrastructure.Http.Tests.csproj --configuration Release --no-restore --logger trx --results-directory TestResults
+
+      - name: Run API tests
+        run: dotnet test BankingApp/tests/BankingApp.Api.Tests/BankingApp.Api.Tests.csproj --configuration Release --no-restore --logger trx --results-directory TestResults
+
+      - name: Run API integration tests
+        run: dotnet test BankingApp/tests/BankingApp.Api.Tests.Integration/BankingApp.Api.Tests.Integration.csproj --configuration Release --no-restore --logger trx --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-api
+          path: '**/TestResults/*.trx'
+
+  test-desktop:
+    runs-on: windows-latest
+    env:
+      DESKTOP_TEST_PROJECT: BankingApp/tests/BankingApp.Desktop.Tests/BankingApp.Desktop.Tests.csproj
+      DESKTOP_PROPS: >
+        /p:RuntimeIdentifier=win-x64
+        /p:PlatformTarget=x64
+        /p:WindowsPackageType=None
+        /p:WindowsAppSDKSelfContained=true
+        /p:WindowsAppSdkUndockedRegFreeWinRTInitialize=false
+        /p:PublishReadyToRun=false
+        /p:PublishTrimmed=false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Restore
+        shell: pwsh
+        run: |
+          $props = $env:DESKTOP_PROPS -split '\s+'
+          dotnet restore $env:DESKTOP_TEST_PROJECT @props
+
+      - name: Build
+        shell: pwsh
+        run: |
+          $props = $env:DESKTOP_PROPS -split '\s+'
+          dotnet build $env:DESKTOP_TEST_PROJECT --no-restore --configuration Debug @props
+
+      - name: Run desktop tests
+        shell: pwsh
+        timeout-minutes: 10
+        run: |
+          $props = $env:DESKTOP_PROPS -split '\s+'
+          New-Item -ItemType Directory -Force -Path TestResults
+          dotnet test $env:DESKTOP_TEST_PROJECT --no-build --configuration Debug @props `
+            --logger "trx;LogFileName=desktop-tests.trx" `
+            --results-directory TestResults `
+            --logger "console;verbosity=detailed" `
+            --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type none
+          Get-ChildItem -Path TestResults -Recurse
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-desktop
+          path: |
+            '**/TestResults/*.trx'
+            '**/TestResults/**/Sequence_*.xml'
+
+  test-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore BankingApp/tests/BankingApp.Web.Tests/BankingApp.Web.Tests.csproj
+
+      - name: Run web tests
+        run: dotnet test BankingApp/tests/BankingApp.Web.Tests/BankingApp.Web.Tests.csproj --configuration Release --no-restore --logger trx --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-web
+          path: '**/TestResults/*.trx'

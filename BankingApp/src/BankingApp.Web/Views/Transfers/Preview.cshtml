@@ -1,0 +1,128 @@
+@model BankingApp.Web.Models.Transfers.TransferPreviewModel
+@{
+    ViewData["Title"] = "Confirm Transfer";
+}
+
+<div class="page-header">
+    <h1 class="page-title"><i class="bi bi-shield-check me-2 text-primary"></i>Confirm Transfer</h1>
+    <p class="page-subtitle">Review the transfer details below before confirming.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show flash-message" role="alert">
+                <span class="me-2">✕</span>@Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Summary card -->
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-send text-primary"></i>
+                <span>Transfer Summary</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table mb-0">
+                    <tbody>
+                        <tr>
+                            <th class="ps-3 py-3 text-muted-sm fw-600" style="width:40%">From Account</th>
+                            <td class="py-3 font-monospace small">@Model.SourceAccountIban</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3 py-3 text-muted-sm fw-600">Recipient</th>
+                            <td class="py-3 fw-600">@Model.RecipientName</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3 py-3 text-muted-sm fw-600">Recipient IBAN</th>
+                            <td class="py-3 font-monospace small">@Model.RecipientIban</td>
+                        </tr>
+                        @if (!string.IsNullOrWhiteSpace(Model.RecipientBankName))
+                        {
+                            <tr>
+                                <th class="ps-3 py-3 text-muted-sm fw-600">Recipient Bank</th>
+                                <td class="py-3">@Model.RecipientBankName</td>
+                            </tr>
+                        }
+                        <tr>
+                            <th class="ps-3 py-3 text-muted-sm fw-600">Amount</th>
+                            <td class="py-3 fw-600">@Model.Currency @Model.Amount.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3 py-3 text-muted-sm fw-600">Fee</th>
+                            <td class="py-3 text-warning">@Model.Currency @Model.Fee.ToString("N2")</td>
+                        </tr>
+                        <tr class="table-light">
+                            <th class="ps-3 py-3 fw-700">Total Debit</th>
+                            <td class="py-3 fw-700 amount-debit fs-5">@Model.Currency @Model.TotalDebit.ToString("N2")</td>
+                        </tr>
+                        @if (!string.IsNullOrWhiteSpace(Model.Reference))
+                        {
+                            <tr>
+                                <th class="ps-3 py-3 text-muted-sm fw-600">Reference</th>
+                                <td class="py-3">@Model.Reference</td>
+                            </tr>
+                        }
+                        @if (Model.IsCrossCurrency && Model.ExchangeRate.HasValue)
+                        {
+                            <tr>
+                                <th class="ps-3 py-3 text-muted-sm fw-600">Exchange Rate</th>
+                                <td class="py-3">
+                                    1 @Model.SourceCurrency = @Model.ExchangeRate.Value.ToString("N6") @Model.Currency
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3 py-3 text-muted-sm fw-600">Converted Amount</th>
+                                <td class="py-3 fw-700 amount-debit fs-5">
+                                    @Model.Currency @Model.ConvertedAmount?.ToString("N2")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Confirm form -->
+        <form asp-action="Confirm" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="SourceAccountId" />
+            <input type="hidden" asp-for="SourceAccountIban" />
+            <input type="hidden" asp-for="SourceCurrency" />
+            <input type="hidden" asp-for="RecipientName" />
+            <input type="hidden" asp-for="RecipientIban" />
+            <input type="hidden" asp-for="RecipientBankName" />
+            <input type="hidden" asp-for="Amount" />
+            <input type="hidden" asp-for="Currency" />
+            <input type="hidden" asp-for="Reference" />
+            <input type="hidden" asp-for="IsCrossCurrency" />
+            <input type="hidden" asp-for="ExchangeRate" />
+            <input type="hidden" asp-for="ConvertedAmount" />
+
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
+                <a asp-action="New" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+                <button type="submit" class="btn btn-primary px-4" id="confirmBtn">
+                    <i class="bi bi-check-circle me-2"></i>Confirm Transfer
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('confirmBtn')?.addEventListener('click', function () {
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Processing…';
+            this.closest('form').submit();
+        });
+    </script>
+}

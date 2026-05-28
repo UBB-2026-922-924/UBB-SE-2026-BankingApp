@@ -1,0 +1,15 @@
+@model TransactionRowViewModel
+<tr>
+    <td class="text-muted-sm">@Model.OccurredAt.ToString("dd MMM yyyy, HH:mm")</td>
+    <td class="font-monospace small fw-600">@Model.Description</td>
+    <td class="text-end fw-600 @Model.AmountCssClass">
+        @if (!string.IsNullOrEmpty(Model.CurrencyCode))
+        {
+            @(Model.CurrencyCode + " ")
+        }
+        @Model.Amount.ToString("N2")
+    </td>
+    <td class="text-center">
+        <span class="badge @Model.StatusBadgeCssClass">@Model.Status</span>
+    </td>
+</tr>

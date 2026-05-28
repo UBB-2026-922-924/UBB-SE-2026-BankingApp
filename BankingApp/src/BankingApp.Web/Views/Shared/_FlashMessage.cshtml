@@ -1,0 +1,31 @@
+﻿@if (TempData["Success"] is string successMessage)
+{
+    <div class="alert alert-success alert-dismissible fade show flash-message" role="alert">
+        <span class="me-2">✓</span>@successMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] is string errorMessage)
+{
+    <div class="alert alert-danger alert-dismissible fade show flash-message" role="alert">
+        <span class="me-2">✕</span>@errorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Warning"] is string warningMessage)
+{
+    <div class="alert alert-warning alert-dismissible fade show flash-message" role="alert">
+        <span class="me-2">⚠</span>@warningMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Info"] is string infoMessage)
+{
+    <div class="alert alert-info alert-dismissible fade show flash-message" role="alert">
+        <span class="me-2">ℹ</span>@infoMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}

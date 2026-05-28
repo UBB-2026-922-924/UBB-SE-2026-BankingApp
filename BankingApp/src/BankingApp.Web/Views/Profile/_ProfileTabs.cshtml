@@ -1,0 +1,22 @@
+@{
+    string activeTab = ViewData["ActiveProfileTab"]?.ToString() ?? "PersonalInfo";
+}
+
+<div class="profile-tabs">
+    <a asp-controller="Profile" asp-action="PersonalInfo"
+       class="profile-tab @(activeTab == "PersonalInfo" ? "active" : "")">
+        Personal Information
+    </a>
+    <a asp-controller="Profile" asp-action="Security"
+       class="profile-tab @(activeTab is "Security" or "ChangePassword" ? "active" : "")">
+        Security Settings
+    </a>
+    <a asp-controller="Profile" asp-action="Notifications"
+       class="profile-tab @(activeTab == "Notifications" ? "active" : "")">
+        Notification Preferences
+    </a>
+    <a asp-controller="Profile" asp-action="Sessions"
+       class="profile-tab @(activeTab == "Sessions" ? "active" : "")">
+        Active Sessions
+    </a>
+</div>

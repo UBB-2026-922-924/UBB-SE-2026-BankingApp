@@ -1,0 +1,79 @@
+@model BankingApp.Web.Models.Transfers.TransferHistoryModel
+@{
+    ViewData["Title"] = "Transfer History";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title"><i class="bi bi-clock-history me-2 text-primary"></i>Transfer History</h1>
+        <p class="page-subtitle">All money transfers made from your accounts.</p>
+    </div>
+    <a asp-action="New" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle me-1"></i>New Transfer
+    </a>
+</div>
+
+@if (!Model.HasTransfers)
+{
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-send fs-1 text-muted"></i>
+            <h5 class="mt-3 text-muted">No transfers yet</h5>
+            <p class="text-muted mb-4">Your transfer history will appear here once you make a transfer.</p>
+            <a asp-action="New" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>Make a Transfer
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="transferHistoryTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Recipient</th>
+                            <th>Recipient IBAN</th>
+                            <th>Reference</th>
+                            <th class="text-end">Amount</th>
+                            <th>Currency</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.Transfers)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="text-muted-sm">@row.CreatedAt.ToString("dd MMM yyyy, HH:mm")</span>
+                                </td>
+                                <td>
+                                    <span class="fw-600">@row.RecipientName</span>
+                                </td>
+                                <td>
+                                    <span class="font-monospace small">@row.RecipientIban</span>
+                                </td>
+                                <td>
+                                    <span class="text-muted-sm">@row.Reference</span>
+                                </td>
+                                <td class="text-end fw-600 amount-debit">@row.Amount.ToString("N2")</td>
+                                <td>
+                                    <span class="badge bg-light text-dark">@row.Currency</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge @row.StatusBadgeClass">@row.Status</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <span class="text-muted-sm">@Model.Transfers.Count transfer(s)</span>
+        </div>
+    </div>
+}

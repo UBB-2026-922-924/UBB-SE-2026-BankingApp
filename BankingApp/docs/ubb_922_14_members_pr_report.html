@@ -1,0 +1,103 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1.5rem 0;font-family:var(--font-sans)}
+.header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:1.5rem}
+.repo-title{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.repo-sub{font-size:13px;color:var(--color-text-secondary);margin-top:3px}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:5px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:99px;padding:3px 10px;font-size:12px;color:var(--color-text-secondary)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.5rem}
+.sc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.sc-lbl{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px}
+.sc-val{font-size:24px;font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;margin-top:1.5rem}
+.mc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.rank{font-size:12px;font-weight:500;color:var(--color-text-secondary);min-width:18px;text-align:center}
+.av{width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--color-background-info);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--color-text-info);flex-shrink:0}
+.av img{width:100%;height:100%;object-fit:cover}
+.mi{flex:1;min-width:0}
+.mname{font-size:13px;font-weight:500;color:var(--color-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mhandle{font-size:11px;color:var(--color-text-secondary)}
+.bw{height:3px;background:var(--color-background-secondary);border-radius:99px;margin-top:5px}
+.bf{height:100%;border-radius:99px}
+.ms{display:flex;gap:12px;flex-shrink:0}
+.mv{text-align:right}
+.mvv{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.mvl{font-size:10px;color:var(--color-text-secondary)}
+.badge{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:500}
+.badge-gold{background:#FAEEDA;color:#633806}
+.badge-lucas{background:#E1F5EE;color:#085041}
+.date-note{font-size:12px;color:var(--color-text-secondary);margin-top:1.5rem;padding-top:1rem;border-top:0.5px solid var(--color-border-tertiary)}
+</style>
+
+<div class="wrap">
+  <h2 class="sr-only">PR activity report for UBB-SE-2026-922-1</h2>
+  <div class="header">
+    <div>
+      <div class="repo-title">UBB-2026-922 / UBB-SE-2026-922-1</div>
+      <div class="repo-sub">PR-Based Activity report · Last 21 days (Example Instance)</div>
+    </div>
+    <div class="pills">
+      <span class="pill"><i class="ti ti-git-pull-request" aria-hidden="true"></i> 85 PRs Opened</span>
+      <span class="pill"><i class="ti ti-git-merge" aria-hidden="true"></i> 75 PRs Merged</span>
+      <span class="pill"><i class="ti ti-users" aria-hidden="true"></i> 14 contributors</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="sc"><div class="sc-lbl">PRs opened</div><div class="sc-val">85</div></div>
+    <div class="sc"><div class="sc-lbl">PRs merged</div><div class="sc-val">75</div></div>
+    <div class="sc"><div class="sc-lbl">Total PR Actions</div><div class="sc-val">160</div></div>
+    <div class="sc"><div class="sc-lbl">Contributors</div><div class="sc-val">14</div></div>
+  </div>
+
+  <div class="sec">Team breakdown (Ranked by PRs Merged)</div>
+
+  <script>
+  // Members sorted primarily by PRs merged, containing 14 example positions
+  const members = [
+    {rank:1, login:'FilipGeorgeBumbar', name:'Filip George Bumbar', avatar:'https://avatars.githubusercontent.com/u/183483905?v=4', commits:6, prs_opened:12, prs_merged:9, score:9},
+    {rank:2, login:'arbywrk', name:'Bogdan Rareș-Andrei', avatar:'https://avatars.githubusercontent.com/u/100040843?v=4', commits:44, prs_opened:9, prs_merged:9, score:9},
+    {rank:3, login:'DinaBogdan912', name:'DinaBogdan912', avatar:'https://avatars.githubusercontent.com/u/183471536?v=4', commits:9, prs_opened:9, prs_merged:9, score:9},
+    {rank:4, login:'CampeanTudor2006', name:'Campean Tudor', avatar:'', commits:10, prs_opened:8, prs_merged:8, score:8},
+    {rank:5, login:'FilipBogosel', name:'Filip Bogosel', avatar:'https://avatars.githubusercontent.com/u/101122946?v=4', commits:6, prs_opened:7, prs_merged:6, score:6},
+    {rank:6, login:'xze3n', name:'Andrei Borta', avatar:'', commits:0, prs_opened:6, prs_merged:6, score:6},
+    {rank:7, login:'lucasbora', name:'lucasbora', avatar:'', commits:6, prs_opened:5, prs_merged:5, score:5},
+    {rank:8, login:'Alexandra-Maria-Chicus', name:'Alexandra-Maria Chicus', avatar:'https://avatars.githubusercontent.com/u/183484126?v=4', commits:1, prs_opened:5, prs_merged:5, score:5},
+    {rank:9, login:'david-costiug', name:'david-costiug', avatar:'', commits:0, prs_opened:5, prs_merged:5, score:5},
+    {rank:10, login:'StefanaBondoc', name:'Stefana Bondoc', avatar:'', commits:6, prs_opened:4, prs_merged:4, score:4},
+    {rank:11, login:'AndreeaMariaBuruiana', name:'Andreea-Maria Buruiana', avatar:'https://avatars.githubusercontent.com/u/183278716?v=4', commits:2, prs_opened:9, prs_merged:4, score:4},
+    {rank:12, login:'buzincuemanuel', name:'buzincuemanuel', avatar:'https://avatars.githubusercontent.com/u/183484192?v=4', commits:16, prs_opened:3, prs_merged:3, score:3},
+    {rank:13, login:'Temrer', name:'Temrer', avatar:'https://avatars.githubusercontent.com/u/74687348?v=4', commits:6, prs_opened:1, prs_merged:1, score:1},
+    {rank:14, login:'dalalautudor', name:'dalalau tudor', avatar:'', commits:0, prs_opened:1, prs_merged:1, score:1}
+  ];
+  const maxScore = 9; 
+  const colors = ['#185FA5','#0F6E56','#534AB7','#3C3489'];
+  const container = document.currentScript.parentElement;
+  members.forEach(m => {
+    const isLucas = m.login === 'lucasbora';
+    const initials = m.name.split(/[\s-]/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const barColor = isLucas ? '#1D9E75' : colors[(m.rank-1)%colors.length];
+    const barPct = Math.round(m.score/maxScore*100);
+    const card = document.createElement('div');
+    card.className = 'mc';
+    card.innerHTML = `
+      <div class="rank">${m.rank}</div>
+      <div class="av">${m.avatar ? `<img src="${m.avatar}" alt="${m.name}" onerror="this.parentElement.textContent='${initials}'" />` : initials}</div>
+      <div class="mi">
+        <div class="mname">${m.name} ${m.rank<=3?'<span class="badge badge-gold">top puller</span>':''}${isLucas?'<span class="badge badge-lucas">Lucas</span>':''}</div>
+        <div class="mhandle">@${m.login}</div>
+        <div class="bw"><div class="bf" style="width:${barPct}%;background:${barColor}"></div></div>
+      </div>
+      <div class="ms">
+        <div class="mv"><div class="mvv">${m.prs_merged}</div><div class="mvl">merged</div></div>
+        <div class="mv"><div class="mvv">${m.prs_opened}</div><div class="mvl">opened</div></div>
+        <div class="mv"><div class="mvv">${m.commits}</div><div class="mvl">commits</div></div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+  </script>
+
+  <div class="date-note"><i class="ti ti-calendar" aria-hidden="true"></i> Period: May 1 – May 22, 2026 &nbsp;·&nbsp; <i class="ti ti-refresh" aria-hidden="true"></i> Mock data instance generated for reporting validation profiles</div>
+</div>

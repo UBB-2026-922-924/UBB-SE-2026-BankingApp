@@ -1,0 +1,29 @@
+.vs/
+bin/
+obj/
+**/bin/
+**/obj/
+*.user
+*.suo
+.idea/
+.claude/
+.dotnet-cli-*/
+
+# Secrets
+secrets.json
+*.user-secrets.json
+appsettings.Local.json
+.env
+
+# Tests
+TestResults/
+**/TestResults/
+*.trx
+*.coverage
+coverage.cobertura.xml
+
+# Cache
+**/__pycache__/
+
+# .NET CLI home (machine-specific runtime artifacts)
+.dotnet-cli-home/

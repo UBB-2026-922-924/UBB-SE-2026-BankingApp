@@ -1,0 +1,84 @@
+@model BankingApp.Web.ViewModels.Profile.NotificationsViewModel
+@using BankingApp.Web.Helpers
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActiveProfileTab"] = "Notifications";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Profile <span class="page-title-muted">/ Settings</span></h1>
+</div>
+
+<div class="profile-layout">
+
+    <aside class="profile-sidebar">
+        @await Html.PartialAsync("_ProfileSidebar")
+    </aside>
+
+    <section class="profile-main">
+        <div class="card profile-panel">
+            @await Html.PartialAsync("_ProfileTabs")
+
+            <div class="profile-tab-content">
+                <!-- Section header -->
+                <div class="profile-section-header">
+                    <div class="profile-section-icon bg-primary-subtle text-primary">
+                        <i class="bi bi-bell"></i>
+                    </div>
+                    <div>
+                        <h2 class="profile-section-title">Notification Preferences</h2>
+                        <p class="profile-section-subtitle">Choose which alerts you want to receive</p>
+                    </div>
+                </div>
+
+                @if (!Model.Preferences.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-bell-slash fs-1 text-muted d-block mb-2"></i>
+                        <p class="text-muted">No notification categories available.</p>
+                    </div>
+                }
+                else
+                {
+                    <form asp-action="Notifications" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="profile-fields-box p-0">
+                            @for (var i = 0; i < Model.Preferences.Count; i++)
+                            {
+                                <input type="hidden" asp-for="Preferences[i].Category" />
+                                <input type="hidden" asp-for="Preferences[i].CategoryDisplayName" />
+
+                                <div class="profile-notification-row @(i < Model.Preferences.Count - 1 ? "border-bottom" : "")">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="bi @NotificationTypeIconHelper.GetIconClass(Model.Preferences[i].Category) text-primary"></i>
+                                        <span class="fw-semibold">@Model.Preferences[i].CategoryDisplayName</span>
+                                    </div>
+
+                                    <div class="d-flex flex-wrap gap-3 align-items-center">
+                                        <div class="form-check form-switch">
+                                            <input asp-for="Preferences[i].PushEnabled" class="form-check-input" type="checkbox" />
+                                            <label class="form-check-label small text-muted">Push</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input asp-for="Preferences[i].EmailEnabled" class="form-check-input" type="checkbox" />
+                                            <label class="form-check-label small text-muted">Email</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input asp-for="Preferences[i].SmsEnabled" class="form-check-input" type="checkbox" />
+                                            <label class="form-check-label small text-muted">SMS</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-3">
+                            <i class="bi bi-check-lg me-1"></i>Save Preferences
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </section>
+</div>

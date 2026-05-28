@@ -1,0 +1,85 @@
+@model BankingApp.Web.Models.Beneficiaries.BeneficiaryListModel
+@using System.Text.Encodings.Web
+@{
+    ViewData["Title"] = "Beneficiaries";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title">Beneficiaries</h1>
+        <p class="page-subtitle">Saved recipients for faster transfers.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Add beneficiary
+    </a>
+</div>
+
+@if (!Model.HasBeneficiaries)
+{
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-people fs-1 text-muted mb-3 d-block"></i>
+            <p class="text-muted mb-3">You have no saved beneficiaries yet.</p>
+            <a asp-action="Create" class="btn btn-primary">Add your first beneficiary</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>IBAN</th>
+                            <th>Bank</th>
+                            <th class="text-end">Total sent</th>
+                            <th class="text-center">Transfers</th>
+                            <th>Last transfer</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (BankingApp.Web.Models.Beneficiaries.BeneficiaryListItemModel row in Model.Beneficiaries)
+                        {
+                            <tr>
+                                <td class="fw-medium">@row.Name</td>
+                                <td class="font-monospace text-muted-sm">@row.Iban</td>
+                                <td>@(row.BankName ?? "—")</td>
+                                <td class="text-end amount-credit">
+                                    @row.TotalAmountSent.ToString("N2")
+                                </td>
+                                <td class="text-center">@row.TransferCount</td>
+                                <td class="text-muted-sm">
+                                    @(row.LastTransferDate.HasValue
+                                        ? row.LastTransferDate.Value.ToString("dd MMM yyyy")
+                                        : "—")
+                                </td>
+                                <td class="text-end" style="white-space:nowrap">
+                                    <a asp-controller="Transfers" asp-action="New" asp-route-beneficiaryId="@row.Id"
+                                       class="btn btn-sm btn-primary me-1">
+                                        <i class="bi bi-send"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@row.Id"
+                                       class="btn btn-sm btn-outline-secondary me-1">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@row.Id"
+                                          method="post" class="d-inline"
+                                          onsubmit="return confirm('Remove @JavaScriptEncoder.Default.Encode(row.Name) from your beneficiaries?')">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

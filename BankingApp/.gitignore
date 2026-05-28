@@ -1,0 +1,33 @@
+﻿# Build outputs
+bin/
+obj/
+TestResults/
+
+# Logs
+*.log
+logs/
+Logs/
+
+# User-specific files
+*.user
+*.suo
+.vs/
+.idea/
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+packages/
+
+# Environment secrets
+.env
+**/.env
+*.env.local
+.env.production
+**/.env.production
+prod.env.generated
+**/.env.production.generated
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="BankingApp.Desktop.Views.CardsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:BankingApp.Contracts.Features.Cards.Dtos"
+    Background="#F4F6FA">
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Padding="36,32" Spacing="28">
+
+                <InfoBar x:Name="ErrorInfoBar"
+                         IsOpen="False"
+                         IsClosable="True"
+                         Severity="Error"
+                         Title="Cards unavailable"
+                         Message="We couldn't load your cards right now." />
+
+                <!-- Page Title -->
+                <Grid>
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="My Cards" FontSize="28" FontWeight="Bold" Foreground="#1A1A2E" />
+                        <TextBlock Text="Manage your payment cards" FontSize="14" Foreground="#667085" />
+                    </StackPanel>
+                    <Button Content="+ Issue Card"
+                            Click="ShowIssueForm_Click"
+                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Background="#4ECDC4" Foreground="White"
+                            BorderThickness="0" CornerRadius="10"
+                            Padding="18,10" FontSize="14" FontWeight="SemiBold" />
+                </Grid>
+
+                <!-- Issue Card Form -->
+                <Border x:Name="IssueFormPanel"
+                        Visibility="Collapsed"
+                        Background="#1A1A2E"
+                        CornerRadius="16"
+                        Padding="28,24"
+                        BorderThickness="0">
+                    <Border.Shadow>
+                        <ThemeShadow />
+                    </Border.Shadow>
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Issue New Card"
+                                   FontSize="18" FontWeight="SemiBold"
+                                   Foreground="White" />
+                        <TextBlock Text="The bank generates your card number, CVV, expiry date, and account. Choose your carrier and card type below."
+                                   FontSize="13" Foreground="#A0AEC0" TextWrapping="Wrap" />
+
+                        <!-- Carrier + Card Type -->
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="Carrier" FontSize="12" FontWeight="SemiBold"
+                                           Foreground="#A0AEC0" />
+                                <ComboBox x:Name="CardBrandCombo"
+                                          SelectedIndex="0"
+                                          HorizontalAlignment="Stretch"
+                                          Background="#2D2D44"
+                                          Foreground="White"
+                                          BorderBrush="#3D3D5C"
+                                          BorderThickness="1"
+                                          CornerRadius="8"
+                                          Padding="12,10">
+                                    <ComboBoxItem Content="Visa" />
+                                    <ComboBoxItem Content="Mastercard" />
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="4">
+                                <TextBlock Text="Card Type" FontSize="12" FontWeight="SemiBold"
+                                           Foreground="#A0AEC0" />
+                                <ComboBox x:Name="CardTypeCombo"
+                                          SelectedIndex="0"
+                                          HorizontalAlignment="Stretch"
+                                          Background="#2D2D44"
+                                          Foreground="White"
+                                          BorderBrush="#3D3D5C"
+                                          BorderThickness="1"
+                                          CornerRadius="8"
+                                          Padding="12,10">
+                                    <ComboBoxItem Content="Debit" />
+                                    <ComboBoxItem Content="Credit" />
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Actions -->
+                        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,6,0,0">
+                            <Button Content="Issue Card"
+                                    Click="SubmitIssueCard_Click"
+                                    Background="#4ECDC4" Foreground="White"
+                                    BorderThickness="0" CornerRadius="8"
+                                    Padding="18,10" FontSize="14" FontWeight="SemiBold" />
+                            <Button Content="Cancel"
+                                    Click="HideIssueForm_Click"
+                                    Background="#2D2D44" Foreground="#A0AEC0"
+                                    BorderBrush="#3D3D5C" BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="18,10" FontSize="14" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Cards List -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="All Cards" FontSize="16" FontWeight="SemiBold" Foreground="#555" />
+
+                    <!-- Empty state -->
+                    <Border x:Name="EmptyState"
+                            Visibility="Collapsed"
+                            Background="White"
+                            CornerRadius="16"
+                            Padding="40,48"
+                            BorderThickness="0">
+                        <Border.Shadow>
+                            <ThemeShadow />
+                        </Border.Shadow>
+                        <StackPanel HorizontalAlignment="Center" Spacing="10">
+                            <FontIcon Glyph="&#xE8D7;" FontFamily="Segoe MDL2 Assets"
+                                      FontSize="40" Foreground="#CBD5E1"
+                                      HorizontalAlignment="Center" />
+                            <TextBlock Text="No cards found"
+                                       FontSize="16" FontWeight="SemiBold"
+                                       Foreground="#1A1A2E"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Your payment cards will appear here once they are issued."
+                                       FontSize="13" Foreground="#667085"
+                                       TextAlignment="Center" TextWrapping="Wrap"
+                                       MaxWidth="280" />
+                        </StackPanel>
+                    </Border>
+
+                    <ItemsControl x:Name="CardsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:CardDetailsDto">
+                                <Border Margin="0,0,0,16"
+                                        CornerRadius="16"
+                                        Background="White"
+                                        BorderThickness="0"
+                                        Opacity="{x:Bind DisplayOpacity}">
+                                    <Border.Shadow>
+                                        <ThemeShadow />
+                                    </Border.Shadow>
+                                    <StackPanel>
+
+                                        <!-- Card visual strip -->
+                                        <Border CornerRadius="16,16,0,0" Height="130" Padding="24,20">
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="#FF6B35" Offset="0" />
+                                                    <GradientStop Color="#F7931E" Offset="1" />
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="*" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+
+                                                <!-- Brand row -->
+                                                <Grid Grid.Row="0">
+                                                    <TextBlock Text="BankingApp"
+                                                               FontSize="16" FontWeight="Bold"
+                                                               Foreground="White" />
+                                                    <TextBlock Text="{x:Bind BrandDisplay}"
+                                                               FontSize="13" FontWeight="SemiBold"
+                                                               Foreground="White" Opacity="0.9"
+                                                               HorizontalAlignment="Right"
+                                                               VerticalAlignment="Center" />
+                                                </Grid>
+
+                                                <!-- Card number row with reveal toggle -->
+                                                <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="4">
+                                                    <TextBlock x:Name="CardNumberDisplay"
+                                                               Text="{x:Bind CardNumber}"
+                                                               FontSize="18" FontWeight="SemiBold"
+                                                               Foreground="White"
+                                                               FontFamily="Consolas"
+                                                               CharacterSpacing="200" />
+                                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                                        <Button x:Name="ToggleCardNumberBtn"
+                                                                Content="Show card number"
+                                                                Tag="{x:Bind}"
+                                                                Click="ToggleCardNumber_Click"
+                                                                Background="Transparent"
+                                                                Foreground="White" Opacity="0.75"
+                                                                BorderThickness="0"
+                                                                Padding="0" FontSize="11" />
+                                                        <Button x:Name="ToggleCvvBtn"
+                                                                Content="Show security code"
+                                                                Tag="{x:Bind}"
+                                                                Click="ToggleCvv_Click"
+                                                                Background="Transparent"
+                                                                Foreground="White" Opacity="0.75"
+                                                                BorderThickness="0"
+                                                                Padding="0" FontSize="11" />
+                                                        <TextBlock x:Name="CvvDisplay"
+                                                                   Text=""
+                                                                   FontSize="11" Foreground="White"
+                                                                   Opacity="0.9"
+                                                                   FontFamily="Consolas"
+                                                                   VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                <!-- Cardholder + expiry -->
+                                                <Grid Grid.Row="2">
+                                                    <TextBlock Text="{x:Bind CardholderName}"
+                                                               FontSize="13" Foreground="White"
+                                                               Opacity="0.9" />
+                                                    <StackPanel HorizontalAlignment="Right"
+                                                                VerticalAlignment="Center">
+                                                        <TextBlock Text="EXPIRES"
+                                                                   FontSize="9" Foreground="White"
+                                                                   Opacity="0.7" />
+                                                        <TextBlock Text="{x:Bind ExpiryDisplay}"
+                                                                   FontSize="13" FontWeight="SemiBold"
+                                                                   Foreground="White" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Card info + actions -->
+                                        <StackPanel Padding="24,18,24,20" Spacing="14">
+
+                                            <!-- Status + type row -->
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" Spacing="2">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                                        <TextBlock Text="{x:Bind AccountIban}"
+                                                                   FontSize="13" Foreground="#667085"
+                                                                   VerticalAlignment="Center" />
+                                                        <Button Tag="{x:Bind AccountIban}"
+                                                                Click="CopyIban_Click"
+                                                                Background="Transparent"
+                                                                BorderThickness="0"
+                                                                Padding="4"
+                                                                VerticalAlignment="Center"
+                                                                ToolTipService.ToolTip="Copy IBAN">
+                                                            <FontIcon Glyph="&#xE8C8;" FontFamily="Segoe MDL2 Assets"
+                                                                      FontSize="12" Foreground="#94A3B8" />
+                                                        </Button>
+                                                    </StackPanel>
+                                                    <TextBlock Text="{x:Bind CardType}"
+                                                               FontSize="12" Foreground="#94A3B8" />
+                                                </StackPanel>
+                                                <Border Grid.Column="1"
+                                                        CornerRadius="20"
+                                                        Padding="12,5"
+                                                        Background="#EFF4FF">
+                                                    <TextBlock Text="{x:Bind Status}"
+                                                               FontSize="12" FontWeight="SemiBold"
+                                                               Foreground="#2563EB" />
+                                                </Border>
+                                            </Grid>
+
+                                            <!-- Account balance -->
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <TextBlock Text="{x:Bind BalanceDisplay}"
+                                                           FontSize="15" FontWeight="SemiBold"
+                                                           Foreground="#1A1A2E" />
+                                                <TextBlock Text="account balance"
+                                                           FontSize="12" Foreground="#94A3B8"
+                                                           VerticalAlignment="Bottom" />
+                                            </StackPanel>
+
+                                            <!-- Feature badges -->
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Border CornerRadius="6" Padding="10,4"
+                                                        Background="#F1F5F9">
+                                                    <StackPanel Orientation="Horizontal" Spacing="5">
+                                                        <FontIcon Glyph="&#xEC05;" FontFamily="Segoe MDL2 Assets"
+                                                                  FontSize="11" Foreground="#64748B" />
+                                                        <TextBlock Text="Contactless" FontSize="11" Foreground="#64748B" />
+                                                    </StackPanel>
+                                                </Border>
+                                                <Border CornerRadius="6" Padding="10,4"
+                                                        Background="#F1F5F9">
+                                                    <StackPanel Orientation="Horizontal" Spacing="5">
+                                                        <FontIcon Glyph="&#xE774;" FontFamily="Segoe MDL2 Assets"
+                                                                  FontSize="11" Foreground="#64748B" />
+                                                        <TextBlock Text="Online" FontSize="11" Foreground="#64748B" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </StackPanel>
+
+                                            <!-- Separator -->
+                                            <Border Height="1" Background="#F1F5F9" />
+
+                                            <!-- Action buttons -->
+                                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                                <Button Content="Freeze"
+                                                        Click="FreezeButton_Click"
+                                                        Tag="{x:Bind}"
+                                                        IsEnabled="{x:Bind CanFreeze}"
+                                                        Background="#EFF4FF"
+                                                        Foreground="#2563EB"
+                                                        BorderThickness="0"
+                                                        CornerRadius="8"
+                                                        Padding="14,8"
+                                                        FontSize="13" />
+                                                <Button Content="Unfreeze"
+                                                        Click="UnfreezeButton_Click"
+                                                        Tag="{x:Bind}"
+                                                        IsEnabled="{x:Bind CanUnfreeze}"
+                                                        Background="#ECFDF5"
+                                                        Foreground="#059669"
+                                                        BorderThickness="0"
+                                                        CornerRadius="8"
+                                                        Padding="14,8"
+                                                        FontSize="13" />
+                                                <Button Content="Cancel Card"
+                                                        Click="CancelButton_Click"
+                                                        Tag="{x:Bind}"
+                                                        IsEnabled="{x:Bind CanCancel}"
+                                                        Background="#FEF2F2"
+                                                        Foreground="#DC2626"
+                                                        BorderThickness="0"
+                                                        CornerRadius="8"
+                                                        Padding="14,8"
+                                                        FontSize="13" />
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Grid x:Name="LoadingOverlay"
+              Background="#80F4F6FA"
+              Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+                <ProgressRing IsActive="True" Width="48" Height="48" Foreground="#4ECDC4" />
+                <TextBlock Text="Loading cards..." FontSize="14" Foreground="#555"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+
+</Page>

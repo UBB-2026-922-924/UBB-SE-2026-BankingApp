@@ -1,0 +1,16 @@
+global using FluentAssertions;
+global using Moq;
+global using BankingApp.Domain.Repositories;
+global using BankingApp.Domain.Aggregates.UserAggregate;
+global using BankingApp.Domain.Aggregates.IdentityAggregate;
+global using BankingApp.Domain.Aggregates.AccountAggregate;
+global using BankingApp.Domain.Aggregates.AccountAggregate.Entities;
+global using BankingApp.Domain.Aggregates.BeneficiaryAggregate;
+global using BankingApp.Domain.Aggregates.TransferAggregate;
+global using BankingApp.Domain.Aggregates.ForexAggregate;
+global using BankingApp.Domain.Aggregates.SavedBillerAggregate;
+global using BankingApp.Domain.Aggregates.BillPaymentAggregate;
+global using BankingApp.Domain.ReferenceData.Billers;
+global using BankingApp.Domain.Enums;
+global using BankingApp.Domain.ValueObjects;
+global using Xunit;

@@ -1,0 +1,101 @@
+@model BankingApp.Web.Models.Forex.ForexPreviewModel
+@{
+    ViewData["Title"] = "Confirm Exchange";
+}
+
+<div class="page-header">
+    <h1 class="page-title"><i class="bi bi-shield-check me-2 text-primary"></i>Confirm Exchange</h1>
+    <p class="page-subtitle">Review the exchange details below before confirming.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show flash-message" role="alert">
+                <span class="me-2">✕</span>@Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Summary card -->
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-currency-exchange text-primary"></i>
+                <span>Exchange Summary</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table mb-0">
+                    <tbody>
+                        <tr>
+                            <th class="ps-3 py-3 text-muted-sm fw-600" style="width:45%">From Account</th>
+                            <td class="py-3 font-monospace small">@Model.SourceAccountIban</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3 py-3 text-muted-sm fw-600">To Account</th>
+                            <td class="py-3 font-monospace small">@Model.TargetAccountIban</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3 py-3 text-muted-sm fw-600">Source Amount</th>
+                            <td class="py-3 fw-600">@Model.FromCurrency @Model.Amount.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3 py-3 text-muted-sm fw-600">Exchange Rate</th>
+                            <td class="py-3">
+                                1 @Model.FromCurrency = @Model.ExchangeRate.ToString("N6") @Model.ToCurrency
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3 py-3 text-muted-sm fw-600">Commission</th>
+                            <td class="py-3 text-warning">@Model.FromCurrency @Model.Commission.ToString("N2")</td>
+                        </tr>
+                        <tr class="table-light">
+                            <th class="ps-3 py-3 fw-700">You Receive</th>
+                            <td class="py-3 fw-700 amount-credit fs-5">@Model.ToCurrency @Model.ConvertedAmount.ToString("N2")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Confirm form -->
+        <form asp-action="Execute" method="post">
+            @Html.AntiForgeryToken()
+
+            <!-- Hidden echo fields -->
+            <input type="hidden" asp-for="SourceAccountId" />
+            <input type="hidden" asp-for="TargetAccountId" />
+            <input type="hidden" asp-for="FromCurrency" />
+            <input type="hidden" asp-for="ToCurrency" />
+            <input type="hidden" asp-for="Amount" />
+            <input type="hidden" asp-for="ExchangeRate" />
+            <input type="hidden" asp-for="ConvertedAmount" />
+            <input type="hidden" asp-for="Commission" />
+            <input type="hidden" asp-for="SourceAccountIban" />
+            <input type="hidden" asp-for="TargetAccountIban" />
+
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+                <button type="submit" class="btn btn-primary px-4" id="confirmBtn">
+                    <i class="bi bi-check-circle me-2"></i>Confirm Exchange
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Prevent double-submit
+        document.getElementById('confirmBtn')?.addEventListener('click', function () {
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Processing…';
+            this.closest('form').submit();
+        });
+    </script>
+}

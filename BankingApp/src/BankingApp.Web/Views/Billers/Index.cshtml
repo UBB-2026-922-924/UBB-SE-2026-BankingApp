@@ -1,0 +1,65 @@
+@model BankingApp.Web.ViewModels.BillerListViewModel
+@{
+    ViewData["Title"] = "Billers";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Billers</h2>
+    <a asp-action="Saved" class="btn btn-outline-primary">My Saved Billers</a>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success">@success</div>
+}
+
+@if (!Model.Billers.Any())
+{
+    <p class="text-muted">No billers available.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var biller in Model.Billers)
+                {
+                    <tr>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(biller.LogoUrl))
+                            {
+                                <img src="@biller.LogoUrl" alt="@biller.Name" height="24" class="me-2" />
+                            }
+                            @biller.Name
+                        </td>
+                        <td>@biller.Category</td>
+                        <td class="text-end">
+                            @if (biller.IsSaved)
+                            {
+                                <span class="badge bg-success">Saved</span>
+                            }
+                            else
+                            {
+                                <form asp-action="Save" asp-route-billerId="@biller.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

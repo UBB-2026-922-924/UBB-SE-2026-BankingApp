@@ -1,0 +1,34 @@
+<Solution>
+    <Configurations>
+        <Platform Name="Any CPU" />
+        <Platform Name="x64" />
+        <Platform Name="x86" />
+    </Configurations>
+    <Folder Name="/src/">
+        <Project Path="src/BankingApp.Contracts/BankingApp.Contracts.csproj" />
+        <Project Path="src/BankingApp.Desktop/BankingApp.Desktop.csproj">
+            <Platform Solution="*|Any CPU" Project="x64" />
+            <Platform Solution="*|x64" Project="x64" />
+            <Platform Solution="*|x86" Project="x86" />
+            <Deploy Solution="Debug|Any CPU" />
+            <Deploy Solution="Debug|x64" />
+        </Project>
+        <Project Path="src/BankingApp.Api/BankingApp.Api.csproj" />
+        <Project Path="src/BankingApp.Application/BankingApp.Application.csproj" />
+        <Project Path="src/BankingApp.Domain/BankingApp.Domain.csproj" />
+        <Project Path="src/BankingApp.Infrastructure.Core/BankingApp.Infrastructure.Core.csproj" />
+        <Project Path="src/BankingApp.Infrastructure.Http/BankingApp.Infrastructure.Http.csproj" />
+        <Project Path="src/BankingApp.Infrastructure.Persistence/BankingApp.Infrastructure.Persistence.csproj" />
+        <Project Path="src/BankingApp.Web/BankingApp.Web.csproj" />
+    </Folder>
+    <Folder Name="/tests/">
+        <Project Path="tests/BankingApp.Application.Tests/BankingApp.Application.Tests.csproj" />
+        <Project Path="tests/BankingApp.Web.Tests/BankingApp.Web.Tests.csproj" />
+        <Project Path="tests/BankingApp.Desktop.Tests/BankingApp.Desktop.Tests.csproj" />
+        <Project Path="tests/BankingApp.Domain.Tests/BankingApp.Domain.Tests.csproj" />
+        <Project Path="tests/BankingApp.Infrastructure.Core.Tests/BankingApp.Infrastructure.Core.Tests.csproj" />
+        <Project Path="tests/BankingApp.Infrastructure.Http.Tests/BankingApp.Infrastructure.Http.Tests.csproj" />
+        <Project Path="tests/BankingApp.Infrastructure.Persistence.Tests.Integration/BankingApp.Infrastructure.Persistence.Tests.Integration.csproj" />
+        <Project Path="tests/BankingApp.Infrastructure.Persistence.Tests/BankingApp.Infrastructure.Persistence.Tests.csproj" />
+    </Folder>
+</Solution>

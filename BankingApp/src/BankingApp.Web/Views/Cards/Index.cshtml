@@ -1,0 +1,321 @@
+@model BankingApp.Web.Models.Cards.CardListModel
+@using BankingApp.Domain.Enums
+@using BankingApp.Contracts.Features.Cards.Dtos
+@{
+    ViewData["Title"] = "My Cards";
+}
+
+@functions {
+    private static string GetStatusBadgeClass(CardStatus status) => status switch
+    {
+        CardStatus.Active    => "bg-success",
+        CardStatus.Frozen    => "bg-warning text-dark",
+        CardStatus.Expired   => "bg-danger",
+        CardStatus.Cancelled => "bg-secondary",
+        _                    => "bg-secondary"
+    };
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title"><i class="bi bi-credit-card me-2 text-primary"></i>Cards</h1>
+        <p class="page-subtitle">Manage your debit and credit cards.</p>
+    </div>
+    <button type="button" id="toggle-issue-form-btn" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle me-1"></i>Issue New Card
+    </button>
+</div>
+
+<!-- Issue Card inline form panel (mirrors Desktop inline issue form) -->
+<div id="issue-form-panel"
+     class="card mb-4 border-0 shadow-sm cards-issue-panel @(Model.ShowIssueForm ? string.Empty : "d-none")">
+    <div class="card-header cards-issue-panel-header d-flex align-items-center gap-2">
+        <i class="bi bi-plus-circle"></i>
+        <span class="fw-semibold">Issue New Card</span>
+    </div>
+    <div class="card-body">
+        <p class="text-muted small mb-3">
+            The bank generates your card number, CVV, expiry date, and account.
+            Choose your carrier and card type below.
+        </p>
+
+        <form asp-action="Issue" method="post" novalidate>
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <label asp-for="IssueForm.CardBrand" class="form-label fw-medium">
+                        <i class="bi bi-credit-card me-1"></i>Carrier
+                    </label>
+                    <select asp-for="IssueForm.CardBrand" class="form-select">
+                        <option value="">— Select carrier —</option>
+                        @foreach (string brand in IssueCardRequest.SupportedBrands)
+                        {
+                            <option value="@brand">@brand</option>
+                        }
+                    </select>
+                    <span asp-validation-for="IssueForm.CardBrand" class="invalid-feedback d-block"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="IssueForm.CardType" class="form-label fw-medium">
+                        <i class="bi bi-wallet2 me-1"></i>Card Type
+                    </label>
+                    <select asp-for="IssueForm.CardType" class="form-select">
+                        <option value="">— Select type —</option>
+                        <option value="Debit">Debit</option>
+                        <option value="Credit">Credit</option>
+                    </select>
+                    <span asp-validation-for="IssueForm.CardType" class="invalid-feedback d-block"></span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>Issue Card
+                </button>
+                <button type="button" id="hide-issue-form-btn" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-lg me-1"></i>Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!Model.HasCards)
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-credit-card fs-1 text-muted"></i>
+            <h5 class="mt-3 text-muted">No cards yet</h5>
+            <p class="text-muted mb-4">Issue your first card to start making payments.</p>
+            <button type="button" id="toggle-issue-form-empty-btn" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>Issue New Card
+            </button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="mb-2">
+        <span class="text-muted small">@Model.Cards.Count card(s)</span>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        @foreach (var card in Model.Cards)
+        {
+            <div class="col">
+                <div class="card border-0 shadow-sm h-100 cards-card @(card.Status == CardStatus.Cancelled ? "cards-card--cancelled" : string.Empty)">
+
+                    <!-- Visual gradient strip (mirrors Desktop card header) -->
+                    <div class="cards-strip p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="fw-bold text-white fs-6">BankingApp</span>
+                            <span class="text-white small fw-semibold">@card.BrandDisplay</span>
+                        </div>
+
+                        <!-- Masked card number with reveal toggle -->
+                        <div class="mb-2">
+                            <span id="card-number-@card.Id"
+                                  class="font-monospace fw-semibold text-white fs-5 letter-spacing-wide"
+                                  data-masked="@card.CardNumber"
+                                  data-full="@card.FullCardNumber">@card.CardNumber</span>
+                        </div>
+
+                        <!-- Reveal control row -->
+                        <div class="d-flex flex-wrap gap-3 mb-3">
+                            <button type="button"
+                                    class="btn btn-link p-0 card-reveal-btn text-white small"
+                                    data-span-id="card-number-@card.Id"
+                                    data-reveal-label="Hide card number"
+                                    data-hide-label="Show card number"
+                                    aria-label="Toggle card number visibility">
+                                <i class="bi bi-eye me-1"></i>Show card number
+                            </button>
+                            <button type="button"
+                                    class="btn btn-link p-0 card-reveal-btn text-white small"
+                                    data-span-id="card-cvv-@card.Id"
+                                    data-reveal-label="Hide security code"
+                                    data-hide-label="Show security code"
+                                    aria-label="Toggle security code visibility">
+                                <i class="bi bi-eye me-1"></i>Show security code
+                            </button>
+                            <span id="card-cvv-@card.Id"
+                                  class="font-monospace text-white small align-self-center"
+                                  data-masked=""
+                                  data-full="@card.SecurityCode"></span>
+                        </div>
+
+                        <!-- Cardholder + expiry row -->
+                        <div class="d-flex justify-content-between align-items-end">
+                            <span class="text-white small">@card.CardholderName</span>
+                            <div class="text-end">
+                                <div class="text-white small cards-expiry-label">EXPIRES</div>
+                                <div class="text-white fw-semibold small">@card.ExpiryDisplay</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card details and actions -->
+                    <div class="card-body">
+
+                        <!-- Account IBAN + status row -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="small text-muted">@(string.IsNullOrEmpty(card.AccountIban) ? "—" : card.AccountIban)</span>
+                                    @if (!string.IsNullOrEmpty(card.AccountIban))
+                                    {
+                                        <button type="button"
+                                                class="btn btn-link p-0 copy-iban-btn text-muted"
+                                                data-iban="@card.AccountIban"
+                                                title="Copy IBAN"
+                                                aria-label="Copy IBAN to clipboard">
+                                            <i class="bi bi-clipboard" style="font-size: 0.75rem;"></i>
+                                        </button>
+                                    }
+                                </div>
+                                <div class="small text-muted">@card.CardType</div>
+                            </div>
+                            <span class="badge @GetStatusBadgeClass(card.Status)">@card.Status</span>
+                        </div>
+
+                        <!-- Account balance -->
+                        <div class="d-flex align-items-baseline gap-1 mb-3">
+                            <span class="fw-semibold fs-6">@card.BalanceDisplay</span>
+                            <span class="small text-muted">account balance</span>
+                        </div>
+
+                        <!-- Feature badges -->
+                        <div class="d-flex gap-2 mb-3">
+                            <span class="badge rounded-pill bg-light text-secondary border fw-normal">
+                                @if (card.IsContactlessEnabled)
+                                {
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-x-circle text-muted me-1"></i>
+                                }
+                                Contactless
+                            </span>
+                            <span class="badge rounded-pill bg-light text-secondary border fw-normal">
+                                @if (card.IsOnlineEnabled)
+                                {
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-x-circle text-muted me-1"></i>
+                                }
+                                Online
+                            </span>
+                        </div>
+
+                        <hr class="my-2" />
+
+                        <!-- Action buttons -->
+                        <div class="d-flex flex-wrap gap-2">
+                            @if (card.CanFreeze)
+                            {
+                                <form asp-action="Freeze" asp-route-id="@card.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-primary"
+                                            onclick="return confirm('Freeze this card?');">
+                                        <i class="bi bi-snow me-1"></i>Freeze
+                                    </button>
+                                </form>
+                            }
+
+                            @if (card.CanUnfreeze)
+                            {
+                                <form asp-action="Unfreeze" asp-route-id="@card.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-success"
+                                            onclick="return confirm('Unfreeze this card?');">
+                                        <i class="bi bi-sun me-1"></i>Unfreeze
+                                    </button>
+                                </form>
+                            }
+
+                            @if (card.CanCancel)
+                            {
+                                <form asp-action="Cancel" asp-route-id="@card.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Permanently cancel this card? This action cannot be undone.');">
+                                        <i class="bi bi-x-octagon me-1"></i>Cancel Card
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        (function () {
+            var issuePanel = document.getElementById('issue-form-panel');
+            var toggleHeaderBtn = document.getElementById('toggle-issue-form-btn');
+            var hideBtn = document.getElementById('hide-issue-form-btn');
+            var toggleEmptyBtn = document.getElementById('toggle-issue-form-empty-btn');
+
+            function showIssueForm() {
+                issuePanel.classList.remove('d-none');
+                issuePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            function hideIssueForm() {
+                issuePanel.classList.add('d-none');
+            }
+
+            if (toggleHeaderBtn) { toggleHeaderBtn.addEventListener('click', showIssueForm); }
+            if (hideBtn) { hideBtn.addEventListener('click', hideIssueForm); }
+            if (toggleEmptyBtn) { toggleEmptyBtn.addEventListener('click', showIssueForm); }
+
+            // Copy IBAN buttons
+            document.querySelectorAll('.copy-iban-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var iban = btn.getAttribute('data-iban');
+                    navigator.clipboard.writeText(iban).then(function () {
+                        var icon = btn.querySelector('i');
+                        icon.className = 'bi bi-clipboard-check';
+                        setTimeout(function () { icon.className = 'bi bi-clipboard'; }, 2000);
+                    });
+                });
+            });
+
+            // Sensitive data reveal toggles
+            document.querySelectorAll('.card-reveal-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var spanId = btn.getAttribute('data-span-id');
+                    var span = document.getElementById(spanId);
+                    var icon = btn.querySelector('i');
+                    var isRevealed = span.getAttribute('data-revealed') === 'true';
+
+                    if (isRevealed) {
+                        span.textContent = span.getAttribute('data-masked');
+                        span.setAttribute('data-revealed', 'false');
+                        icon.className = 'bi bi-eye me-1';
+                        btn.lastChild.textContent = btn.getAttribute('data-hide-label');
+                    } else {
+                        span.textContent = span.getAttribute('data-full');
+                        span.setAttribute('data-revealed', 'true');
+                        icon.className = 'bi bi-eye-slash me-1';
+                        btn.lastChild.textContent = btn.getAttribute('data-reveal-label');
+                    }
+                });
+            });
+        })();
+    </script>
+}
+

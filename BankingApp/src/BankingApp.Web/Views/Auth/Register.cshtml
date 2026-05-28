@@ -1,0 +1,80 @@
+@model BankingApp.Web.Models.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="row justify-content-center">
+    <div class="col-sm-8 col-md-6 col-lg-5 col-xl-4">
+        <div class="page-header text-center">
+            <h1 class="page-title">Create account</h1>
+            <p class="page-subtitle">Your finances, simplified.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Register" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="form-group">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName"
+                               class="form-control"
+                               type="text"
+                               placeholder="John Doe"
+                               autocomplete="name" />
+                        <span asp-validation-for="FullName" class="invalid-feedback d-block"></span>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email"
+                               class="form-control"
+                               type="email"
+                               placeholder="you@example.com"
+                               autocomplete="email" />
+                        <span asp-validation-for="Email" class="invalid-feedback d-block"></span>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password"
+                               class="form-control"
+                               type="password"
+                               placeholder="••••••"
+                               autocomplete="new-password" />
+                        <span asp-validation-for="Password" class="invalid-feedback d-block"></span>
+                    </div>
+
+                    <div class="form-group mt-3 mb-4">
+                        <label asp-for="PasswordConfirmation" class="form-label"></label>
+                        <input asp-for="PasswordConfirmation"
+                               class="form-control"
+                               type="password"
+                               placeholder="••••••"
+                               autocomplete="new-password" />
+                        <span asp-validation-for="PasswordConfirmation" class="invalid-feedback d-block"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            CREATE ACCOUNT
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <span class="text-muted small">Already have an account?</span>
+            <a asp-controller="Auth" asp-action="Login" class="text-decoration-none small">
+                Sign in
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

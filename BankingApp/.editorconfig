@@ -1,0 +1,132 @@
+root = true
+
+[*.cs]
+# Silence all style/naming categories; opt in below via dotnet_diagnostic
+dotnet_analyzer_diagnostic.category-Style.severity = none
+dotnet_analyzer_diagnostic.category-Naming.severity = none
+
+# Naming rules — more specific first so const fields match private_constants before private_fields
+dotnet_naming_rule.interfaces_i_prefix.severity = error
+dotnet_naming_rule.interfaces_i_prefix.symbols = interfaces
+dotnet_naming_rule.interfaces_i_prefix.style = interface_style
+
+dotnet_naming_rule.private_constants_pascal.severity = error
+dotnet_naming_rule.private_constants_pascal.symbols = private_constants
+dotnet_naming_rule.private_constants_pascal.style = pascal_case
+
+dotnet_naming_rule.public_types_pascal.severity = error
+dotnet_naming_rule.public_types_pascal.symbols = public_types
+dotnet_naming_rule.public_types_pascal.style = pascal_case
+
+dotnet_naming_rule.public_members_pascal.severity = error
+dotnet_naming_rule.public_members_pascal.symbols = public_members
+dotnet_naming_rule.public_members_pascal.style = pascal_case
+
+dotnet_naming_rule.public_fields_pascal.severity = error
+dotnet_naming_rule.public_fields_pascal.symbols = public_fields
+dotnet_naming_rule.public_fields_pascal.style = pascal_case
+
+dotnet_naming_rule.private_fields_underscore.severity = error
+dotnet_naming_rule.private_fields_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_underscore.style = underscore_camel
+
+dotnet_naming_rule.enum_members_pascal.severity = error
+dotnet_naming_rule.enum_members_pascal.symbols = enum_members
+dotnet_naming_rule.enum_members_pascal.style = pascal_case
+
+dotnet_naming_rule.locals_camel.severity = error
+dotnet_naming_rule.locals_camel.symbols = locals
+dotnet_naming_rule.locals_camel.style = camel_case
+
+dotnet_naming_rule.parameters_camel.severity = error
+dotnet_naming_rule.parameters_camel.symbols = parameters
+dotnet_naming_rule.parameters_camel.style = camel_case
+
+# Naming symbols
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+
+dotnet_naming_symbols.private_constants.applicable_kinds = field
+dotnet_naming_symbols.private_constants.applicable_accessibilities = private
+dotnet_naming_symbols.private_constants.required_modifiers = const
+
+dotnet_naming_symbols.public_types.applicable_kinds = class,struct,interface,enum,delegate
+dotnet_naming_symbols.public_types.applicable_accessibilities = public
+
+dotnet_naming_symbols.public_members.applicable_kinds = method,property,event
+dotnet_naming_symbols.public_members.applicable_accessibilities = public
+
+dotnet_naming_symbols.public_fields.applicable_kinds = field
+dotnet_naming_symbols.public_fields.applicable_accessibilities = public
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_symbols.enum_members.applicable_kinds = enum_member
+
+dotnet_naming_symbols.locals.applicable_kinds = local
+
+dotnet_naming_symbols.parameters.applicable_kinds = parameter
+
+# Naming styles
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+dotnet_naming_style.camel_case.capitalization = camel_case
+
+dotnet_naming_style.underscore_camel.required_prefix = _
+dotnet_naming_style.underscore_camel.capitalization = camel_case
+
+dotnet_naming_style.interface_style.required_prefix = I
+dotnet_naming_style.interface_style.capitalization = pascal_case
+
+# Style preferences
+csharp_using_directive_placement = inside_namespace:error
+csharp_style_namespace_declarations = file_scoped:error
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+csharp_style_var_for_built_in_types = false:error
+csharp_style_var_when_type_is_apparent = true:error
+csharp_style_var_elsewhere = false:error
+dotnet_style_require_accessibility_modifiers = always:error
+dotnet_style_readonly_field = true:error
+csharp_prefer_braces = true:error
+dotnet_style_coalesce_expression = true:error
+dotnet_style_prefer_conditional_expression_over_assignment = false:none
+dotnet_style_prefer_conditional_expression_over_return = false:none
+csharp_style_prefer_range_operator = false:suggestion
+
+# Re-enabled diagnostics
+dotnet_diagnostic.IDE1006.severity = error  # naming violations
+dotnet_diagnostic.IDE0007.severity = error  # use var (when apparent)
+dotnet_diagnostic.IDE0008.severity = error  # use explicit type
+dotnet_diagnostic.IDE0011.severity = error  # add braces
+dotnet_diagnostic.IDE0029.severity = error  # use ??
+dotnet_diagnostic.IDE0030.severity = error  # use ??
+dotnet_diagnostic.IDE0040.severity = error  # add accessibility modifier
+dotnet_diagnostic.IDE0044.severity = error  # make field readonly
+dotnet_diagnostic.IDE0065.severity = error  # usings outside namespace
+dotnet_diagnostic.IDE0161.severity = error  # file-scoped namespace
+dotnet_diagnostic.RCS0053.severity = error  # trailing comma
+dotnet_diagnostic.IDE0057.severity = suggestion  # prefer Substring over range indexer
+
+# Suppressed diagnostics
+dotnet_diagnostic.CA1711.severity = none
+dotnet_diagnostic.CA1822.severity = warning
+dotnet_diagnostic.CA1848.severity = warning
+dotnet_diagnostic.SA1101.severity = none
+dotnet_diagnostic.SA1309.severity = none
+dotnet_diagnostic.SA1633.severity = none
+dotnet_diagnostic.SA1634.severity = none
+dotnet_diagnostic.SA1635.severity = none
+dotnet_diagnostic.SA1636.severity = none
+dotnet_diagnostic.SA1637.severity = none
+dotnet_diagnostic.SA1638.severity = none
+dotnet_diagnostic.SA1010.severity = none
+dotnet_diagnostic.SA1515.severity = none
+dotnet_diagnostic.SA1601.severity = none
+dotnet_diagnostic.CsWinRT1030.severity = none
+dotnet_diagnostic.RCS1036.severity = none
+dotnet_diagnostic.RCS1246.severity = none
+
+[tests/**/*.cs]
+dotnet_diagnostic.IDE1006.severity = none
+dotnet_diagnostic.CA1707.severity = none

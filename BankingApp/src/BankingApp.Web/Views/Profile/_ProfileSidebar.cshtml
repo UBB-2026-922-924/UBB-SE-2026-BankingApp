@@ -1,0 +1,71 @@
+@using BankingApp.Web.ViewModels.Profile
+@{
+    var sidebar = ViewData["ProfileSidebar"] as ProfileIndexViewModel ?? new ProfileIndexViewModel();
+    string initials = string.Empty;
+    if (!string.IsNullOrWhiteSpace(sidebar.FullName))
+    {
+        string[] parts = sidebar.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        initials = parts.Length >= 2
+            ? $"{parts[0][0]}{parts[^1][0]}"
+            : parts[0][..Math.Min(2, parts[0].Length)];
+        initials = initials.ToUpperInvariant();
+    }
+}
+
+<div class="profile-card">
+    <!-- Gradient header with avatar -->
+    <div class="profile-card-header">
+        <div class="profile-avatar">
+            @if (!string.IsNullOrEmpty(initials))
+            {
+                <span>@initials</span>
+            }
+            else
+            {
+                <i class="bi bi-person-fill"></i>
+            }
+        </div>
+        <div class="profile-card-name">@sidebar.FullName</div>
+    </div>
+
+    <!-- Detail fields -->
+    <div class="profile-card-body">
+        <div class="profile-card-field">
+            <div class="profile-card-field-icon">
+                <i class="bi bi-envelope"></i>
+            </div>
+            <div>
+                <div class="profile-card-label">Email</div>
+                <div class="profile-card-value">@sidebar.Email</div>
+            </div>
+        </div>
+
+        <hr class="profile-card-divider" />
+
+        <div class="profile-card-field">
+            <div class="profile-card-field-icon">
+                <i class="bi bi-telephone"></i>
+            </div>
+            <div>
+                <div class="profile-card-label">Phone</div>
+                <div class="profile-card-value">
+                    @(string.IsNullOrWhiteSpace(sidebar.PhoneNumber) ? "No phone number set" : sidebar.PhoneNumber)
+                </div>
+            </div>
+        </div>
+
+        <hr class="profile-card-divider" />
+
+        <div class="profile-card-field">
+            <div class="profile-card-field-icon">
+                <i class="bi bi-geo-alt"></i>
+            </div>
+            <div>
+                <div class="profile-card-label">Address</div>
+                <div class="profile-card-value">
+                    @(string.IsNullOrWhiteSpace(sidebar.Address) ? "No address set" : sidebar.Address)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

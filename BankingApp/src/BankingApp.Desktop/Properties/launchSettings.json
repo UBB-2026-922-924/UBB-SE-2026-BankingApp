@@ -1,0 +1,13 @@
+﻿{
+  "profiles": {
+    "BankingApp.Desktop (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "BankingApp.Desktop (Unpackaged)": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

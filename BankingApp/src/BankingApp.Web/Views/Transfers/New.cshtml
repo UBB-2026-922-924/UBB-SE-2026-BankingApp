@@ -1,0 +1,55 @@
+@model BankingApp.Web.Models.Transfers.TransferNewModel
+@{
+    ViewData["Title"] = "New Transfer";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title"><i class="bi bi-send me-2 text-primary"></i>New Transfer</h1>
+        <p class="page-subtitle">Enter the recipient's IBAN to start a transfer.</p>
+    </div>
+    <a asp-action="History" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-clock-history me-1"></i>Transfer History
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-1-circle text-primary"></i>
+                <span>Step 1 — Recipient IBAN</span>
+            </div>
+            <div class="card-body">
+
+                <form asp-action="ValidateIban" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-group">
+                        <label asp-for="RecipientIban" class="form-label">
+                            <i class="bi bi-bank me-1"></i>Recipient IBAN
+                        </label>
+                        <input asp-for="RecipientIban"
+                               class="form-control font-monospace"
+                               placeholder="e.g. RO49AAAA1B31007593840000"
+                               autocomplete="off" />
+                        <span asp-validation-for="RecipientIban" class="invalid-feedback d-block"></span>
+                    </div>
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="divider"></div>
+
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="bi bi-check-circle me-2"></i>Validate IBAN
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

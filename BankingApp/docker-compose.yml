@@ -1,0 +1,37 @@
+﻿services:
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    environment:
+      MSSQL_SA_PASSWORD: "${DB_SA_PASSWORD}"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      # $$ escapes Compose interpolation — the container shell resolves it at runtime.
+      test: >
+        /opt/mssql-tools18/bin/sqlcmd
+        -S 127.0.0.1 -U sa -P "$$MSSQL_SA_PASSWORD"
+        -Q "SELECT 1" -b -No -o /dev/null
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  server:
+    build:
+      context: .
+      dockerfile: src/BankingApp.Api/Dockerfile.dev
+    ports:
+      - "9999:8080"
+    env_file:
+      - ./src/BankingApp.Api/.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  sqlserver-data:
+

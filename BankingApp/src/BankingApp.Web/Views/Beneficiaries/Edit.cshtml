@@ -1,0 +1,57 @@
+@model BankingApp.Web.Models.Beneficiaries.BeneficiaryFormModel
+@{
+    ViewData["Title"] = "Edit beneficiary";
+}
+
+<div class="page-header">
+    <a asp-action="Index" class="text-muted-sm text-decoration-none">
+        <i class="bi bi-arrow-left me-1"></i>Back to beneficiaries
+    </a>
+    <h1 class="page-title mt-2">Edit beneficiary</h1>
+</div>
+
+<div class="form-card">
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+
+                <div class="form-group">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="invalid-feedback d-block"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Iban" class="form-label"></label>
+                    <input asp-for="Iban" class="form-control font-monospace"
+                           style="text-transform:uppercase"
+                           oninput="this.value=this.value.replace(/\s/g,'').toUpperCase()" />
+                    <span asp-validation-for="Iban" class="invalid-feedback d-block"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="BankName" class="form-label"></label>
+                    <input asp-for="BankName" class="form-control" />
+                    <span asp-validation-for="BankName" class="invalid-feedback d-block"></span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="d-flex gap-2 justify-content-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Save changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,267 @@
+<Page
+    x:Class="BankingApp.Desktop.Views.BeneficiariesView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dtos="using:BankingApp.Contracts.Features.Beneficiaries.Dtos"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:BankingApp.Desktop.Shared.Converters"
+    mc:Ignorable="d"
+    Background="#F4F6FA">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+        <converters:DecimalToAmountTextConverter x:Key="DecimalToAmountTextConverter" />
+        <converters:NullableDateToTextConverter x:Key="NullableDateToTextConverter" />
+        <SolidColorBrush x:Key="BeneficiaryPrimaryBrush" Color="#1A56DB" />
+        <SolidColorBrush x:Key="BeneficiaryPrimaryDarkBrush" Color="#1E429F" />
+        <SolidColorBrush x:Key="BeneficiaryTextBrush" Color="#0F172A" />
+        <SolidColorBrush x:Key="BeneficiaryMutedTextBrush" Color="#64748B" />
+        <Style x:Key="BeneficiaryButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource BeneficiaryTextBrush}" />
+            <Setter Property="Background" Value="#E8EEF5" />
+            <Setter Property="BorderBrush" Value="#C9D4E0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+        <Style x:Key="BeneficiaryPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource BeneficiaryButtonStyle}">
+            <Setter Property="Background" Value="{StaticResource BeneficiaryPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BeneficiaryPrimaryBrush}" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style x:Key="BeneficiaryDangerButtonStyle" TargetType="Button" BasedOn="{StaticResource BeneficiaryButtonStyle}">
+            <Setter Property="Background" Value="#DC2626" />
+            <Setter Property="BorderBrush" Value="#DC2626" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style x:Key="BeneficiarySuccessButtonStyle" TargetType="Button" BasedOn="{StaticResource BeneficiaryButtonStyle}">
+            <Setter Property="Background" Value="#16A34A" />
+            <Setter Property="BorderBrush" Value="#16A34A" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style x:Key="BeneficiaryTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Foreground" Value="{StaticResource BeneficiaryTextBrush}" />
+            <Setter Property="PlaceholderForeground" Value="{StaticResource BeneficiaryMutedTextBrush}" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#C9D4E0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="12,10" />
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer>
+        <Grid Padding="24" RowSpacing="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Beneficiaries"
+                               FontSize="28"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource BeneficiaryTextBrush}" />
+                    <TextBlock Text="Saved recipients for faster transfers."
+                               Foreground="{StaticResource BeneficiaryMutedTextBrush}" />
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Style="{StaticResource BeneficiaryPrimaryButtonStyle}"
+                        Content="Add beneficiary"
+                        Click="ShowAddForm_Click"
+                        Padding="18,10" />
+            </Grid>
+
+            <InfoBar Grid.Row="1"
+                     IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
+                     Severity="Error"
+                     Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                     IsClosable="True" />
+
+            <Border Grid.Row="2"
+                    Background="White"
+                    CornerRadius="16"
+                    Padding="40"
+                    Visibility="{x:Bind ViewModel.HasBeneficiaries, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <StackPanel Spacing="12" HorizontalAlignment="Center">
+                    <FontIcon Glyph="&#xE716;" FontSize="42" Foreground="#758195" HorizontalAlignment="Center" />
+                    <TextBlock Text="You have no saved beneficiaries yet."
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource BeneficiaryTextBrush}"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="Add a beneficiary to reuse their details in future transfers."
+                               Foreground="{StaticResource BeneficiaryMutedTextBrush}"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               MaxWidth="420" />
+                    <Button Content="Add your first beneficiary"
+                            Style="{StaticResource BeneficiaryPrimaryButtonStyle}"
+                            Click="ShowAddForm_Click"
+                            HorizontalAlignment="Center"
+                            Padding="18,10" />
+                </StackPanel>
+            </Border>
+
+            <StackPanel Grid.Row="2"
+                        Spacing="16"
+                        Visibility="{x:Bind ViewModel.HasBeneficiaries, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ListView ItemsSource="{x:Bind ViewModel.Beneficiaries, Mode=OneWay}"
+                          SelectionMode="None"
+                          Background="Transparent"
+                          BorderThickness="0">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="dtos:BeneficiaryDto">
+                            <Border Margin="0,0,0,12"
+                                    Padding="18"
+                                    Background="White"
+                                    CornerRadius="16"
+                                    BorderBrush="#E5EAF1"
+                                    BorderThickness="1">
+                                <StackPanel Spacing="16">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="{x:Bind Name}"
+                                                       FontSize="18"
+                                                       Foreground="{StaticResource BeneficiaryTextBrush}"
+                                                       FontWeight="SemiBold" />
+                                            <TextBlock Text="{x:Bind Iban}"
+                                                       FontFamily="Consolas"
+                                                       Foreground="{StaticResource BeneficiaryMutedTextBrush}" />
+                                            <TextBlock Text="{x:Bind BankName}"
+                                                       Foreground="{StaticResource BeneficiaryMutedTextBrush}" />
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1"
+                                                    Orientation="Horizontal"
+                                                    Spacing="8"
+                                                    VerticalAlignment="Top">
+                                            <Button Content="Use"
+                                                    Style="{StaticResource BeneficiaryPrimaryButtonStyle}"
+                                                    Click="Use_Click"
+                                                    Tag="{x:Bind}"
+                                                    Padding="16,8" />
+                                            <Button Content="Edit"
+                                                    Style="{StaticResource BeneficiarySuccessButtonStyle}"
+                                                    Click="Edit_Click"
+                                                    Tag="{x:Bind}"
+                                                    Padding="16,8" />
+                                            <Button Content="Delete"
+                                                    Style="{StaticResource BeneficiaryDangerButtonStyle}"
+                                                    Click="Delete_Click"
+                                                    Tag="{x:Bind}"
+                                                    Padding="16,8" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Padding="12" Background="#F8FAFC" CornerRadius="12">
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="Total sent" Foreground="{StaticResource BeneficiaryMutedTextBrush}" />
+                                                <TextBlock Text="{Binding TotalAmountSent, Converter={StaticResource DecimalToAmountTextConverter}}"
+                                                           FontSize="16"
+                                                           Foreground="{StaticResource BeneficiaryTextBrush}"
+                                                           FontWeight="SemiBold" />
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Grid.Column="1" Padding="12" Background="#F8FAFC" CornerRadius="12">
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="Transfers" Foreground="{StaticResource BeneficiaryMutedTextBrush}" />
+                                                <TextBlock Text="{x:Bind TransferCount}"
+                                                           FontSize="16"
+                                                           Foreground="{StaticResource BeneficiaryTextBrush}"
+                                                           FontWeight="SemiBold" />
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Grid.Column="2" Padding="12" Background="#F8FAFC" CornerRadius="12">
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="Last transfer" Foreground="{StaticResource BeneficiaryMutedTextBrush}" />
+                                                <TextBlock Text="{Binding LastTransferDate, Converter={StaticResource NullableDateToTextConverter}}"
+                                                           FontSize="16"
+                                                           Foreground="{StaticResource BeneficiaryTextBrush}"
+                                                           FontWeight="SemiBold" />
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+
+            <Border Grid.Row="3"
+                    Background="White"
+                    CornerRadius="16"
+                    Padding="20"
+                    Visibility="{x:Bind ViewModel.IsFormVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Spacing="14">
+                    <TextBlock Text="{x:Bind ViewModel.FormTitle, Mode=OneWay}"
+                               FontWeight="SemiBold"
+                               FontSize="20"
+                               Foreground="{StaticResource BeneficiaryTextBrush}" />
+
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Name"
+                                   Foreground="{StaticResource BeneficiaryTextBrush}"
+                                   FontWeight="SemiBold" />
+                        <TextBox PlaceholderText="e.g. John Doe"
+                             Style="{StaticResource BeneficiaryTextBoxStyle}"
+                             Text="{x:Bind ViewModel.BeneficiaryName, Mode=TwoWay}" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="IBAN"
+                                   Foreground="{StaticResource BeneficiaryTextBrush}"
+                                   FontWeight="SemiBold" />
+                        <TextBox PlaceholderText="e.g. RO49AAAA1B31007593840000"
+                             Style="{StaticResource BeneficiaryTextBoxStyle}"
+                             Text="{x:Bind ViewModel.BeneficiaryIban, Mode=TwoWay}" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Bank name (optional)"
+                                   Foreground="{StaticResource BeneficiaryTextBrush}"
+                                   FontWeight="SemiBold" />
+                        <TextBox PlaceholderText="e.g. ING Bank Romania"
+                             Style="{StaticResource BeneficiaryTextBoxStyle}"
+                             Text="{x:Bind ViewModel.BeneficiaryBankName, Mode=TwoWay}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+                        <Button Content="Cancel"
+                                Style="{StaticResource BeneficiaryButtonStyle}"
+                                Click="CancelAdd_Click"
+                                Padding="16,8" />
+                        <Button Content="{x:Bind ViewModel.SaveButtonText, Mode=OneWay}"
+                                Style="{StaticResource BeneficiaryPrimaryButtonStyle}"
+                                Click="Save_Click"
+                                Padding="16,8" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

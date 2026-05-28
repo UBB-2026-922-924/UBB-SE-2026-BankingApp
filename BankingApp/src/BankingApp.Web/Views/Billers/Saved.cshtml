@@ -1,0 +1,60 @@
+@model BankingApp.Web.ViewModels.SavedBillerListViewModel
+@{
+    ViewData["Title"] = "Saved Billers";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Saved Billers</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">All Billers</a>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success">@success</div>
+}
+
+@if (!Model.SavedBillers.Any())
+{
+    <p class="text-muted">No saved billers yet.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Default Reference</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var biller in Model.SavedBillers)
+                {
+                    <tr>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(biller.LogoUrl))
+                            {
+                                <img src="@biller.LogoUrl" alt="@biller.DisplayName" height="24" class="me-2" />
+                            }
+                            @biller.DisplayName
+                        </td>
+                        <td>@biller.Category</td>
+                        <td>@(biller.DefaultReference ?? "—")</td>
+                        <td class="text-end">
+                            <form asp-action="Unsave" asp-route-savedBillerId="@biller.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Unsave</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

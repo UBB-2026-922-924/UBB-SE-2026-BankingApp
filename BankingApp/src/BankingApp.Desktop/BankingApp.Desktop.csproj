@@ -1,0 +1,145 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+        <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+        <RootNamespace>BankingApp.Desktop</RootNamespace>
+        <NoWarn>$(NoWarn);CA1416</NoWarn>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <Platforms>x86;x64;ARM64</Platforms>
+        <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+        <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+        <UseWinUI>true</UseWinUI>
+        <WindowsPackageType>None</WindowsPackageType>
+        <EnableMsixTooling>true</EnableMsixTooling>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>2cae42c8-2e1f-472e-b7e0-86490246aaef</UserSecretsId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+        <PlatformTarget>x64</PlatformTarget>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <PublishProfile>win-x64.pubxml</PublishProfile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Page Remove="Views\BillPayHistoryView.xaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="Assets\SplashScreen.scale-200.png" />
+        <Content Include="Assets\LockScreenLogo.scale-200.png" />
+        <Content Include="Assets\Square150x150Logo.scale-200.png" />
+        <Content Include="Assets\Square44x44Logo.scale-200.png" />
+        <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+        <Content Include="Assets\StoreLogo.png" />
+        <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <None Update="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+
+        <None Update="appsettings.Development.json" Condition="Exists('appsettings.Development.json')">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+
+        <None Update="Views\BillPayHistoryView.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </None>
+
+        </ItemGroup>
+
+    <ItemGroup>
+        <Manifest Include="$(ApplicationManifest)" />
+    </ItemGroup>
+
+    <!--
+      Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
+      Tools extension to be activated for this project even if the Windows App SDK Nuget
+      package has not yet been restored.
+    -->
+    <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+        <ProjectCapability Include="Msix" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+        <PackageReference Include="ErrorOr" Version="2.1.1" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.8" />
+        <PackageReference Include="Serilog" Version="4.3.1" />
+        <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
+        <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7705" />
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\BankingApp.Application\BankingApp.Application.csproj" />
+        <ProjectReference Include="..\BankingApp.Infrastructure.Core\BankingApp.Infrastructure.Core.csproj" />
+        <ProjectReference Include="..\BankingApp.Infrastructure.Http\BankingApp.Infrastructure.Http.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="BankingApp.Desktop.Tests" />
+    </ItemGroup>
+    <ItemGroup>
+        <Page Update="Views\NavigationView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\DashboardView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\RegisterView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\LoginView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\ProfileView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\ForexPage.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\TransferView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\BillPayView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\CardsView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\TransferHistoryView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+    </ItemGroup>
+    <!--
+      Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
+      Explorer "Package and Publish" context menu entry to be enabled for this project even if
+      the Windows App SDK Nuget package has not yet been restored.
+    -->
+    <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+        <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+    </PropertyGroup>
+
+    <!-- Publish Properties -->
+    <PropertyGroup>
+        <!-- These optimizations are publish-only. Keeping them off for regular Release builds
+             avoids CI/test failures when the desktop project is built as a project reference. -->
+        <PublishReadyToRun Condition="'$(Publish)' == 'true' and '$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+        <PublishReadyToRun Condition="'$(Publish)' != 'true' or '$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+        <PublishTrimmed Condition="'$(Publish)' == 'true' and '$(Configuration)' != 'Debug'">True</PublishTrimmed>
+        <PublishTrimmed Condition="'$(Publish)' != 'true' or '$(Configuration)' == 'Debug'">False</PublishTrimmed>
+        <!-- Suppress IL trim analysis warnings during regular builds (dotnet build / test).
+             Actual trimming still runs on dotnet publish. -->
+        <SuppressTrimAnalysisWarnings Condition="'$(Publish)' != 'true'">true</SuppressTrimAnalysisWarnings>
+    </PropertyGroup>
+</Project>

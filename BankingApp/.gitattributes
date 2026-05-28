@@ -1,0 +1,16 @@
+﻿* text=auto eol=crlf
+
+  # Binary files — no conversion
+  *.png binary
+  *.jpg binary
+  *.jpeg binary
+  *.gif binary
+  *.ico binary
+  *.pdf binary
+  *.zip binary
+  *.exe binary
+  *.dll binary
+
+  # .NET specific
+  *.sln text eol=crlf
+  *.csproj text eol=crlf
