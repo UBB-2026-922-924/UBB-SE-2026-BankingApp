@@ -1,19 +1,21 @@
-using System;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-
 namespace BankingApp.Desktop.Views;
 
 using BankingApp.Desktop;
 using BankingApp.Desktop.ViewModels;
+using System;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 
 public sealed partial class StatisticsView : Page
 {
-    public StatisticsView()
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="StatisticsView"/> class.
+    /// </summary>
+    public StatisticsView(StatisticsViewModel statisticsViewModel)
     {
         InitializeComponent();
-        ViewModel = new StatisticsViewModel(App.StatisticsService, App.AuthService);
-        DataContext = ViewModel;
+        ViewModel = statisticsViewModel;
+        DataContext = statisticsViewModel;
         Loaded += StatisticsView_Loaded;
         Unloaded += StatisticsView_Unloaded;
     }

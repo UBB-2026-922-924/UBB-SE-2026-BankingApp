@@ -125,6 +125,9 @@
         <Page Update="Views\TransferHistoryView.xaml">
             <Generator>MSBuild:Compile</Generator>
         </Page>
+	    <Page Update="Views\StatisticsView.xaml">
+		    <Generator>MSBuild:Compile</Generator>
+	    </Page>
     </ItemGroup>
     <!--
       Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
