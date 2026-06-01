@@ -1,27 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿namespace BankingApp.Infrastructure.Http.Features.Savings.Services;
+
 using BankingApp.Contracts.Features.Savings.Dtos;
-using BankingApp.Domain.Aggregates.InvestmentAggregate;
 using BankingApp.Domain.Aggregates.SavingsAggregate;
+using BankingApp.Contracts.Features.Investments;
 
-namespace BankingApp.Infrastructure.Http.Features.Savings.Services
+public interface ISavingsWorkflowRepoProxy
 {
-    using Contracts.Features.Investments;
+    Task<FundingSourceOption> GetDefaultFundingSource(IEnumerable<FundingSourceOption> fundingSources);
 
-    public interface ISavingsWorkflowRepoProxy
-    {
-        Task<FundingSourceOption> GetDefaultFundingSource(IEnumerable<FundingSourceOption> fundingSources);
+    Task<int> GetDefaultCloseDestinationId(IEnumerable<SavingsAccount> destinationAccounts);
 
-        Task<int> GetDefaultCloseDestinationId(IEnumerable<SavingsAccount> destinationAccounts);
+    Task<ValidationResponse> ValidateWithdrawRequest(decimal amount, FundingSourceOption? destination);
 
-        Task<ValidationResponse> ValidateWithdrawRequest(decimal amount, FundingSourceOption? destination);
+    Task<string> BuildWithdrawResultMessage(WithdrawResponseDto response);
 
-        Task<string> BuildWithdrawResultMessage(WithdrawResponseDto response);
+    Task<ValidationResponse> ValidateCloseConfirmation(bool userConfirmed, int destinationId);
 
-        Task<ValidationResponse> ValidateCloseConfirmation(bool userConfirmed, int destinationId);
+    Task<bool> CanMoveToNextPage(int currentPage, int totalPages);
 
-        Task<bool> CanMoveToNextPage(int currentPage, int totalPages);
-
-        Task<bool> CanMoveToPreviousPage(int currentPage);
-    }
+    Task<bool> CanMoveToPreviousPage(int currentPage);
 }

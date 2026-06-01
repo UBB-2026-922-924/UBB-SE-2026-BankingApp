@@ -9,7 +9,6 @@ using BankingApp.Contracts.Features.Forex.Dtos;
 using Contracts.Features.BillPayments.Services;
 using Contracts.Features.Forex.Services;
 using ErrorOr;
-using Logging;
 using Microsoft.Extensions.Logging;
 using Session;
 using Shared;

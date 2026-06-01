@@ -1,108 +1,107 @@
-﻿namespace BankingApp.Desktop.Views
+﻿namespace BankingApp.Desktop.Views;
+
+using System;
+using BankingApp.Desktop.ViewModels;
+using BankingApp.Domain.Aggregates.LoanAggregate;
+using Domain.Aggregates.LoanAggregate.Entities;
+using Microsoft.UI;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Navigation;
+
+public sealed partial class AmortizationScheduleView : Page
 {
-    using System;
-    using BankingApp.Desktop.ViewModels;
-    using BankingApp.Domain.Aggregates.LoanAggregate;
-    using Domain.Aggregates.LoanAggregate.Entities;
-    using Microsoft.UI;
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Media;
-    using Microsoft.UI.Xaml.Navigation;
+    private const string LoanHeaderFormat = "{0} · {1} months · {2:0.##}%";
+    private const byte CurrentRowHighlightAlpha = 40;
+    private const byte CurrentRowHighlightRed = 0;
+    private const byte CurrentRowHighlightGreen = 120;
+    private const byte CurrentRowHighlightBlue = 215;
 
-    public sealed partial class AmortizationScheduleView : Page
+    private static readonly SolidColorBrush CurrentRowHighlightBrush = new SolidColorBrush(
+        ColorHelper.FromArgb(
+            CurrentRowHighlightAlpha,
+            CurrentRowHighlightRed,
+            CurrentRowHighlightGreen,
+            CurrentRowHighlightBlue));
+
+    private Loan? loan;
+
+    public AmortizationScheduleView(LoansViewModel loansViewModel)
     {
-        private const string LoanHeaderFormat = "{0} · {1} months · {2:0.##}%";
-        private const byte CurrentRowHighlightAlpha = 40;
-        private const byte CurrentRowHighlightRed = 0;
-        private const byte CurrentRowHighlightGreen = 120;
-        private const byte CurrentRowHighlightBlue = 215;
+        this.InitializeComponent();
 
-        private static readonly SolidColorBrush CurrentRowHighlightBrush = new SolidColorBrush(
-            ColorHelper.FromArgb(
-                CurrentRowHighlightAlpha,
-                CurrentRowHighlightRed,
-                CurrentRowHighlightGreen,
-                CurrentRowHighlightBlue));
+        this.ViewModel = loansViewModel;
+        this.DataContext = this.ViewModel;
 
-        private Loan? loan;
+        // Highlight the current installment row after containers are created.
+        this.AmortizationListView.ContainerContentChanging += this.OnRowContainerContentChanging;
+    }
 
-        public AmortizationScheduleView(LoansViewModel loansViewModel)
+    private LoansViewModel ViewModel { get; }
+
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        if (e.Parameter is Loan loan)
         {
-            this.InitializeComponent();
+            this.loan = loan;
+            this.PopulateStaticLabels(loan);
 
-            this.ViewModel = loansViewModel;
-            this.DataContext = this.ViewModel;
+            this.ViewModel.SelectedLoan = new LoanViewModel(loan, this.GetRepaymentProgress(loan));
+            await this.ViewModel.LoadAmortizationAsync();
+        }
+    }
 
-            // Highlight the current installment row after containers are created.
-            this.AmortizationListView.ContainerContentChanging += this.OnRowContainerContentChanging;
+    private void PopulateStaticLabels(Loan loan)
+    {
+        this.LoanSubHeaderText.Text =
+            string.Format(LoanHeaderFormat, loan.LoanType, loan.TermInMonths, loan.InterestRate);
+
+        var loanViewModel = new LoanViewModel(loan, this.GetRepaymentProgress(loan));
+        this.TotalInstallmentsText.Text = loan.TermInMonths.ToString();
+        this.PaidInstallmentsText.Text = loanViewModel.PaidInstallments.ToString();
+        this.RemainingInstallmentsText.Text = loan.RemainingMonths.ToString();
+    }
+
+    private double GetRepaymentProgress(Loan loan)
+    {
+        if (loan.Principal <= 0)
+        {
+            return 0;
         }
 
-        private LoansViewModel ViewModel { get; }
+        decimal paidAmount = Math.Max(0m, loan.Principal - loan.OutstandingBalance);
+        decimal progress = paidAmount / loan.Principal;
+        return (double)Math.Clamp(progress, 0m, 1m);
+    }
 
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
+    private void OnRowContainerContentChanging(
+        ListViewBase sender,
+        ContainerContentChangingEventArgs args)
+    {
+        if (args.Item is AmortizationRow row && args.ItemContainer is ListViewItem container)
         {
-            base.OnNavigatedTo(e);
-
-            if (e.Parameter is Loan loan)
-            {
-                this.loan = loan;
-                this.PopulateStaticLabels(loan);
-
-                this.ViewModel.SelectedLoan = new LoanViewModel(loan, this.GetRepaymentProgress(loan));
-                await this.ViewModel.LoadAmortizationAsync();
-            }
+            container.Background = row.IsCurrent
+                ? CurrentRowHighlightBrush
+                : null;
         }
+    }
 
-        private void PopulateStaticLabels(Loan loan)
+    private void OnBackClicked(object sender, RoutedEventArgs e)
+    {
+        if (this.Frame.CanGoBack)
         {
-            this.LoanSubHeaderText.Text =
-                string.Format(LoanHeaderFormat, loan.LoanType, loan.TermInMonths, loan.InterestRate);
-
-            var loanViewModel = new LoanViewModel(loan, this.GetRepaymentProgress(loan));
-            this.TotalInstallmentsText.Text = loan.TermInMonths.ToString();
-            this.PaidInstallmentsText.Text = loanViewModel.PaidInstallments.ToString();
-            this.RemainingInstallmentsText.Text = loan.RemainingMonths.ToString();
+            this.Frame.GoBack();
         }
+    }
 
-        private double GetRepaymentProgress(Loan loan)
+    private async void OnDownloadPdfClicked(object sender, RoutedEventArgs e)
+    {
+        if (this.loan != null)
         {
-            if (loan.Principal <= 0)
-            {
-                return 0;
-            }
-
-            decimal paidAmount = Math.Max(0m, loan.Principal - loan.OutstandingBalance);
-            decimal progress = paidAmount / loan.Principal;
-            return (double)Math.Clamp(progress, 0m, 1m);
-        }
-
-        private void OnRowContainerContentChanging(
-            ListViewBase sender,
-            ContainerContentChangingEventArgs args)
-        {
-            if (args.Item is AmortizationRow row && args.ItemContainer is ListViewItem container)
-            {
-                container.Background = row.IsCurrent
-                    ? CurrentRowHighlightBrush
-                    : null;
-            }
-        }
-
-        private void OnBackClicked(object sender, RoutedEventArgs e)
-        {
-            if (this.Frame.CanGoBack)
-            {
-                this.Frame.GoBack();
-            }
-        }
-
-        private async void OnDownloadPdfClicked(object sender, RoutedEventArgs e)
-        {
-            if (this.loan != null)
-            {
-                await this.ViewModel.DownloadSchedulePdfAsync();
-            }
+            await this.ViewModel.DownloadSchedulePdfAsync();
         }
     }
 }

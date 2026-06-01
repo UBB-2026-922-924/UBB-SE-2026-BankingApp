@@ -1,43 +1,41 @@
-﻿using System;
+﻿namespace BankingApp.Desktop.Views;
+
 using BankingApp.Desktop.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace BankingApp.Desktop.Views
+public sealed partial class CryptoTradingView : Page
 {
-    public sealed partial class CryptoTradingView : Page
+    public CryptoTradingViewModel ViewModel { get; }
+
+    public CryptoTradingView()
     {
-        public CryptoTradingViewModel ViewModel { get; }
+        this.InitializeComponent();
 
-        public CryptoTradingView()
+        var app = (App)Application.Current;
+        this.ViewModel = app.Services.GetService<CryptoTradingViewModel>();
+        this.DataContext = this.ViewModel;
+    }
+
+    private void OnActionTypeChecked(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton rb && ViewModel != null)
         {
-            this.InitializeComponent();
-
-            var app = (App)Application.Current;
-            this.ViewModel = app.Services.GetService<CryptoTradingViewModel>();
-            this.DataContext = this.ViewModel;
+            ViewModel.ActionType = rb.Tag?.ToString() ?? "BUY";
         }
+    }
 
-        private void OnActionTypeChecked(object sender, RoutedEventArgs e)
+    private void OnBackButtonClicked(object sender, RoutedEventArgs e)
+    {
+        // Reliable UI-level frame manipulation routing
+        if (this.Frame != null && this.Frame.CanGoBack)
         {
-            if (sender is RadioButton rb && ViewModel != null)
-            {
-                ViewModel.ActionType = rb.Tag?.ToString() ?? "BUY";
-            }
+            this.Frame.GoBack();
         }
-
-        private void OnBackButtonClicked(object sender, RoutedEventArgs e)
+        else
         {
-            // Reliable UI-level frame manipulation routing
-            if (this.Frame != null && this.Frame.CanGoBack)
-            {
-                this.Frame.GoBack();
-            }
-            else
-            {
-                this.Frame?.Navigate(typeof(InvestmentsView));
-            }
+            this.Frame?.Navigate(typeof(InvestmentsView));
         }
     }
 }

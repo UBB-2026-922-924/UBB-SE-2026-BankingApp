@@ -8,7 +8,6 @@ using Contracts.Features.BillPayments.Services;
 using Contracts.Features.Billers.Services;
 using Microsoft.UI.Xaml;
 using Navigation;
-using Views;
 
 /// <summary>Coordinates the multistep bill payment workflow in the desktop client.</summary>
 public partial class BillPayViewModel : ObservableObject

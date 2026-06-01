@@ -1,34 +1,32 @@
-﻿using System;
+﻿namespace BankingApp.Desktop.Views;
+
 using BankingApp.Desktop.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace BankingApp.Desktop.Views
+public sealed partial class StatisticsView : Page
 {
-    public sealed partial class StatisticsView : Page
+    public StatisticsView()
     {
-        public StatisticsView()
-        {
-            InitializeComponent();
-            ViewModel = new StatisticsViewModel(App.StatisticsService, App.AuthService);
-            DataContext = ViewModel;
-            Loaded += StatisticsView_Loaded;
-            Unloaded += StatisticsView_Unloaded;
-        }
+        InitializeComponent();
+        ViewModel = new StatisticsViewModel(App.StatisticsService, App.AuthService);
+        DataContext = ViewModel;
+        Loaded += StatisticsView_Loaded;
+        Unloaded += StatisticsView_Unloaded;
+    }
 
-        public StatisticsViewModel ViewModel { get; }
+    public StatisticsViewModel ViewModel { get; }
 
-        private async void StatisticsView_Loaded(object sender, RoutedEventArgs e)
+    private async void StatisticsView_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (!ViewModel.IsLoading && !ViewModel.HasData)
         {
-            if (!ViewModel.IsLoading && !ViewModel.HasData)
-            {
-                await ViewModel.LoadAsync();
-            }
+            await ViewModel.LoadAsync();
         }
+    }
 
-        private void StatisticsView_Unloaded(object sender, RoutedEventArgs e)
-        {
-            ViewModel.Dispose();
-        }
+    private void StatisticsView_Unloaded(object sender, RoutedEventArgs e)
+    {
+        ViewModel.Dispose();
     }
 }

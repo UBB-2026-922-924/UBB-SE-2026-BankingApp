@@ -3,7 +3,6 @@ namespace BankingApp.Application.Tests.Features.Billers.Commands;
 using BankingApp.Application.Features.Billers.Services;
 using BankingApp.Domain.Common.Errors;
 using ErrorOr;
-using Microsoft.Extensions.Logging.Abstractions;
 using Shared.Persistence;
 
 public sealed class DeleteSavedBillerCommandTests

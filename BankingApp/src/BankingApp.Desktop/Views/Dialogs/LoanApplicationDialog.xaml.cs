@@ -1,45 +1,44 @@
-﻿namespace BankingApp.Desktop.Views.Dialogs
+﻿namespace BankingApp.Desktop.Views.Dialogs;
+
+using BankingApp.Desktop.ViewModels;
+using Microsoft.UI.Xaml.Controls;
+
+public sealed partial class LoanApplicationDialog : ContentDialog
 {
-    using BankingApp.Desktop.ViewModels;
-    using Microsoft.UI.Xaml.Controls;
+    private readonly LoansViewModel viewModel;
 
-    public sealed partial class LoanApplicationDialog : ContentDialog
+    public LoanApplicationDialog(LoansViewModel viewModel)
     {
-        private readonly LoansViewModel viewModel;
+        this.InitializeComponent();
+        this.viewModel = viewModel;
+        this.DataContext = viewModel;
+    }
 
-        public LoanApplicationDialog(LoansViewModel viewModel)
+    private async void OnSubmitClicked(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    {
+        ContentDialogButtonClickDeferral? deferral = args.GetDeferral();
+        if (!this.viewModel.IsReviewVisible)
         {
-            this.InitializeComponent();
-            this.viewModel = viewModel;
-            this.DataContext = viewModel;
+            args.Cancel = true;
+            this.viewModel.SwitchToReviewStage();
+            sender.Title = this.viewModel.DialogTitle;
+            sender.PrimaryButtonText = this.viewModel.DialogActionText;
         }
-
-        private async void OnSubmitClicked(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        else
         {
-            ContentDialogButtonClickDeferral? deferral = args.GetDeferral();
-            if (!this.viewModel.IsReviewVisible)
+            await this.viewModel.ApplyForLoanAsync();
+
+            if (!string.IsNullOrEmpty(this.viewModel.ApplicationResult))
             {
+                this.ResultBar.Message = this.viewModel.ApplicationResult;
+                this.ResultBar.Severity = this.viewModel.ApplicationWasApproved
+                    ? InfoBarSeverity.Success
+                    : InfoBarSeverity.Error;
+                this.ResultBar.IsOpen = true;
                 args.Cancel = true;
-                this.viewModel.SwitchToReviewStage();
-                sender.Title = this.viewModel.DialogTitle;
-                sender.PrimaryButtonText = this.viewModel.DialogActionText;
             }
-            else
-            {
-                await this.viewModel.ApplyForLoanAsync();
-
-                if (!string.IsNullOrEmpty(this.viewModel.ApplicationResult))
-                {
-                    this.ResultBar.Message = this.viewModel.ApplicationResult;
-                    this.ResultBar.Severity = this.viewModel.ApplicationWasApproved
-                        ? InfoBarSeverity.Success
-                        : InfoBarSeverity.Error;
-                    this.ResultBar.IsOpen = true;
-                    args.Cancel = true;
-                }
-            }
-
-            deferral.Complete();
         }
+
+        deferral.Complete();
     }
 }

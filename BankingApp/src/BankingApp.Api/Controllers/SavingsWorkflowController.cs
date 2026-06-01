@@ -1,132 +1,129 @@
-﻿using BankingApp.Contracts.Features.Savings.Dtos;
-using BankingApp.Domain.Aggregates.InvestmentAggregate;
+﻿namespace BankingApp.Api.Controllers;
+
+using BankingApp.Contracts.Features.Savings.Dtos;
 using Microsoft.AspNetCore.Mvc;
+using BankingApp.Contracts.Features.Investments;
 
-namespace BankingApp.Api.Controllers
+[ApiController]
+[Route("api/savings-workflow")]
+public class SavingsWorkflowController : ControllerBase
 {
-    using Contracts.Features.Investments;
+    private const int NoDestinationId = 0;
+    private const decimal PositiveAmountThreshold = 0m;
+    private const decimal NoPenaltyAmount = 0m;
+    private const int FirstPage = 1;
 
-    [ApiController]
-    [Route("api/savings-workflow")]
-    public class SavingsWorkflowController : ControllerBase
+    [HttpPost("default-funding-source")]
+    public ActionResult<FundingSourceOption> GetDefaultFundingSource([FromBody] IEnumerable<FundingSourceOption> fundingSources)
     {
-        private const int NoDestinationId = 0;
-        private const decimal PositiveAmountThreshold = 0m;
-        private const decimal NoPenaltyAmount = 0m;
-        private const int FirstPage = 1;
-
-        [HttpPost("default-funding-source")]
-        public ActionResult<FundingSourceOption> GetDefaultFundingSource([FromBody] IEnumerable<FundingSourceOption> fundingSources)
+        if (fundingSources == null)
         {
-            if (fundingSources == null)
-            {
-                return BadRequest("List of funding sources cannot be null.");
-            }
-
-            FundingSourceOption? result = fundingSources.FirstOrDefault();
-
-            if (result == null)
-            {
-                return NoContent();
-            }
-
-            return Ok(result);
+            return BadRequest("List of funding sources cannot be null.");
         }
 
-        [HttpPost("default-close-destination")]
-        public ActionResult<int> GetDefaultCloseDestinationId([FromBody] IEnumerable<SavingsAccountSnapshotDto> destinationAccounts)
-        {
-            if (destinationAccounts == null)
-            {
-                return BadRequest("List of accounts cannot be null.");
-            }
+        FundingSourceOption? result = fundingSources.FirstOrDefault();
 
-            int destinationId = destinationAccounts.FirstOrDefault()?.IdentificationNumber ?? NoDestinationId;
-            return Ok(destinationId);
+        if (result == null)
+        {
+            return NoContent();
         }
 
-        [HttpPost("validate-withdraw")]
-        public ActionResult ValidateWithdrawRequest([FromQuery] decimal amount, [FromBody] FundingSourceOption? destination)
+        return Ok(result);
+    }
+
+    [HttpPost("default-close-destination")]
+    public ActionResult<int> GetDefaultCloseDestinationId([FromBody] IEnumerable<SavingsAccountSnapshotDto> destinationAccounts)
+    {
+        if (destinationAccounts == null)
         {
-            (bool IsValid, string ErrorMessage) result;
-
-            if (amount <= PositiveAmountThreshold)
-            {
-                result = (false, "Please enter a valid amount.");
-            }
-            else if (destination == null)
-            {
-                result = (false, "Please select a destination account.");
-            }
-            else
-            {
-                result = (true, string.Empty);
-            }
-
-            return Ok(new
-            {
-                IsValid = result.IsValid,
-                ErrorMessage = result.ErrorMessage
-            });
+            return BadRequest("List of accounts cannot be null.");
         }
 
-        [HttpPost("withdraw-result-message")]
-        public ActionResult<string> BuildWithdrawResultMessage([FromBody] WithdrawResponseDto response)
+        int destinationId = destinationAccounts.FirstOrDefault()?.IdentificationNumber ?? NoDestinationId;
+        return Ok(destinationId);
+    }
+
+    [HttpPost("validate-withdraw")]
+    public ActionResult ValidateWithdrawRequest([FromQuery] decimal amount, [FromBody] FundingSourceOption? destination)
+    {
+        (bool IsValid, string ErrorMessage) result;
+
+        if (amount <= PositiveAmountThreshold)
         {
-            string message;
-
-            if (!response.Success)
-            {
-                message = response.Message;
-            }
-            else
-            {
-                string penaltyText = response.PenaltyApplied > NoPenaltyAmount
-                                ? $" (penalty: ${response.PenaltyApplied:N2})"
-                                : string.Empty;
-                message = $"Withdrawn: ${response.AmountWithdrawn:N2}{penaltyText}. New balance: ${response.NewBalance:N2}";
-            }
-
-            return Ok(message);
+            result = (false, "Please enter a valid amount.");
+        }
+        else if (destination == null)
+        {
+            result = (false, "Please select a destination account.");
+        }
+        else
+        {
+            result = (true, string.Empty);
         }
 
-        [HttpGet("validate-close")]
-        public ActionResult ValidateCloseConfirmation([FromQuery] bool userConfirmed, [FromQuery] int destinationId)
+        return Ok(new
         {
-            (bool IsValid, string ErrorMessage) result;
+            IsValid = result.IsValid,
+            ErrorMessage = result.ErrorMessage
+        });
+    }
 
-            if (!userConfirmed)
-            {
-                result = (false, "Please confirm account closure.");
-            }
-            else if (destinationId == NoDestinationId)
-            {
-                result = (false, "Please select a destination account.");
-            }
-            else
-            {
-                result = (true, string.Empty);
-            }
+    [HttpPost("withdraw-result-message")]
+    public ActionResult<string> BuildWithdrawResultMessage([FromBody] WithdrawResponseDto response)
+    {
+        string message;
 
-            return Ok(new
-            {
-                IsValid = result.IsValid,
-                ErrorMessage = result.ErrorMessage
-            });
+        if (!response.Success)
+        {
+            message = response.Message;
+        }
+        else
+        {
+            string penaltyText = response.PenaltyApplied > NoPenaltyAmount
+                            ? $" (penalty: ${response.PenaltyApplied:N2})"
+                            : string.Empty;
+            message = $"Withdrawn: ${response.AmountWithdrawn:N2}{penaltyText}. New balance: ${response.NewBalance:N2}";
         }
 
-        [HttpGet("can-move-next")]
-        public ActionResult<bool> CanMoveToNextPage([FromQuery] int currentPage, [FromQuery] int totalPages)
+        return Ok(message);
+    }
+
+    [HttpGet("validate-close")]
+    public ActionResult ValidateCloseConfirmation([FromQuery] bool userConfirmed, [FromQuery] int destinationId)
+    {
+        (bool IsValid, string ErrorMessage) result;
+
+        if (!userConfirmed)
         {
-            bool canMove = currentPage < totalPages;
-            return Ok(canMove);
+            result = (false, "Please confirm account closure.");
+        }
+        else if (destinationId == NoDestinationId)
+        {
+            result = (false, "Please select a destination account.");
+        }
+        else
+        {
+            result = (true, string.Empty);
         }
 
-        [HttpGet("can-move-previous")]
-        public ActionResult<bool> CanMoveToPreviousPage([FromQuery] int currentPage)
+        return Ok(new
         {
-            bool canMove = currentPage > FirstPage;
-            return Ok(canMove);
-        }
+            IsValid = result.IsValid,
+            ErrorMessage = result.ErrorMessage
+        });
+    }
+
+    [HttpGet("can-move-next")]
+    public ActionResult<bool> CanMoveToNextPage([FromQuery] int currentPage, [FromQuery] int totalPages)
+    {
+        bool canMove = currentPage < totalPages;
+        return Ok(canMove);
+    }
+
+    [HttpGet("can-move-previous")]
+    public ActionResult<bool> CanMoveToPreviousPage([FromQuery] int currentPage)
+    {
+        bool canMove = currentPage > FirstPage;
+        return Ok(canMove);
     }
 }

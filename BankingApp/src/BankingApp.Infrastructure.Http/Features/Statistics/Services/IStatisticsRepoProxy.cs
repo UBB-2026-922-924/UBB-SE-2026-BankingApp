@@ -1,16 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿namespace BankingApp.Infrastructure.Http.Features.Statistics.Services;
+
 using BankingApp.Contracts.Features.Statistics.Dtos;
 
-namespace BankingApp.Infrastructure.Http.Features.Statistics.Services
+public interface IStatisticsRepoProxy
 {
-    public interface IStatisticsRepoProxy
-    {
-        Task<SpendingByCategoryResponse?> GetSpendingByCategoryAsync();
+    Task<SpendingByCategoryResponse?> GetSpendingByCategoryAsync();
 
-        Task<IncomeVsExpensesResponse?> GetIncomeVsExpensesAsync();
+    Task<IncomeVsExpensesResponse?> GetIncomeVsExpensesAsync();
 
-        Task<BalanceTrendsResponse?> GetBalanceTrendsAsync();
+    Task<BalanceTrendsResponse?> GetBalanceTrendsAsync();
 
-        Task<TopRecipientsResponse?> GetTopRecipientsAsync();
-    }
+    Task<TopRecipientsResponse?> GetTopRecipientsAsync();
 }

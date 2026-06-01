@@ -1,7 +1,6 @@
 namespace BankingApp.Desktop.Views;
 
 using System;
-using System.Threading.Tasks;
 using Contracts.Features.UserProfile.Dtos;
 using ViewModels;
 using Microsoft.UI;

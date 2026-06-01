@@ -1,17 +1,13 @@
-﻿using System;
-using System.Linq;
+﻿namespace BankingApp.Web.Controllers;
+
 using BankingApp.Contracts.Features.Loans.Dtos;
 using BankingApp.Domain.Enums;
 using BankingApp.Domain.Aggregates.LoanAggregate;
-using BankingApp.Web.Infrastructure;
-using BankingApp.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BankingApp.Web.Controllers;
-
-using Application.Features.Loans.Services;
-using Domain.Aggregates.LoanAggregate.Entities;
-using Models.Loans;
+using BankingApp.Application.Features.Loans.Services;
+using BankingApp.Domain.Aggregates.LoanAggregate.Entities;
+using BankingApp.Web.Models.Loans;
 
 //[Authorize]
 public class LoansController : WebControllerBase

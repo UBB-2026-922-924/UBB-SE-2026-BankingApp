@@ -1,25 +1,23 @@
-﻿namespace BankingApp.Infrastructure.Http.Features.Investments.Services
+﻿namespace BankingApp.Infrastructure.Http.Features.Investments.Services;
+
+using System.Threading.Tasks;
+
+public class InvestmentsRepoProxy : IInvestmentsRepoProxy
 {
-    using System.Threading.Tasks;
-        using BankingApp.Domain.Aggregates.InvestmentAggregate;
+    private readonly ApiService _api;
 
-    public class InvestmentsRepoProxy : IInvestmentsRepoProxy
+    public InvestmentsRepoProxy(ApiService api)
     {
-        private readonly ApiService _api;
+        this._api = api;
+    }
 
-        public InvestmentsRepoProxy(ApiService api)
-        {
-            this._api = api;
-        }
+    public async Task<TResponse?> GetAsync<TResponse>(string endpoint)
+    {
+        return await this._api.GetAsync<TResponse>(endpoint);
+    }
 
-        public async Task<TResponse?> GetAsync<TResponse>(string endpoint)
-        {
-            return await this._api.GetAsync<TResponse>(endpoint);
-        }
-
-        public async Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
-        {
-            return await this._api.PostAsync<TRequest, TResponse>(endpoint, data);
-        }
+    public async Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
+    {
+        return await this._api.PostAsync<TRequest, TResponse>(endpoint, data);
     }
 }

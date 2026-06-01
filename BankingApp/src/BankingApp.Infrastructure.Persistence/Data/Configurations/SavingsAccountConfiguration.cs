@@ -1,7 +1,6 @@
 namespace BankingApp.Infrastructure.Persistence.Data.Configurations;
 
 using Domain.Aggregates.SavingsAggregate;
-using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

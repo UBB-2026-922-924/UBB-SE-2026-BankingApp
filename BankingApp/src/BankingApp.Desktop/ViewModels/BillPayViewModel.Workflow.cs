@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using BankingApp.Contracts.Features.BillPayments.Dtos;
 using BankingApp.Contracts.Features.Billers.Dtos;
-using Contracts.Features.Billers.Services;
 using ErrorOr;
 
 public partial class BillPayViewModel

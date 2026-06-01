@@ -1,7 +1,5 @@
 namespace BankingApp.Web.ViewModels;
 
-using BankingApp.Contracts.Features.Billers.Dtos;
-
 public sealed class BillerListViewModel
 {
     public IList<BillerRow> Billers { get; init; } = [];

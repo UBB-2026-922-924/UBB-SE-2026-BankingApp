@@ -1,36 +1,28 @@
-﻿using System.Threading.Tasks;
-using BankingApp.Client.RepoProxies;
+namespace BankingApp.Infrastructure.Http.Features.Statistics.Services;
+
 using BankingApp.Contracts.Features.Statistics.Dtos;
+using BankingApp.Contracts.Http;
+using Shared.Http;
 
-namespace BankingApp.Infrastructure.Http.Features.Statistics.Services
+public class StatisticsRepoProxy(ApiService apiService) : IStatisticsRepoProxy
 {
-    public class StatisticsRepoProxy : IStatisticsRepoProxy
+    public Task<SpendingByCategoryResponse?> GetSpendingByCategoryAsync()
     {
-        private readonly ApiService _apiService;
+        return apiService.GetAsync<SpendingByCategoryResponse>(ApiEndpoints.Statistics.SpendingByCategoryFull);
+    }
 
-        public StatisticsRepoProxy(ApiService apiService)
-        {
-            _apiService = apiService;
-        }
+    public Task<IncomeVsExpensesResponse?> GetIncomeVsExpensesAsync()
+    {
+        return apiService.GetAsync<IncomeVsExpensesResponse>(ApiEndpoints.Statistics.IncomeVsExpensesFull);
+    }
 
-        public Task<SpendingByCategoryResponse?> GetSpendingByCategoryAsync()
-        {
-            return _apiService.GetAsync<SpendingByCategoryResponse>("/api/statistics/spending-by-category");
-        }
+    public Task<BalanceTrendsResponse?> GetBalanceTrendsAsync()
+    {
+        return apiService.GetAsync<BalanceTrendsResponse>(ApiEndpoints.Statistics.BalanceTrendsFull);
+    }
 
-        public Task<IncomeVsExpensesResponse?> GetIncomeVsExpensesAsync()
-        {
-            return _apiService.GetAsync<IncomeVsExpensesResponse>("/api/statistics/income-vs-expenses");
-        }
-
-        public Task<BalanceTrendsResponse?> GetBalanceTrendsAsync()
-        {
-            return _apiService.GetAsync<BalanceTrendsResponse>("/api/statistics/balance-trends");
-        }
-
-        public Task<TopRecipientsResponse?> GetTopRecipientsAsync()
-        {
-            return _apiService.GetAsync<TopRecipientsResponse>("/api/statistics/top-recipients");
-        }
+    public Task<TopRecipientsResponse?> GetTopRecipientsAsync()
+    {
+        return apiService.GetAsync<TopRecipientsResponse>(ApiEndpoints.Statistics.TopRecipientsFull);
     }
 }

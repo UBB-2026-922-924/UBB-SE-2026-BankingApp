@@ -1,9 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿namespace BankingApp.Infrastructure.Http.Features.Loans.Services;
 
-namespace BankingApp.Infrastructure.Http.Features.Loans.Services
+public interface ILoanDialogStateRepoProxy
 {
-    public interface ILoanDialogStateRepoProxy
-    {
-        Task<bool> GetShouldComputeEstimate(double desiredAmount, int preferredTermMonths, string purpose);
-    }
+    Task<bool> GetShouldComputeEstimate(double desiredAmount, int preferredTermMonths, string purpose);
 }

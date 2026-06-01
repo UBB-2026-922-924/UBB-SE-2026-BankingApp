@@ -7,7 +7,6 @@ using Shared.Enums;
 using Contracts.Features.UserProfile.Dtos;
 using Contracts.Features.UserProfile.Services;
 using ErrorOr;
-using Logging;
 using Microsoft.Extensions.Logging;
 using Shared;
 using Shared.Validation;

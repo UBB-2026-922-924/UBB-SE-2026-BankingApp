@@ -1,6 +1,5 @@
 namespace BankingApp.Desktop.Views;
 
-using System;
 using ViewModels;
 using Microsoft.UI.Xaml;
 

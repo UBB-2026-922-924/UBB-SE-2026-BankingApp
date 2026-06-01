@@ -1,50 +1,47 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankingApp.Client.RepoProxies;
+﻿namespace BankingApp.Infrastructure.Http.Features.Savings.Services;
+
 using BankingApp.Contracts.Features.Savings.Dtos;
 using BankingApp.Domain.Enums;
 using BankingApp.Domain.Aggregates.SavingsAggregate;
+using BankingApp.Infrastructure.Http.Shared.Http;
 
-namespace BankingApp.Infrastructure.Http.Features.Savings.Services
+public class SavingsUiRulesRepoProxy : ISavingsUiRulesRepoProxy
 {
-    public class SavingsUiRulesRepoProxy : ISavingsUiRulesRepoProxy
+    private readonly ApiService _apiService;
+
+    public SavingsUiRulesRepoProxy(ApiService apiService)
     {
-        private readonly ApiService _apiService;
+        _apiService = apiService;
+    }
 
-        public SavingsUiRulesRepoProxy(ApiService apiService)
-        {
-            _apiService = apiService;
-        }
+    public async Task<string> GetDepositPreview(string depositAmountText, SavingsAccount selectedAccount)
+    {
+        var accountSnapshot = SavingsAccountSnapshotDto.FromAccount(selectedAccount);
+        return await _apiService.PostAsync<SavingsAccountSnapshotDto, string>($"/api/savings-ui-rules/deposit-preview?depositAmountText={depositAmountText}", accountSnapshot);
+    }
 
-        public async Task<string> GetDepositPreview(string depositAmountText, SavingsAccount selectedAccount)
-        {
-            var accountSnapshot = SavingsAccountSnapshotDto.FromAccount(selectedAccount);
-            return await _apiService.PostAsync<SavingsAccountSnapshotDto, string>($"/api/savings-ui-rules/deposit-preview?depositAmountText={depositAmountText}", accountSnapshot);
-        }
+    public async Task<int> GetTotalPages(int totalCount, int pageSize)
+    {
+        return await _apiService.GetAsync<int>($"/api/savings-ui-rules/total-pages?totalCount={totalCount}&pageSize={pageSize}");
+    }
 
-        public async Task<int> GetTotalPages(int totalCount, int pageSize)
-        {
-            return await _apiService.GetAsync<int>($"/api/savings-ui-rules/total-pages?totalCount={totalCount}&pageSize={pageSize}");
-        }
+    public async Task<decimal> GetWithdrawNetAmount(decimal requestedAmount, decimal penalty)
+    {
+        return await _apiService.GetAsync<decimal>($"/api/savings-ui-rules/withdraw-net-amount?requestedAmount={requestedAmount}&penalty={penalty}");
+    }
 
-        public async Task<decimal> GetWithdrawNetAmount(decimal requestedAmount, decimal penalty)
-        {
-            return await _apiService.GetAsync<decimal>($"/api/savings-ui-rules/withdraw-net-amount?requestedAmount={requestedAmount}&penalty={penalty}");
-        }
+    public async Task<DepositFrequency> ParseDepositFrequency(string frequencyText)
+    {
+        return await _apiService.GetAsync<DepositFrequency>($"/api/savings-ui-rules/parse-deposit-frequency?frequencyText={frequencyText}");
+    }
 
-        public async Task<DepositFrequency> ParseDepositFrequency(string frequencyText)
-        {
-            return await _apiService.GetAsync<DepositFrequency>($"/api/savings-ui-rules/parse-deposit-frequency?frequencyText={frequencyText}");
-        }
+    public async Task<decimal> ParsePositiveAmount(string text)
+    {
+        return await _apiService.GetAsync<decimal>($"/api/savings-ui-rules/parse-positive-amount?text={text}");
+    }
 
-        public async Task<decimal> ParsePositiveAmount(string text)
-        {
-            return await _apiService.GetAsync<decimal>($"/api/savings-ui-rules/parse-positive-amount?text={text}");
-        }
-
-        public async Task<Dictionary<string, string>> ValidateCreateAccount(ValidateCreateAccountRequest request)
-        {
-            return await _apiService.PostAsync<ValidateCreateAccountRequest, Dictionary<string, string>>("/api/savings-ui-rules/validate-create-account", request);
-        }
+    public async Task<Dictionary<string, string>> ValidateCreateAccount(ValidateCreateAccountRequest request)
+    {
+        return await _apiService.PostAsync<ValidateCreateAccountRequest, Dictionary<string, string>>("/api/savings-ui-rules/validate-create-account", request);
     }
 }

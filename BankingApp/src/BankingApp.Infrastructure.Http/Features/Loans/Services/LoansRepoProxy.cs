@@ -1,86 +1,89 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankingApp.Client.RepoProxies;
-using BankingApp.Contracts.Features.Loans.Dtos;
-using BankingApp.Domain.Enums;
-using BankingApp.Domain.Aggregates.LoanAggregate;
+namespace BankingApp.Infrastructure.Http.Features.Loans.Services;
 
-namespace BankingApp.Infrastructure.Http.Features.Loans.Services
+using Application.Features.Loans.Services;
+using Contracts.Features.Loans.Dtos;
+using Contracts.Http;
+using Domain.Aggregates.LoanAggregate;
+using Domain.Aggregates.LoanAggregate.Entities;
+using Domain.Enums;
+using Shared.Http;
+
+public class LoansRepoProxy(ApiService apiService) : ILoansRepoProxy
 {
-    using Domain.Aggregates.LoanAggregate.Entities;
-
-    public class LoansRepoProxy : ILoansRepoProxy
+    public Task<List<Loan>> GetAllLoansAsync()
     {
-        private readonly ApiService _apiService;
+        return apiService.GetAsync<List<Loan>>(ApiEndpoints.Loans.Base);
+    }
 
-        public LoansRepoProxy(ApiService apiService)
-        {
-            _apiService = apiService;
-        }
+    public Task<Loan> GetLoanByIdAsync(int id)
+    {
+        return apiService.GetAsync<Loan>($"{ApiEndpoints.Loans.Base}/{id}");
+    }
 
-        public Task<List<Loan>> GetAllLoansAsync()
-        {
-            return _apiService.GetAsync<List<Loan>>("/api/loans");
-        }
+    public Task<List<Loan>> GetLoansByUserAsync(int userId)
+    {
+        return apiService.GetAsync<List<Loan>>(ApiEndpoints.Loans.Base);
+    }
 
-        public Task<Loan> GetLoanByIdAsync(int id)
-        {
-            return _apiService.GetAsync<Loan>($"/api/loans/{id}");
-        }
+    public Task<List<Loan>> GetLoansByStatusAsync(LoanStatus loanStatus)
+    {
+        return apiService.GetAsync<List<Loan>>($"{ApiEndpoints.Loans.Base}?status={loanStatus}");
+    }
 
-        public Task<List<Loan>> GetLoansByUserAsync(int userId)
-        {
-            return _apiService.GetAsync<List<Loan>>($"/api/loans/by-user/{userId}");
-        }
+    public Task<List<Loan>> GetLoansByTypeAsync(LoanType loanType)
+    {
+        return apiService.GetAsync<List<Loan>>($"{ApiEndpoints.Loans.Base}?type={loanType}");
+    }
 
-        public Task<List<Loan>> GetLoansByStatusAsync(LoanStatus loanStatus)
-        {
-            return _apiService.GetAsync<List<Loan>>($"/api/loans/by-status/{loanStatus}");
-        }
+    public async Task<int> CreateLoanApplicationAsync(LoanApplicationRequest request)
+    {
+        LoanApplicationResult result =
+            await apiService.PostAsync<LoanApplicationRequest, LoanApplicationResult>(
+                ApiEndpoints.Loans.ApplicationsFull,
+                request);
 
-        public Task<List<Loan>> GetLoansByTypeAsync(LoanType loanType)
-        {
-            return _apiService.GetAsync<List<Loan>>($"/api/loans/by-type/{loanType}");
-        }
+        return result.Status.Equals(LoanApplicationStatus.Approved.ToString(), StringComparison.OrdinalIgnoreCase)
+            ? 1
+            : 0;
+    }
 
-        public async Task<int> CreateLoanApplicationAsync(LoanApplicationRequest request)
-        {
-            int result = await _apiService.PostAsync<LoanApplicationRequest, int>("/api/loans/applications", request);
-            return result;
-        }
+    public async Task UpdateLoanApplicationStatusAsync(int applicationId, LoanApplicationStatus status, string? reason)
+    {
+        string reasonParam = reason == null ? string.Empty : $"&reason={Uri.EscapeDataString(reason)}";
+        await apiService.PutAsync<object, object>(
+            $"{ApiEndpoints.Loans.ApplicationsFull}/{applicationId}/status?status={status}{reasonParam}",
+            new { });
+    }
 
-        public async Task UpdateLoanApplicationStatusAsync(int applicationId, LoanApplicationStatus status, string? reason)
-        {
-            string reasonParam = reason == null ? string.Empty : $"&reason={Uri.EscapeDataString(reason)}";
-            await _apiService.PutAsync<object, object>(
-                $"/api/loans/applications/{applicationId}/status?status={status}{reasonParam}",
-                new { });
-        }
+    public async Task<int> CreateLoanAsync(Loan loan)
+    {
+        int result = await apiService.PostAsync<LoanCreateDto, int>(
+            ApiEndpoints.Loans.Base,
+            LoanCreateDto.FromLoan(loan));
+        return result;
+    }
 
-        public async Task<int> CreateLoanAsync(Loan loan)
-        {
-            int result = await _apiService.PostAsync<LoanCreateDto, int>("/api/loans", LoanCreateDto.FromLoan(loan));
-            return result;
-        }
+    public async Task UpdateLoanAfterPaymentAsync(
+        int loanId,
+        decimal newBalance,
+        int newRemainingMonths,
+        LoanStatus newStatus)
+    {
+        await apiService.PutAsync<object, object>(
+            $"{ApiEndpoints.Loans.Base}/{loanId}/after-payment?newBalance={newBalance}&newRemainingMonths={newRemainingMonths}&newStatus={newStatus}",
+            new { });
+    }
 
-        public async Task UpdateLoanAfterPaymentAsync(int loanId, decimal newBalance, int newRemainingMonths, LoanStatus newStatus)
-        {
-            await _apiService.PutAsync<object, object>(
-                $"/api/loans/{loanId}/after-payment?newBalance={newBalance}&newRemainingMonths={newRemainingMonths}&newStatus={newStatus}",
-                new { });
-        }
+    public Task<List<AmortizationRow>> GetAmortizationAsync(int loanId)
+    {
+        return apiService.GetAsync<List<AmortizationRow>>(
+            $"{ApiEndpoints.Loans.Base}/{loanId}/amortization-schedule");
+    }
 
-        public Task<List<AmortizationRow>> GetAmortizationAsync(int loanId)
-        {
-            return _apiService.GetAsync<List<AmortizationRow>>($"/api/loans/{loanId}/amortization-schedule");
-        }
-
-        public async Task SaveAmortizationAsync(int loanId, List<AmortizationRow> rows)
-        {
-            await _apiService.PostAsync<List<AmortizationRowUpsertDto>, object>(
-                $"/api/loans/{loanId}/amortization-schedule",
-                rows.ConvertAll(AmortizationRowUpsertDto.FromAmortizationRow));
-        }
+    public async Task SaveAmortizationAsync(int loanId, List<AmortizationRow> rows)
+    {
+        await apiService.PostAsync<List<AmortizationRowUpsertDto>, object>(
+            $"{ApiEndpoints.Loans.Base}/{loanId}/amortization-schedule",
+            rows.ConvertAll(AmortizationRowUpsertDto.FromAmortizationRow));
     }
 }

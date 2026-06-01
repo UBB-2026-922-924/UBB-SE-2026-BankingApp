@@ -17,6 +17,10 @@ using Features.Billers.Services;
 using Features.BillPayments.Services;
 using Features.Cards.Services;
 using Features.Forex.Services;
+using Features.Investments.Services;
+using Features.Loans.Services;
+using Features.Savings.Services;
+using Features.Statistics.Services;
 using Features.Transfers.Services;
 using Features.UserProfile.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +34,7 @@ public static class HttpInfrastructureServiceCollectionExtensions
         ServiceLifetime lifetime = ServiceLifetime.Transient)
     {
         services.TryAdd(ServiceDescriptor.Describe(typeof(IApiClient), typeof(ApiClient), lifetime));
+        services.TryAdd(ServiceDescriptor.Describe(typeof(ApiService), typeof(ApiService), lifetime));
 
         services.Add(ServiceDescriptor.Describe(typeof(IAuthenticationService), typeof(AuthenticationService), lifetime));
         services.Add(ServiceDescriptor.Describe(typeof(IAccountOverviewService), typeof(AccountOverview), lifetime));
@@ -40,6 +45,10 @@ public static class HttpInfrastructureServiceCollectionExtensions
         services.Add(ServiceDescriptor.Describe(typeof(IForexService), typeof(ForexService), lifetime));
         services.Add(ServiceDescriptor.Describe(typeof(ITransferService), typeof(TransferService), lifetime));
         services.Add(ServiceDescriptor.Describe(typeof(IProfileService), typeof(ProfileService), lifetime));
+        services.Add(ServiceDescriptor.Describe(typeof(IInvestmentsRepoProxy), typeof(InvestmentsRepoProxy), lifetime));
+        services.Add(ServiceDescriptor.Describe(typeof(ISavingsRepoProxy), typeof(SavingsRepoProxy), lifetime));
+        services.Add(ServiceDescriptor.Describe(typeof(ILoansRepoProxy), typeof(LoansRepoProxy), lifetime));
+        services.Add(ServiceDescriptor.Describe(typeof(IStatisticsRepoProxy), typeof(StatisticsRepoProxy), lifetime));
 
         return services;
     }

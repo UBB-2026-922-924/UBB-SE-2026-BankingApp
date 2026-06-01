@@ -1,106 +1,105 @@
-﻿namespace BankingApp.Desktop.Views.Dialogs
+﻿namespace BankingApp.Desktop.Views.Dialogs;
+
+using System;
+using BankingApp.Desktop.ViewModels;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+
+public sealed partial class PayInstallmentDialog : ContentDialog
 {
-    using System;
-    using BankingApp.Desktop.ViewModels;
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
+    private readonly LoansViewModel viewModel;
 
-    public sealed partial class PayInstallmentDialog : ContentDialog
+    public PayInstallmentDialog(LoansViewModel viewModel)
     {
-        private readonly LoansViewModel viewModel;
+        this.InitializeComponent();
+        this.viewModel = viewModel;
+        this.DataContext = viewModel;
+        this.UpdatePreview();
+    }
 
-        public PayInstallmentDialog(LoansViewModel viewModel)
+    private async void OnConfirmClicked(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    {
+        ContentDialogButtonClickDeferral? deferral = args.GetDeferral();
+        try
         {
-            this.InitializeComponent();
-            this.viewModel = viewModel;
-            this.DataContext = viewModel;
-            this.UpdatePreview();
+            await this.viewModel.PayInstallmentAsync();
+        }
+        catch (Exception)
+        {
+            args.Cancel = true;
+        }
+        finally
+        {
+            deferral.Complete();
+        }
+    }
+
+    private void OnStandardChecked(object sender, RoutedEventArgs e)
+    {
+        if (this.viewModel == null)
+        {
+            return;
         }
 
-        private async void OnConfirmClicked(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        if (this.CustomAmountPanel != null)
         {
-            ContentDialogButtonClickDeferral? deferral = args.GetDeferral();
-            try
-            {
-                await this.viewModel.PayInstallmentAsync();
-            }
-            catch (Exception)
-            {
-                args.Cancel = true;
-            }
-            finally
-            {
-                deferral.Complete();
-            }
+            this.CustomAmountPanel.Visibility = Visibility.Collapsed;
         }
 
-        private void OnStandardChecked(object sender, RoutedEventArgs e)
+        this.viewModel.SelectStandardPayment();
+        this.UpdatePreview();
+    }
+
+    private void OnCustomChecked(object sender, RoutedEventArgs e)
+    {
+        if (this.viewModel == null)
         {
-            if (this.viewModel == null)
-            {
-                return;
-            }
+            return;
+        }
 
-            if (this.CustomAmountPanel != null)
-            {
-                this.CustomAmountPanel.Visibility = Visibility.Collapsed;
-            }
+        this.CustomAmountPanel.Visibility = Visibility.Visible;
+        if (this.viewModel.SelectedLoan != null)
+        {
+            this.CustomAmountBox.Text = this.viewModel.SelectCustomPayment();
+        }
 
+        this.UpdatePreview();
+    }
+
+    private void OnCustomAmountTextChanged(object sender, TextChangedEventArgs e)
+    {
+        this.UpdatePreview();
+    }
+
+    private void OnCustomAmountLostFocus(object sender, RoutedEventArgs e)
+    {
+        this.UpdatePreview();
+    }
+
+    private void UpdatePreview()
+    {
+        if (this.viewModel == null)
+        {
+            return;
+        }
+
+        if (this.viewModel.SelectedLoan == null)
+        {
+            this.BalanceAfterPaymentText.Text = string.Empty;
+            this.RemainingTermAfterPaymentText.Text = string.Empty;
+            return;
+        }
+
+        if (this.StandardRadio.IsChecked == true)
+        {
             this.viewModel.SelectStandardPayment();
-            this.UpdatePreview();
         }
-
-        private void OnCustomChecked(object sender, RoutedEventArgs e)
+        else
         {
-            if (this.viewModel == null)
-            {
-                return;
-            }
-
-            this.CustomAmountPanel.Visibility = Visibility.Visible;
-            if (this.viewModel.SelectedLoan != null)
-            {
-                this.CustomAmountBox.Text = this.viewModel.SelectCustomPayment();
-            }
-
-            this.UpdatePreview();
+            this.viewModel.UpdateCustomPayment(this.CustomAmountBox?.Text ?? string.Empty);
         }
 
-        private void OnCustomAmountTextChanged(object sender, TextChangedEventArgs e)
-        {
-            this.UpdatePreview();
-        }
-
-        private void OnCustomAmountLostFocus(object sender, RoutedEventArgs e)
-        {
-            this.UpdatePreview();
-        }
-
-        private void UpdatePreview()
-        {
-            if (this.viewModel == null)
-            {
-                return;
-            }
-
-            if (this.viewModel.SelectedLoan == null)
-            {
-                this.BalanceAfterPaymentText.Text = string.Empty;
-                this.RemainingTermAfterPaymentText.Text = string.Empty;
-                return;
-            }
-
-            if (this.StandardRadio.IsChecked == true)
-            {
-                this.viewModel.SelectStandardPayment();
-            }
-            else
-            {
-                this.viewModel.UpdateCustomPayment(this.CustomAmountBox?.Text ?? string.Empty);
-            }
-
-            this.BalanceAfterPaymentText.Text = this.viewModel.PaymentPreviewBalance.ToString("C2");
-            this.RemainingTermAfterPaymentText.Text = $"{this.viewModel.PaymentPreviewRemainingMonths} mo";
-        }
+        this.BalanceAfterPaymentText.Text = this.viewModel.PaymentPreviewBalance.ToString("C2");
+        this.RemainingTermAfterPaymentText.Text = $"{this.viewModel.PaymentPreviewRemainingMonths} mo";
     }
 }

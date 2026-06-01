@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
+﻿namespace BankingApp.Web.Models.Loans;
+
 using System.ComponentModel.DataAnnotations;
-using BankingApp.Contracts.Features.Loans.Dtos;
 using BankingApp.Domain.Enums;
 using BankingApp.Domain.Aggregates.LoanAggregate;
 
-namespace BankingApp.Web.Models.Loans;
-
-using Domain.Aggregates.LoanAggregate.Entities;
+using BankingApp.Domain.Aggregates.LoanAggregate.Entities;
 
 public class LoansPageViewModel
 {

@@ -7,9 +7,7 @@ using Contracts.Features.UserProfile.Dtos;
 using Contracts.Features.UserProfile.Services;
 using Shared.Enums;
 using ErrorOr;
-using Logging;
 using Microsoft.Extensions.Logging;
-using Shared;
 using DesktopLogMessages = Logging.DesktopLogMessages;
 
 /// <summary>Handles notification-preference loading and updates for the profile area.</summary>

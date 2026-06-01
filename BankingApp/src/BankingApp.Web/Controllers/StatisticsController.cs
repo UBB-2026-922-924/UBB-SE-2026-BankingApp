@@ -1,44 +1,42 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿namespace BankingApp.Web.Controllers;
+
+using Microsoft.AspNetCore.Mvc;
 using BankingApp.Web.ViewModels.Statistics;
+using BankingApp.Application.Features.Statistics.Services;
+using BankingApp.Contracts.Features.Statistics.Dtos;
 
-namespace BankingApp.Web.Controllers
+public class StatisticsController : Controller
 {
-    using Application.Features.Statistics.Services;
-    using Contracts.Features.Statistics.Dtos;
+    private readonly IStatisticsService _statisticsService;
 
-    public class StatisticsController : Controller
+    public StatisticsController(IStatisticsService statisticsService)
     {
-        private readonly IStatisticsService _statisticsService;
+        _statisticsService = statisticsService;
+    }
 
-        public StatisticsController(IStatisticsService statisticsService)
+    [HttpGet]
+    public async Task<IActionResult> Index()
+    {
+        try
         {
-            _statisticsService = statisticsService;
+            SpendingByCategoryResponse? spendingByCategory = await _statisticsService.GetSpendingByCategoryAsync();
+            IncomeVsExpensesResponse? incomeVsExpenses = await _statisticsService.GetIncomeVsExpensesAsync();
+            BalanceTrendsResponse? balanceTrends = await _statisticsService.GetBalanceTrendsAsync();
+            TopRecipientsResponse? topRecipients = await _statisticsService.GetTopRecipientsAsync();
+
+            var viewModel = new StatisticsViewModel
+            {
+                SpendingByCategory = spendingByCategory,
+                IncomeVsExpenses = incomeVsExpenses,
+                BalanceTrends = balanceTrends,
+                TopRecipients = topRecipients
+            };
+
+            return View(viewModel);
         }
-
-        [HttpGet]
-        public async Task<IActionResult> Index()
+        catch (UnauthorizedAccessException)
         {
-            try
-            {
-                SpendingByCategoryResponse? spendingByCategory = await _statisticsService.GetSpendingByCategoryAsync();
-                IncomeVsExpensesResponse? incomeVsExpenses = await _statisticsService.GetIncomeVsExpensesAsync();
-                BalanceTrendsResponse? balanceTrends = await _statisticsService.GetBalanceTrendsAsync();
-                TopRecipientsResponse? topRecipients = await _statisticsService.GetTopRecipientsAsync();
-
-                var viewModel = new StatisticsViewModel
-                {
-                    SpendingByCategory = spendingByCategory,
-                    IncomeVsExpenses = incomeVsExpenses,
-                    BalanceTrends = balanceTrends,
-                    TopRecipients = topRecipients
-                };
-
-                return View(viewModel);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return RedirectToAction("Index", "Auth");
-            }
+            return RedirectToAction("Index", "Auth");
         }
     }
 }

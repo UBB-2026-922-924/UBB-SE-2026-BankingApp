@@ -1,11 +1,9 @@
-﻿namespace BankingApp.Infrastructure.Http.Features.Investments.Services
-{
-    using System.Threading.Tasks;
-    using BankingApp.Domain.Aggregates.InvestmentAggregate;
+﻿namespace BankingApp.Infrastructure.Http.Features.Investments.Services;
 
-    public interface IInvestmentsRepoProxy
-    {
-        Task<TResponse?> GetAsync<TResponse>(string endpoint);
-        Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data);
-    }
+using System.Threading.Tasks;
+
+public interface IInvestmentsRepoProxy
+{
+    Task<TResponse?> GetAsync<TResponse>(string endpoint);
+    Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data);
 }

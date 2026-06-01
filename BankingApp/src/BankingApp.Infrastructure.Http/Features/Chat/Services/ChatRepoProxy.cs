@@ -1,69 +1,64 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using BankingApp.Client.RepoProxies;
-using BankingApp.Contracts.Features.Chat.Dtos;
+﻿namespace BankingApp.Infrastructure.Http.Features.Chat.Services;
+
 using BankingApp.Domain.Aggregates.ChatAggregate;
+using BankingApp.Domain.Aggregates.ChatAggregate.Entities;
+using BankingApp.Infrastructure.Http.Shared.Http;
 
-namespace BankingApp.Infrastructure.Http.Features.Chat.Services
+public class ChatRepoProxy : IChatRepoProxy
 {
-    using Domain.Aggregates.ChatAggregate.Entities;
+    private readonly ApiService apiService;
 
-    public class ChatRepoProxy : IChatRepoProxy
+    public ChatRepoProxy(ApiService apiService)
     {
-        private readonly ApiService apiService;
+        this.apiService = apiService;
+    }
 
-        public ChatRepoProxy(ApiService apiService)
-        {
-            this.apiService = apiService;
-        }
+    public Task<List<ChatSession>?> GetSessionsAsync()
+    {
+        return apiService.GetAsync<List<ChatSession>>("/api/chat/sessions");
+    }
 
-        public Task<List<ChatSession>?> GetSessionsAsync()
-        {
-            return apiService.GetAsync<List<ChatSession>>("/api/chat/sessions");
-        }
+    public Task<ChatSession?> GetSessionAsync(int sessionId)
+    {
+        return apiService.GetAsync<ChatSession>($"/api/chat/sessions/{sessionId}");
+    }
 
-        public Task<ChatSession?> GetSessionAsync(int sessionId)
-        {
-            return apiService.GetAsync<ChatSession>($"/api/chat/sessions/{sessionId}");
-        }
+    public Task<CreateChatSessionResponse?> CreateSessionAsync(string issueCategory)
+    {
+        return apiService.PostAsync<object, CreateChatSessionResponse>("/api/chat/sessions", new { issueCategory });
+    }
 
-        public Task<CreateChatSessionResponse?> CreateSessionAsync(string issueCategory)
-        {
-            return apiService.PostAsync<object, CreateChatSessionResponse>("/api/chat/sessions", new { issueCategory });
-        }
+    public Task<List<ChatMessage>?> GetMessagesAsync(int sessionId)
+    {
+        return apiService.GetAsync<List<ChatMessage>>($"/api/chat/sessions/{sessionId}/messages");
+    }
 
-        public Task<List<ChatMessage>?> GetMessagesAsync(int sessionId)
-        {
-            return apiService.GetAsync<List<ChatMessage>>($"/api/chat/sessions/{sessionId}/messages");
-        }
+    public Task<CreateChatMessageResponse?> CreateMessageAsync(int sessionId, string senderType, string content)
+    {
+        return apiService.PostAsync<object, CreateChatMessageResponse>(
+            $"/api/chat/sessions/{sessionId}/messages",
+            new { senderType, content });
+    }
 
-        public Task<CreateChatMessageResponse?> CreateMessageAsync(int sessionId, string senderType, string content)
-        {
-            return apiService.PostAsync<object, CreateChatMessageResponse>(
-                $"/api/chat/sessions/{sessionId}/messages",
-                new { senderType, content });
-        }
+    public Task<CreateChatAttachmentResponse?> CreateAttachmentAsync(int messageId, CreateChatAttachmentRequest request)
+    {
+        return apiService.PostAsync<CreateChatAttachmentRequest, CreateChatAttachmentResponse>(
+            $"/api/chat/messages/{messageId}/attachments",
+            request);
+    }
 
-        public Task<CreateChatAttachmentResponse?> CreateAttachmentAsync(int messageId, CreateChatAttachmentRequest request)
-        {
-            return apiService.PostAsync<CreateChatAttachmentRequest, CreateChatAttachmentResponse>(
-                $"/api/chat/messages/{messageId}/attachments",
-                request);
-        }
+    public Task<OperationResponse?> UpdateSessionStatusAsync(int sessionId, string status)
+    {
+        return apiService.PutAsync<object, OperationResponse>($"/api/chat/sessions/{sessionId}/status", new { status });
+    }
 
-        public Task<OperationResponse?> UpdateSessionStatusAsync(int sessionId, string status)
-        {
-            return apiService.PutAsync<object, OperationResponse>($"/api/chat/sessions/{sessionId}/status", new { status });
-        }
+    public Task<OperationResponse?> SaveFeedbackAsync(int sessionId, int rating, string feedback)
+    {
+        return apiService.PostAsync<object, OperationResponse>($"/api/chat/sessions/{sessionId}/feedback", new { rating, feedback });
+    }
 
-        public Task<OperationResponse?> SaveFeedbackAsync(int sessionId, int rating, string feedback)
-        {
-            return apiService.PostAsync<object, OperationResponse>($"/api/chat/sessions/{sessionId}/feedback", new { rating, feedback });
-        }
-
-        public Task<OperationResponse?> EmailTranscriptAsync(int sessionId, string email)
-        {
-            return apiService.PostAsync<object, OperationResponse>($"/api/chat/sessions/{sessionId}/transcript/email", new { email });
-        }
+    public Task<OperationResponse?> EmailTranscriptAsync(int sessionId, string email)
+    {
+        return apiService.PostAsync<object, OperationResponse>($"/api/chat/sessions/{sessionId}/transcript/email", new { email });
     }
 }
