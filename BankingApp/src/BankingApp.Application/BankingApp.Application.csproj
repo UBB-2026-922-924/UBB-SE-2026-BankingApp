@@ -8,19 +8,22 @@
         <RootNamespace>BankingApp.Application</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="EmailValidation" Version="1.3.0"/>
-        <PackageReference Include="ErrorOr" Version="2.1.1"/>
-        <PackageReference Include="FluentValidation" Version="12.1.1"/>
-        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1"/>
-        <PackageReference Include="libphonenumber-csharp" Version="9.0.30"/>
-<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8"/>
-        <PackageReference Include="NodaMoney" Version="2.7.0"/>
+        <PackageReference Include="EmailValidation" Version="1.3.0" />
+        <PackageReference Include="ErrorOr" Version="2.1.1" />
+        <PackageReference Include="FluentValidation" Version="12.1.1" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+        <PackageReference Include="libphonenumber-csharp" Version="9.0.30" />
+<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
+        <PackageReference Include="NodaMoney" Version="2.7.0" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\BankingApp.Contracts\BankingApp.Contracts.csproj" />
-        <ProjectReference Include="..\BankingApp.Domain\BankingApp.Domain.csproj"/>
+        <ProjectReference Include="..\BankingApp.Domain\BankingApp.Domain.csproj" />
     </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="BankingApp.Application.Tests" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Features\Statistics\Services\" />
     </ItemGroup>
 </Project>
