@@ -87,6 +87,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<TransferHistoryViewModel>();
         services.AddTransient<BillPayViewModel>();
 
+        services.AddTransient<StatisticsViewModel>();
+
         services.AddTransient<CardViewModel>();
 
         return services;
@@ -105,6 +107,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<TransferView>();
         services.AddTransient<TransferHistoryView>();
         services.AddTransient<CardsView>();
+
+        services.AddTransient<StatisticsView>();
 
         return services;
     }

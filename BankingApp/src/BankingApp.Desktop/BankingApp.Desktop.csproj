@@ -26,6 +26,7 @@
 
     <ItemGroup>
       <Page Remove="Views\BillPayHistoryView.xaml" />
+      <Page Remove="Views\StatisticsView.xaml" />
     </ItemGroup>
 
     <ItemGroup>
@@ -48,6 +49,10 @@
         </None>
 
         <None Update="Views\BillPayHistoryView.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </None>
+
+        <None Update="Views\StatisticsView.xaml">
           <Generator>MSBuild:Compile</Generator>
         </None>
 

@@ -8,6 +8,7 @@ using Contracts.Features.Billers.Services;
 using Contracts.Features.BillPayments.Services;
 using Contracts.Features.Cards.Services;
 using Contracts.Features.Forex.Services;
+using Contracts.Features.Statistics.Services;
 using Contracts.Features.Transfers.Services;
 using Contracts.Features.UserProfile.Services;
 using Features.AccountOverview.Services;
@@ -17,6 +18,7 @@ using Features.Billers.Services;
 using Features.BillPayments.Services;
 using Features.Cards.Services;
 using Features.Forex.Services;
+using Features.Statistics.Services;
 using Features.Transfers.Services;
 using Features.UserProfile.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,6 +43,7 @@ public static class HttpInfrastructureServiceCollectionExtensions
         services.Add(ServiceDescriptor.Describe(typeof(ITransferService), typeof(TransferService), lifetime));
         services.Add(ServiceDescriptor.Describe(typeof(IProfileService), typeof(ProfileService), lifetime));
 
+        services.Add(ServiceDescriptor.Describe(typeof(IStatisticsService), typeof(StatisticsService), lifetime));
         return services;
     }
 }

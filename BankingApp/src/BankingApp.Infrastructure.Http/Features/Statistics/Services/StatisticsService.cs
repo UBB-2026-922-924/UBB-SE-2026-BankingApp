@@ -10,7 +10,7 @@ using BankingApp.Contracts.Features.Statistics.Services;
 using Contracts.Http;
 using ErrorOr;
 
-public class StatisticsService(IApiClient apiClient) : IStatisticsService
+public sealed class StatisticsService(IApiClient apiClient) : IStatisticsService
 {
 
     public Task<ErrorOr<SpendingByCategoryResponse>> GetSpendingByCategoryAsync(CancellationToken ct = default)
