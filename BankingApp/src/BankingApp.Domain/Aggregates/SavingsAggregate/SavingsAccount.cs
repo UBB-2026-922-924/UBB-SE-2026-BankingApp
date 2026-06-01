@@ -2,9 +2,11 @@
 
 using System;
 using System.Collections.Generic;
-using Entities;
+using Common.Errors;
 using Common.Primitives;
+using Entities;
 using Enums;
+using ErrorOr;
 
 /// <summary>
 /// Manages and displays information about a user's savings account.
@@ -92,4 +94,59 @@ public sealed class SavingsAccount : AggregateRoot<int>
         DateTime? maturityDate,
         DateTime createdAt)
         => new(userId, savingsType, annualPercentageYield, accountName, fundingAccountId, targetAmount, targetDate, maturityDate, createdAt);
+
+    /// <summary>Adds funds to the account balance.</summary>
+    public ErrorOr<Success> Deposit(decimal amount)
+    {
+        if (amount <= 0)
+        {
+            return SavingsErrors.InvalidDepositAmount;
+        }
+
+        if (AccountStatus == "Closed")
+        {
+            return SavingsErrors.AccountAlreadyClosed;
+        }
+
+        Balance += amount;
+        UpdatedAt = DateTime.UtcNow;
+        return Result.Success;
+    }
+
+    /// <summary>Removes funds from the account balance.</summary>
+    public ErrorOr<Success> Withdraw(decimal amount)
+    {
+        if (amount <= 0)
+        {
+            return SavingsErrors.InvalidDepositAmount;
+        }
+
+        if (AccountStatus == "Closed")
+        {
+            return SavingsErrors.AccountAlreadyClosed;
+        }
+
+        if (amount > Balance)
+        {
+            return SavingsErrors.InsufficientBalance;
+        }
+
+        Balance -= amount;
+        UpdatedAt = DateTime.UtcNow;
+        return Result.Success;
+    }
+
+    /// <summary>Closes the account, zeroing the balance.</summary>
+    public ErrorOr<Success> Close()
+    {
+        if (AccountStatus == "Closed")
+        {
+            return SavingsErrors.AccountAlreadyClosed;
+        }
+
+        Balance = 0;
+        AccountStatus = "Closed";
+        UpdatedAt = DateTime.UtcNow;
+        return Result.Success;
+    }
 }
