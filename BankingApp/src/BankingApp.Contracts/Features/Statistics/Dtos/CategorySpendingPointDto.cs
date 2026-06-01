@@ -5,7 +5,7 @@ public class CategorySpendingPointDto
     public string CategoryName { get; set; } = string.Empty;
     public decimal Amount { get; set; }
     public decimal ShareOfTotal { get; set; }
-
+    /*
     public override bool Equals(object? obj)
     {
         if (obj == null || obj is not CategorySpendingPointDto)
@@ -18,5 +18,6 @@ public class CategorySpendingPointDto
             && Amount == other.Amount
             && ShareOfTotal == other.ShareOfTotal;
     }
+    */
 }
 
