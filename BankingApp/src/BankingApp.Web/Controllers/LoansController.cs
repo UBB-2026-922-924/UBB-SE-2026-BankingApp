@@ -274,22 +274,22 @@ public class LoansController(
 
     private static (decimal BalanceAfterPayment, int RemainingMonths) CalculatePaymentPreview(Loan loan, decimal? customAmount)
     {
-        const decimal ZeroAmount = 0m;
-        const int ZeroCount = 0;
+        const decimal zeroAmount = 0m;
+        const int zeroCount = 0;
 
         decimal minimumDue = Math.Min(loan.MonthlyInstallment, loan.OutstandingBalance);
         decimal paymentAmount = customAmount ?? minimumDue;
-        decimal balanceAfterPayment = Math.Max(ZeroAmount, loan.OutstandingBalance - paymentAmount);
+        decimal balanceAfterPayment = Math.Max(zeroAmount, loan.OutstandingBalance - paymentAmount);
 
-        if (balanceAfterPayment <= ZeroAmount)
+        if (balanceAfterPayment <= zeroAmount)
         {
-            return (ZeroAmount, ZeroCount);
+            return (zeroAmount, zeroCount);
         }
 
-        int monthsPaid = customAmount.HasValue && loan.MonthlyInstallment > ZeroAmount
+        int monthsPaid = customAmount.HasValue && loan.MonthlyInstallment > zeroAmount
             ? Math.Max(1, (int)Math.Floor(paymentAmount / loan.MonthlyInstallment))
             : 1;
 
-        return (balanceAfterPayment, Math.Max(ZeroCount, loan.RemainingMonths - monthsPaid));
+        return (balanceAfterPayment, Math.Max(zeroCount, loan.RemainingMonths - monthsPaid));
     }
 }

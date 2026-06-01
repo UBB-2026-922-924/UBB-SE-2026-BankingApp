@@ -1,19 +1,19 @@
 ﻿namespace BankingApp.Desktop.ViewModels;
 
-public partial class LoansAndSavingsViewModel : BaseViewModel
+public partial class LoansAndSavingsViewModel : ObservableObject, IDisposable
 {
-    public SavingsViewModel SavingsVM { get; }
+    public SavingsViewModel SavingsVm { get; }
 
-    public LoansViewModel LoansVM { get; }
+    public LoansViewModel LoansVm { get; }
 
-    public LoansAndSavingsViewModel(SavingsViewModel savingsVM, LoansViewModel loansVM)
+    public LoansAndSavingsViewModel(SavingsViewModel savingsVm, LoansViewModel loansVm)
     {
-        SavingsVM = savingsVM;
-        LoansVM = loansVM;
+        SavingsVm = savingsVm;
+        LoansVm = loansVm;
     }
 
-    public override void Dispose()
+    public void Dispose()
     {
-        SavingsVM.Dispose();
+        SavingsVm.Dispose();
     }
 }

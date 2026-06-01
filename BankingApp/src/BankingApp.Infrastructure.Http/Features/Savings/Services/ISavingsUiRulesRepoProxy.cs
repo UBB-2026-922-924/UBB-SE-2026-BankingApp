@@ -1,8 +1,8 @@
 ﻿namespace BankingApp.Infrastructure.Http.Features.Savings.Services;
 
 using BankingApp.Contracts.Features.Savings.Dtos;
-using BankingApp.Domain.Enums;
-using BankingApp.Domain.Aggregates.SavingsAggregate;
+using Domain.Enums;
+using Domain.Aggregates.SavingsAggregate;
 
 public interface ISavingsUiRulesRepoProxy
 {

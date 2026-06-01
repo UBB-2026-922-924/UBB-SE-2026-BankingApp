@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using BankingApp.Contracts.Features.BillPayments.Dtos;
-using BankingApp.Contracts.Features.Billers.Dtos;
+using Contracts.Features.BillPayments.Dtos;
+using Contracts.Features.Billers.Dtos;
 using ErrorOr;
 
 public partial class BillPayViewModel

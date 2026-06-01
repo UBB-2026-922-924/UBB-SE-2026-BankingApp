@@ -1,9 +1,9 @@
 ﻿namespace BankingApp.Infrastructure.Http.Features.Loans.Services;
 
 using BankingApp.Contracts.Features.Loans.Dtos;
-using BankingApp.Domain.Enums;
-using BankingApp.Domain.Aggregates.LoanAggregate;
-using BankingApp.Domain.Aggregates.LoanAggregate.Entities;
+using Domain.Enums;
+using Domain.Aggregates.LoanAggregate;
+using Domain.Aggregates.LoanAggregate.Entities;
 
 /// <summary>
 /// RepoProxy for Loans (desktop -> HTTP API).

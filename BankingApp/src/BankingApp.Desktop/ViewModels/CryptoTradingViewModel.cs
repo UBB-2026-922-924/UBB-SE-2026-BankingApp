@@ -1,13 +1,19 @@
-﻿namespace BankingApp.Desktop.ViewModels;
+namespace BankingApp.Desktop.ViewModels;
 
 using System.Diagnostics;
-using Microsoft.UI.Xaml.Controls;
-using BankingApp.Application.Features.Investments.Services;
-using BankingApp.Domain.Aggregates.InvestmentAggregate;
+using Contracts.Features.Investments.Dtos;
+using Contracts.Http;
+using Domain.Aggregates.InvestmentAggregate;
+using Infrastructure.Http.Features.Investments.Services;
+using Navigation;
+using Session;
+using Shared.Enums;
 
 public partial class CryptoTradingViewModel : ObservableObject
 {
-    private readonly IInvestmentsService _service;
+    private readonly IAuthenticationSession _authenticationSession;
+    private readonly IInvestmentsRepoProxy _investmentsRepoProxy;
+    private readonly IAppNavigationService _navigationService;
 
     [ObservableProperty]
     private string _selectedTicker = "BTC";
@@ -33,30 +39,99 @@ public partial class CryptoTradingViewModel : ObservableObject
     [ObservableProperty]
     private bool _isProcessing;
 
-    public CryptoTradingViewModel(IInvestmentsService service)
+    [ObservableProperty]
+    private InvestmentsState _state = InvestmentsState.Idle;
+
+    public CryptoTradingViewModel(
+        IAuthenticationSession authenticationSession,
+        IInvestmentsRepoProxy investmentsRepoProxy,
+        IAppNavigationService navigationService)
     {
-        _service = service;
+        this._authenticationSession = authenticationSession;
+        this._investmentsRepoProxy = investmentsRepoProxy;
+        this._navigationService = navigationService;
         _ = LoadBalance();
+    }
+
+    public void NavigateBackToInvestments()
+    {
+        _navigationService.NavigateToContent<Views.InvestmentsView>();
+    }
+
+    partial void OnSelectedTickerChanged(string value) => CalculateLiveTotals();
+
+    partial void OnQuantityTextChanged(string value) => CalculateLiveTotals();
+
+    [RelayCommand]
+    public async Task ExecuteTradeAsync()
+    {
+        if (!decimal.TryParse(QuantityText, out decimal qty) || qty <= 0)
+        {
+            StatusMessage = "Please insert a valid currency volume.";
+            return;
+        }
+
+        if (ActionType == "BUY" && TotalAmount > CurrentBalance)
+        {
+            StatusMessage = $" Insufficient Funds: Total cost ({TotalAmount:N2} RON) exceeds your wallet balance ({CurrentBalance:N2} RON).";
+            return;
+        }
+
+        IsProcessing = true;
+        State = InvestmentsState.Loading;
+        StatusMessage = "Processing secure network order verification...";
+
+        try
+        {
+            if (!_authenticationSession.CurrentUserId.HasValue)
+            {
+                StatusMessage = " Session expired. Please log in again.";
+                State = InvestmentsState.Error;
+                return;
+            }
+
+            decimal currentMarketPrice = GetCurrentMarketPrice(SelectedTicker);
+            var request = new ExecuteTradeRequest
+            {
+                Ticker = SelectedTicker,
+                ActionType = ActionType,
+                Quantity = qty,
+                PricePerUnit = currentMarketPrice,
+                Fees = EstimatedFee,
+            };
+
+            await _investmentsRepoProxy.PostAsync<ExecuteTradeRequest, object>(
+                ApiEndpoints.Investments.TradeFull,
+                request);
+
+            StatusMessage = "Transaction verified successfully!";
+            State = InvestmentsState.Ready;
+            NavigateBackToInvestments();
+        }
+        catch (Exception ex)
+        {
+            State = InvestmentsState.Error;
+            StatusMessage = ParseTradeError(ex.Message);
+            Debug.WriteLine($"Trade Failure Trace: {ex.Message}");
+        }
+        finally
+        {
+            IsProcessing = false;
+        }
     }
 
     private async Task LoadBalance()
     {
         try
         {
-            Portfolio? p = await _service.GetPortfolioForCurrentUserAsync();
-            CurrentBalance = p?.TotalValue ?? 0;
+            Portfolio? portfolio = await _investmentsRepoProxy.GetAsync<Portfolio>(ApiEndpoints.Investments.PortfolioFull);
+            CurrentBalance = portfolio?.TotalValue ?? 0;
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed loading portfolio balance: {ex.Message}");
         }
     }
-
-    // Detects when selected token switches dropdown inputs
-    partial void OnSelectedTickerChanged(string value) => CalculateLiveTotals();
-
-    // Detects when the user type numbers inside input textboxes
-    partial void OnQuantityTextChanged(string value) => CalculateLiveTotals();
 
     private void CalculateLiveTotals()
     {
@@ -68,108 +143,48 @@ public partial class CryptoTradingViewModel : ObservableObject
             return;
         }
 
-        // Simple conditional logic for market values based on ticker selection
-        decimal currentMarketPrice = SelectedTicker switch
-        {
-            "BTC" => 65000.00m,
-            "ETH" => 2550.00m,
-            "SOL" => 145.00m,
-            _ => 0m
-        };
-
+        decimal currentMarketPrice = GetCurrentMarketPrice(SelectedTicker);
         decimal principalCost = qty * currentMarketPrice;
         EstimatedFee = Math.Round(principalCost * 0.015m, 2);
         TotalAmount = Math.Round(principalCost + EstimatedFee, 2);
         StatusMessage = $"Ready to submit trade at {currentMarketPrice:N2} RON unit valuation.";
     }
 
-    [RelayCommand]
-    public async Task ExecuteTradeAsync()
+    private static decimal GetCurrentMarketPrice(string ticker)
     {
-        if (!decimal.TryParse(QuantityText, out decimal qty) || qty <= 0)
+        return ticker switch
         {
-            StatusMessage = "Please insert a valid currency volume.";
-            return;
-        }
+            "BTC" => 65000.00m,
+            "ETH" => 2550.00m,
+            "SOL" => 145.00m,
+            _ => 0m
+        };
+    }
 
-        // --- CLIENT-SIDE PROTECTION: BUY ORDER WALLET LIMIT ---
-        if (ActionType == "BUY" && TotalAmount > CurrentBalance)
+    private static string ParseTradeError(string rawError)
+    {
+        if (!rawError.Contains("Body: ", StringComparison.Ordinal))
         {
-            StatusMessage = $" Insufficient Funds: Total cost ({TotalAmount:N2} RON) exceeds your wallet balance ({CurrentBalance:N2} RON).";
-            return;
+            return $" Connection Error: {rawError}";
         }
-
-        IsProcessing = true;
-        StatusMessage = "Processing secure network order verification...";
 
         try
         {
-            decimal currentMarketPrice = SelectedTicker switch
-            {
-                "BTC" => 65000.00m,
-                "ETH" => 2550.00m,
-                "SOL" => 145.00m,
-                _ => 0m
-            };
+            int bodyStartIndex = rawError.IndexOf("Body: ", StringComparison.Ordinal) + 6;
+            string jsonBody = rawError[bodyStartIndex..];
 
-            // Get the ID from the App's global Auth Service
-            int? userId = App.AuthService.GetCurrentUserId();
-
-            if (!userId.HasValue)
+            if (!jsonBody.Contains("\"detail\":\"", StringComparison.Ordinal))
             {
-                StatusMessage = " Session expired. Please log in again.";
-                return;
+                return " Transaction rejected by server validations.";
             }
 
-            bool success = await _service.ExecuteTradeAsync(userId.Value, SelectedTicker, ActionType, qty, currentMarketPrice);
-
-            if (success)
-            {
-                StatusMessage = "Transaction verified successfully!";
-
-                if (App.MainAppWindow?.Content is Frame targetFrame && targetFrame.CanGoBack)
-                {
-                    targetFrame.GoBack();
-                }
-            }
+            int detailStart = jsonBody.IndexOf("\"detail\":\"", StringComparison.Ordinal) + 10;
+            int detailEnd = jsonBody.IndexOf('"', detailStart);
+            return $" {jsonBody[detailStart..detailEnd]}";
         }
-        catch (Exception ex)
+        catch
         {
-            // --- CLEAN JSON STRING PARSING FOR ERROR DUMPS ---
-            string rawError = ex.Message;
-            if (rawError.Contains("Body: "))
-            {
-                try
-                {
-                    int bodyStartIndex = rawError.IndexOf("Body: ") + 6;
-                    string jsonBody = rawError.Substring(bodyStartIndex);
-
-                    if (jsonBody.Contains("\"detail\":\""))
-                    {
-                        int detailStart = jsonBody.IndexOf("\"detail\":\"") + 10;
-                        int detailEnd = jsonBody.IndexOf("\"", detailStart);
-                        StatusMessage = $" {jsonBody.Substring(detailStart, detailEnd - detailStart)}";
-                    }
-                    else
-                    {
-                        StatusMessage = " Transaction rejected by server validations.";
-                    }
-                }
-                catch
-                {
-                    StatusMessage = " Validation processing failure.";
-                }
-            }
-            else
-            {
-                StatusMessage = $" Connection Error: {ex.Message}";
-            }
-
-            Debug.WriteLine($"Trade Failure Trace: {ex.Message}");
-        }
-        finally
-        {
-            IsProcessing = false;
+            return " Validation processing failure.";
         }
     }
 }

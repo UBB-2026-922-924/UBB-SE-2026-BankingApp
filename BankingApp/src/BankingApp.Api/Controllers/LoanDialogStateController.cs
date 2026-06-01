@@ -3,7 +3,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-    [Route(BankingApp.Contracts.Http.ApiEndpoints.LoanDialogState.Base)]
+    [Route(Contracts.Http.ApiEndpoints.LoanDialogState.Base)]
 public class LoanDialogStateController : ControllerBase
 {
     private const int PositiveThreshold = 0;

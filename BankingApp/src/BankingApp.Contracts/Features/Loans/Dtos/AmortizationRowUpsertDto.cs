@@ -1,7 +1,7 @@
 namespace BankingApp.Contracts.Features.Loans.Dtos;
 
 using System;
-using BankingApp.Domain.Aggregates.LoanAggregate.Entities;
+using Domain.Aggregates.LoanAggregate.Entities;
 
 /// <summary>Minimal request contract for saving amortization schedule rows.</summary>
 public class AmortizationRowUpsertDto

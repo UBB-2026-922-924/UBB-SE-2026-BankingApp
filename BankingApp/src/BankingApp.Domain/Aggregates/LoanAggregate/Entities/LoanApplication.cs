@@ -1,8 +1,8 @@
-namespace BankingApp.Domain.Aggregates.LoanAggregate.Entities;
+﻿namespace BankingApp.Domain.Aggregates.LoanAggregate.Entities;
 
-using BankingApp.Domain.Common.Errors;
-using BankingApp.Domain.Common.Primitives;
-using BankingApp.Domain.Enums;
+using Common.Errors;
+using Common.Primitives;
+using Enums;
 using ErrorOr;
 
 public sealed class LoanApplication : Entity<int>

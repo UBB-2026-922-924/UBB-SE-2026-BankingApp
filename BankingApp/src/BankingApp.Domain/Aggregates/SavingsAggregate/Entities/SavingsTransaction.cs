@@ -1,8 +1,8 @@
-namespace BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
+﻿namespace BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
 
 using System;
-using BankingApp.Domain.Common.Primitives;
-using BankingApp.Domain.Enums;
+using Common.Primitives;
+using Enums;
 
 public sealed class SavingsTransaction : Entity<int>
 {

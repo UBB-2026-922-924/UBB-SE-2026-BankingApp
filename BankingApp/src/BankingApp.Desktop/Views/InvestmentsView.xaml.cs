@@ -1,36 +1,33 @@
 ﻿namespace BankingApp.Desktop.Views;
 
-using BankingApp.Desktop.ViewModels;
+using ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 public sealed partial class InvestmentsView : Page
 {
-    public InvestmentsView()
+    public InvestmentsView(InvestmentsViewModel viewModel)
     {
-        this.InitializeComponent();
+        InitializeComponent();
 
-        // Link the ViewModel (Using the Service from your App.xaml.cs)
-        this.ViewModel = new InvestmentsViewModel(App.InvestmentsService);
-        this.DataContext = this.ViewModel;
+        ViewModel = viewModel;
+        DataContext = ViewModel;
 
-        this.Loaded += this.OnPageLoaded;
-        this.Unloaded += this.OnPageUnloaded;
+        Loaded += OnPageLoaded;
+        Unloaded += OnPageUnloaded;
     }
 
     public InvestmentsViewModel ViewModel { get; }
 
     private void OnPageLoaded(object sender, RoutedEventArgs e)
     {
-        // Triggers the data fetch from the Server
-        this.ViewModel.EnsureInitialized();
+        ViewModel.EnsureInitialized();
     }
 
     private void OnPageUnloaded(object sender, RoutedEventArgs e)
     {
-        this.ViewModel.StopMarketDataPolling();
-        // Important: Remove handlers to prevent memory leaks
-        this.Loaded -= this.OnPageLoaded;
-        this.Unloaded -= this.OnPageUnloaded;
+        ViewModel.StopMarketDataPolling();
+        Loaded -= OnPageLoaded;
+        Unloaded -= OnPageUnloaded;
     }
 }

@@ -1,14 +1,13 @@
 ﻿namespace BankingApp.Desktop.Views;
 
 using System;
-using BankingApp.Desktop.ViewModels;
-using BankingApp.Domain.Aggregates.LoanAggregate;
+using ViewModels;
+using Domain.Aggregates.LoanAggregate;
 using Domain.Aggregates.LoanAggregate.Entities;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 
 public sealed partial class AmortizationScheduleView : Page
 {
@@ -18,63 +17,45 @@ public sealed partial class AmortizationScheduleView : Page
     private const byte CurrentRowHighlightGreen = 120;
     private const byte CurrentRowHighlightBlue = 215;
 
-    private static readonly SolidColorBrush CurrentRowHighlightBrush = new SolidColorBrush(
+    private static readonly SolidColorBrush _currentRowHighlightBrush = new SolidColorBrush(
         ColorHelper.FromArgb(
             CurrentRowHighlightAlpha,
             CurrentRowHighlightRed,
             CurrentRowHighlightGreen,
             CurrentRowHighlightBlue));
 
-    private Loan? loan;
+    private Loan? _loan;
 
     public AmortizationScheduleView(LoansViewModel loansViewModel)
     {
-        this.InitializeComponent();
+        InitializeComponent();
 
-        this.ViewModel = loansViewModel;
-        this.DataContext = this.ViewModel;
+        ViewModel = loansViewModel;
+        DataContext = ViewModel;
 
         // Highlight the current installment row after containers are created.
-        this.AmortizationListView.ContainerContentChanging += this.OnRowContainerContentChanging;
+        AmortizationListView.ContainerContentChanging += OnRowContainerContentChanging;
     }
 
     private LoansViewModel ViewModel { get; }
 
-    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    public async void LoadLoan(Loan loan)
     {
-        base.OnNavigatedTo(e);
+        this._loan = loan;
+        PopulateStaticLabels(loan);
 
-        if (e.Parameter is Loan loan)
-        {
-            this.loan = loan;
-            this.PopulateStaticLabels(loan);
-
-            this.ViewModel.SelectedLoan = new LoanViewModel(loan, this.GetRepaymentProgress(loan));
-            await this.ViewModel.LoadAmortizationAsync();
-        }
+        ViewModel.SelectLoan(loan);
+        await ViewModel.LoadAmortizationAsync();
     }
 
     private void PopulateStaticLabels(Loan loan)
     {
-        this.LoanSubHeaderText.Text =
+        LoanSubHeaderText.Text =
             string.Format(LoanHeaderFormat, loan.LoanType, loan.TermInMonths, loan.InterestRate);
 
-        var loanViewModel = new LoanViewModel(loan, this.GetRepaymentProgress(loan));
-        this.TotalInstallmentsText.Text = loan.TermInMonths.ToString();
-        this.PaidInstallmentsText.Text = loanViewModel.PaidInstallments.ToString();
-        this.RemainingInstallmentsText.Text = loan.RemainingMonths.ToString();
-    }
-
-    private double GetRepaymentProgress(Loan loan)
-    {
-        if (loan.Principal <= 0)
-        {
-            return 0;
-        }
-
-        decimal paidAmount = Math.Max(0m, loan.Principal - loan.OutstandingBalance);
-        decimal progress = paidAmount / loan.Principal;
-        return (double)Math.Clamp(progress, 0m, 1m);
+        TotalInstallmentsText.Text = loan.TermInMonths.ToString();
+        PaidInstallmentsText.Text = (loan.TermInMonths - loan.RemainingMonths).ToString();
+        RemainingInstallmentsText.Text = loan.RemainingMonths.ToString();
     }
 
     private void OnRowContainerContentChanging(
@@ -84,24 +65,24 @@ public sealed partial class AmortizationScheduleView : Page
         if (args.Item is AmortizationRow row && args.ItemContainer is ListViewItem container)
         {
             container.Background = row.IsCurrent
-                ? CurrentRowHighlightBrush
+                ? _currentRowHighlightBrush
                 : null;
         }
     }
 
     private void OnBackClicked(object sender, RoutedEventArgs e)
     {
-        if (this.Frame.CanGoBack)
+        if (Frame.CanGoBack)
         {
-            this.Frame.GoBack();
+            Frame.GoBack();
         }
     }
 
     private async void OnDownloadPdfClicked(object sender, RoutedEventArgs e)
     {
-        if (this.loan != null)
+        if (_loan != null)
         {
-            await this.ViewModel.DownloadSchedulePdfAsync();
+            await ViewModel.DownloadSchedulePdfAsync();
         }
     }
 }

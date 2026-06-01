@@ -1,20 +1,20 @@
 ﻿namespace BankingApp.Desktop.Views.Dialogs;
 
 using System;
-using BankingApp.Desktop.ViewModels;
+using ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 public sealed partial class PayInstallmentDialog : ContentDialog
 {
-    private readonly LoansViewModel viewModel;
+    private readonly LoansViewModel _viewModel;
 
     public PayInstallmentDialog(LoansViewModel viewModel)
     {
-        this.InitializeComponent();
-        this.viewModel = viewModel;
-        this.DataContext = viewModel;
-        this.UpdatePreview();
+        InitializeComponent();
+        this._viewModel = viewModel;
+        DataContext = viewModel;
+        UpdatePreview();
     }
 
     private async void OnConfirmClicked(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -22,7 +22,7 @@ public sealed partial class PayInstallmentDialog : ContentDialog
         ContentDialogButtonClickDeferral? deferral = args.GetDeferral();
         try
         {
-            await this.viewModel.PayInstallmentAsync();
+            await _viewModel.PayInstallmentAsync();
         }
         catch (Exception)
         {
@@ -36,70 +36,70 @@ public sealed partial class PayInstallmentDialog : ContentDialog
 
     private void OnStandardChecked(object sender, RoutedEventArgs e)
     {
-        if (this.viewModel == null)
+        if (_viewModel == null)
         {
             return;
         }
 
-        if (this.CustomAmountPanel != null)
+        if (CustomAmountPanel != null)
         {
-            this.CustomAmountPanel.Visibility = Visibility.Collapsed;
+            CustomAmountPanel.Visibility = Visibility.Collapsed;
         }
 
-        this.viewModel.SelectStandardPayment();
-        this.UpdatePreview();
+        _viewModel.SelectStandardPayment();
+        UpdatePreview();
     }
 
     private void OnCustomChecked(object sender, RoutedEventArgs e)
     {
-        if (this.viewModel == null)
+        if (_viewModel == null)
         {
             return;
         }
 
-        this.CustomAmountPanel.Visibility = Visibility.Visible;
-        if (this.viewModel.SelectedLoan != null)
+        CustomAmountPanel.Visibility = Visibility.Visible;
+        if (_viewModel.SelectedLoan != null)
         {
-            this.CustomAmountBox.Text = this.viewModel.SelectCustomPayment();
+            CustomAmountBox.Text = _viewModel.SelectCustomPayment();
         }
 
-        this.UpdatePreview();
+        UpdatePreview();
     }
 
     private void OnCustomAmountTextChanged(object sender, TextChangedEventArgs e)
     {
-        this.UpdatePreview();
+        UpdatePreview();
     }
 
     private void OnCustomAmountLostFocus(object sender, RoutedEventArgs e)
     {
-        this.UpdatePreview();
+        UpdatePreview();
     }
 
     private void UpdatePreview()
     {
-        if (this.viewModel == null)
+        if (_viewModel == null)
         {
             return;
         }
 
-        if (this.viewModel.SelectedLoan == null)
+        if (_viewModel.SelectedLoan == null)
         {
-            this.BalanceAfterPaymentText.Text = string.Empty;
-            this.RemainingTermAfterPaymentText.Text = string.Empty;
+            BalanceAfterPaymentText.Text = string.Empty;
+            RemainingTermAfterPaymentText.Text = string.Empty;
             return;
         }
 
-        if (this.StandardRadio.IsChecked == true)
+        if (StandardRadio.IsChecked == true)
         {
-            this.viewModel.SelectStandardPayment();
+            _viewModel.SelectStandardPayment();
         }
         else
         {
-            this.viewModel.UpdateCustomPayment(this.CustomAmountBox?.Text ?? string.Empty);
+            _viewModel.UpdateCustomPayment(CustomAmountBox?.Text ?? string.Empty);
         }
 
-        this.BalanceAfterPaymentText.Text = this.viewModel.PaymentPreviewBalance.ToString("C2");
-        this.RemainingTermAfterPaymentText.Text = $"{this.viewModel.PaymentPreviewRemainingMonths} mo";
+        BalanceAfterPaymentText.Text = _viewModel.PaymentPreviewBalance.ToString("C2");
+        RemainingTermAfterPaymentText.Text = $"{_viewModel.PaymentPreviewRemainingMonths} mo";
     }
 }

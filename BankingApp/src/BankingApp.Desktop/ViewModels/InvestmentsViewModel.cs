@@ -1,184 +1,137 @@
-﻿namespace BankingApp.Desktop.ViewModels;
+namespace BankingApp.Desktop.ViewModels;
 
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using BankingApp.Domain.Aggregates.InvestmentAggregate;
-using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml.Controls;
-using BankingApp.Application.Features.Investments.Services;
-using BankingApp.Domain.Aggregates.InvestmentAggregate.Entities;
+using Contracts.Http;
+using Domain.Aggregates.InvestmentAggregate;
+using Domain.Aggregates.InvestmentAggregate.Entities;
+using Infrastructure.Http.Features.Investments.Services;
+using Navigation;
+using Shared.Enums;
 
-public class InvestmentsViewModel : System.ComponentModel.INotifyPropertyChanged
+public partial class InvestmentsViewModel : ObservableObject
 {
-    private readonly DispatcherQueue? dispatcherQueue;
-    private readonly IInvestmentsService investmentsService;
+    private readonly IInvestmentsRepoProxy _investmentsRepoProxy;
+    private readonly IAppNavigationService _navigationService;
+    private bool _hasLoaded;
 
-    private string activeFilterType = "All";
-    private ObservableCollection<InvestmentHolding> displayedHoldings;
-    private bool hasLoaded;
-    private bool isPortfolioLoading;
-    private Portfolio userPortfolio;
+    [ObservableProperty]
+    private string _activeFilterType = "All";
 
-    public InvestmentsViewModel(IInvestmentsService investmentsService)
+    [ObservableProperty]
+    private ObservableCollection<InvestmentHolding> _displayedHoldings = new ObservableCollection<InvestmentHolding>();
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
+    [NotifyPropertyChangedFor(nameof(IsHoldingsVisible))]
+    private bool _isPortfolioLoading;
+
+    [ObservableProperty]
+    private Portfolio _userPortfolio = new Portfolio();
+
+    [ObservableProperty]
+    private InvestmentsState _state = InvestmentsState.Idle;
+
+    public InvestmentsViewModel(
+        IInvestmentsRepoProxy investmentsRepoProxy,
+        IAppNavigationService navigationService)
     {
-        this.dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-        this.investmentsService = investmentsService;
-
-        // Commands
-        this.SelectFilterCommand = new RelayCommand<string>(this.ApplyFilter);
-        this.OpenTradeDialogCommand = new RelayCommand(async () => await this.HandleTradeAsync());
-
-        this.userPortfolio = new Portfolio();
-        this.displayedHoldings = new ObservableCollection<InvestmentHolding>();
+        this._investmentsRepoProxy = investmentsRepoProxy;
+        this._navigationService = navigationService;
+        SelectFilterCommand = new RelayCommand<string>(ApplyFilter);
+        OpenTradeDialogCommand = new RelayCommand(HandleTrade);
     }
 
-    // --- Commands ---
     public ICommand SelectFilterCommand { get; }
+
     public ICommand OpenTradeDialogCommand { get; }
 
-    // --- Properties ---
-    public bool IsEmptyStateVisible => !this.IsPortfolioLoading && !this.DisplayedHoldings.Any();
-    public bool IsHoldingsVisible => !this.IsEmptyStateVisible;
+    public bool IsEmptyStateVisible => !IsPortfolioLoading && !DisplayedHoldings.Any();
 
-    public string ActiveFilterType
-    {
-        get => this.activeFilterType;
-        set
-        {
-            if (this.activeFilterType == value)
-            {
-                return;
-            }
+    public bool IsHoldingsVisible => !IsEmptyStateVisible;
 
-            this.activeFilterType = value;
-            this.RefreshDisplayedHoldings();
-            this.OnPropertyChanged();
-        }
-    }
-
-    public ObservableCollection<InvestmentHolding> DisplayedHoldings
-    {
-        get => this.displayedHoldings;
-        private set
-        {
-            this.displayedHoldings = value;
-            this.OnPropertyChanged();
-            this.NotifyEmptyStateChanged();
-        }
-    }
-
-    public Portfolio UserPortfolio
-    {
-        get => this.userPortfolio;
-        set
-        {
-            this.userPortfolio = value;
-            this.OnPropertyChanged();
-        }
-    }
-
-    public bool IsPortfolioLoading
-    {
-        get => this.isPortfolioLoading;
-        set
-        {
-            this.isPortfolioLoading = value;
-            this.OnPropertyChanged();
-            this.NotifyEmptyStateChanged();
-        }
-    }
-
-    // --- Logic ---
     public void EnsureInitialized()
     {
-        if (this.hasLoaded)
+        if (_hasLoaded)
         {
             return;
         }
 
-        this.hasLoaded = true;
-        this.LoadUserPortfolio();
+        _hasLoaded = true;
+        LoadUserPortfolio();
     }
 
     public async void LoadUserPortfolio()
     {
-        this.IsPortfolioLoading = true;
+        IsPortfolioLoading = true;
+        State = InvestmentsState.Loading;
         try
         {
-            Portfolio? portfolio = await investmentsService.GetPortfolioForCurrentUserAsync();
+            Portfolio? portfolio = await _investmentsRepoProxy.GetAsync<Portfolio>(ApiEndpoints.Investments.PortfolioFull);
 
             if (portfolio != null)
             {
-                this.UserPortfolio = portfolio;
-                this.RefreshDisplayedHoldings();
+                UserPortfolio = portfolio;
+                RefreshDisplayedHoldings();
             }
+
+            State = InvestmentsState.Ready;
         }
         catch (Exception exception)
         {
+            State = InvestmentsState.Error;
             Debug.WriteLine($"LoadUserPortfolio API error: {exception.Message}");
         }
         finally
         {
-            this.IsPortfolioLoading = false;
-        }
-    }
-
-    private async Task HandleTradeAsync()
-    {
-        // This is much simpler and avoids that double-negative logic
-        if (App.MainAppWindow?.Content is Frame rootFrame)
-        {
-            rootFrame.Navigate(typeof(BankingApp.Desktop.Views.CryptoTradingView));
-        }
-        else
-        {
-            Debug.WriteLine("Navigation Error: Root content is not a Frame.");
+            IsPortfolioLoading = false;
         }
     }
 
     public void ApplyFilter(string? filterType)
     {
-        this.ActiveFilterType = string.IsNullOrWhiteSpace(filterType) ? "All" : filterType;
-    }
-
-    private void RefreshDisplayedHoldings()
-    {
-        this.DisplayedHoldings.Clear();
-        IEnumerable<InvestmentHolding> holdings = this.UserPortfolio?.Holdings ?? Enumerable.Empty<InvestmentHolding>();
-
-        // Fixed the plural/singular logic (Filter says "Stocks", DB says "Stock")
-        IEnumerable<InvestmentHolding> filtered = this.ActiveFilterType switch
-        {
-            "All" => holdings,
-            "Stocks" => holdings.Where(h => h.AssetType.Equals("Stock", StringComparison.OrdinalIgnoreCase)),
-            "Crypto" => holdings.Where(h => h.AssetType.Equals("Crypto", StringComparison.OrdinalIgnoreCase)),
-            _ => holdings.Where(h => h.AssetType.Equals(this.ActiveFilterType, StringComparison.OrdinalIgnoreCase))
-        };
-
-        foreach (InvestmentHolding holding in filtered)
-        {
-            this.DisplayedHoldings.Add(holding);
-        }
-
-        this.NotifyEmptyStateChanged();
+        ActiveFilterType = string.IsNullOrWhiteSpace(filterType) ? "All" : filterType;
     }
 
     public void StopMarketDataPolling()
     {
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    partial void OnActiveFilterTypeChanged(string value)
     {
-        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        RefreshDisplayedHoldings();
+    }
+
+    private void HandleTrade()
+    {
+        _navigationService.NavigateToContent<Views.CryptoTradingView>();
+    }
+
+    private void RefreshDisplayedHoldings()
+    {
+        DisplayedHoldings.Clear();
+        IEnumerable<InvestmentHolding> holdings = UserPortfolio?.Holdings ?? Enumerable.Empty<InvestmentHolding>();
+
+        IEnumerable<InvestmentHolding> filtered = ActiveFilterType switch
+        {
+            "All" => holdings,
+            "Stocks" => holdings.Where(h => h.AssetType.Equals("Stock", StringComparison.OrdinalIgnoreCase)),
+            "Crypto" => holdings.Where(h => h.AssetType.Equals("Crypto", StringComparison.OrdinalIgnoreCase)),
+            _ => holdings.Where(h => h.AssetType.Equals(ActiveFilterType, StringComparison.OrdinalIgnoreCase))
+        };
+
+        foreach (InvestmentHolding holding in filtered)
+        {
+            DisplayedHoldings.Add(holding);
+        }
+
+        NotifyEmptyStateChanged();
     }
 
     private void NotifyEmptyStateChanged()
     {
-        this.OnPropertyChanged(nameof(this.IsEmptyStateVisible));
-        this.OnPropertyChanged(nameof(this.IsHoldingsVisible));
+        OnPropertyChanged(nameof(IsEmptyStateVisible));
+        OnPropertyChanged(nameof(IsHoldingsVisible));
     }
 }

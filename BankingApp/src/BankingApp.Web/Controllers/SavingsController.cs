@@ -1,14 +1,14 @@
 namespace BankingApp.Web.Controllers;
 
 using System.Globalization;
-using BankingApp.Contracts.Features.Investments;
-using BankingApp.Contracts.Features.Savings.Dtos;
+using Contracts.Features.Investments;
+using Contracts.Features.Savings.Dtos;
 using BankingApp.Contracts.Http;
-using BankingApp.Domain.Aggregates.SavingsAggregate;
-using BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
-using BankingApp.Domain.Enums;
+using Domain.Aggregates.SavingsAggregate;
+using Domain.Aggregates.SavingsAggregate.Entities;
+using Domain.Enums;
 using BankingApp.Infrastructure.Http.Features.Savings.Services;
-using BankingApp.Web.Models.Savings;
+using Models.Savings;
 using Microsoft.AspNetCore.Mvc;
 
 public class SavingsController(

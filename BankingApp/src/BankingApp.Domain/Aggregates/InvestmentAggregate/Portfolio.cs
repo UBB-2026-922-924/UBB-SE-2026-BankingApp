@@ -1,10 +1,10 @@
-namespace BankingApp.Domain.Aggregates.InvestmentAggregate;
+﻿namespace BankingApp.Domain.Aggregates.InvestmentAggregate;
 
 using System.Collections.Generic;
 using System.Linq;
-using BankingApp.Domain.Aggregates.InvestmentAggregate.Entities;
-using BankingApp.Domain.Common.Errors;
-using BankingApp.Domain.Common.Primitives;
+using Entities;
+using Common.Errors;
+using Common.Primitives;
 using ErrorOr;
 
 public sealed class Portfolio : AggregateRoot<int>
@@ -58,7 +58,7 @@ public sealed class Portfolio : AggregateRoot<int>
             holding.ApplyTrade(actionType, finalQuantity, finalAveragePrice, pricePerUnit, fees);
         }
 
-        var transaction = InvestmentTransaction.Create(holding.Id, ticker, actionType, quantity, pricePerUnit, fees, "Market", System.DateTime.UtcNow);
+        var transaction = InvestmentTransaction.Create(holding.Id, ticker, actionType, quantity, pricePerUnit, fees, "Market", DateTime.UtcNow);
         holding.AddTransaction(transaction);
 
         return Result.Success;

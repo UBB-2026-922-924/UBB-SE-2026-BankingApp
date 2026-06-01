@@ -1,8 +1,8 @@
 namespace BankingApp.Web.Controllers;
 
-using BankingApp.Contracts.Features.Cards.Dtos;
-using BankingApp.Contracts.Features.Cards.Services;
-using BankingApp.Web.Models.Cards;
+using Contracts.Features.Cards.Dtos;
+using Contracts.Features.Cards.Services;
+using Models.Cards;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

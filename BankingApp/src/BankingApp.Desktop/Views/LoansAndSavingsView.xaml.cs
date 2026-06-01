@@ -1,21 +1,19 @@
 ﻿namespace BankingApp.Desktop.Views;
 
 using Microsoft.UI.Xaml.Controls;
-using BankingApp.Desktop.ViewModels;
+using ViewModels;
 
 public sealed partial class LoansAndSavingsView : Page
 {
-    public LoansAndSavingsView()
+    public LoansAndSavingsView(LoansAndSavingsViewModel viewModel)
     {
-        this.InitializeComponent();
-        ViewModel = new LoansAndSavingsViewModel(
-            new SavingsViewModel(App.SavingsService),
-            new LoansViewModel(App.LoansService));
+        InitializeComponent();
+        ViewModel = viewModel;
     }
 
     public LoansAndSavingsViewModel ViewModel
     {
-        get => (LoansAndSavingsViewModel)this.DataContext;
-        set => this.DataContext = value;
+        get => (LoansAndSavingsViewModel)DataContext;
+        set => DataContext = value;
     }
 }

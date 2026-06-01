@@ -75,7 +75,7 @@ public sealed class GetHistoryQueryTests
             new Mock<IBeneficiaryRepository>().Object,
             new Mock<IUnitOfWork>().Object,
             new Mock<ISystemClock>().Object,
-            new Mock<BankingApp.Application.IExchangeRateService>().Object,
+            new Mock<IExchangeRateService>().Object,
             NullLogger<TransferService>.Instance);
 
     private static Transfer CreateTransfer(string? reference) =>

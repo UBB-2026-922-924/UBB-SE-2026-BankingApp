@@ -2,8 +2,8 @@ namespace BankingApp.Infrastructure.Http.Features.Chat.Services;
 
 using BankingApp.Contracts.Features.Chat.Dtos;
 using BankingApp.Contracts.Http;
-using BankingApp.Domain.Aggregates.ChatAggregate;
-using BankingApp.Domain.Aggregates.ChatAggregate.Entities;
+using Domain.Aggregates.ChatAggregate;
+using Domain.Aggregates.ChatAggregate.Entities;
 using Shared.Http;
 
 public class ChatRepoProxy(ApiService apiService) : IChatRepoProxy

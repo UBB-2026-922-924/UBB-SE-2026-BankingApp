@@ -1,7 +1,7 @@
 namespace BankingApp.Contracts.Features.Savings.Dtos;
 
 using System.Collections.Generic;
-using BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
+using Domain.Aggregates.SavingsAggregate.Entities;
 
 public class GetTransactionsResponse
 {

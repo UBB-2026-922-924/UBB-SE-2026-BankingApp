@@ -1,6 +1,6 @@
 namespace BankingApp.Application.Tests.Features.Transfers.Queries;
 
-using BankingApp.Application;
+using Application;
 using BankingApp.Application.Features.Transfers.Services;
 using BankingApp.Domain.Common.Errors;
 using Contracts.Features.Transfers.Dtos;

@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Application.Features.Authentication.Services;
-using BankingApp.Contracts.Features.UserRegistration.Dtos;
+using Contracts.Features.UserRegistration.Dtos;
 using Shared.Enums;
 using ErrorOr;
 using Microsoft.Extensions.Logging;

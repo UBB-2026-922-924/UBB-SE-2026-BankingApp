@@ -1,7 +1,7 @@
 namespace BankingApp.Web.Tests.ViewModels.Shared;
 
-using BankingApp.Contracts.Features.AccountOverview.Dtos;
-using BankingApp.Domain.Enums;
+using Contracts.Features.AccountOverview.Dtos;
+using Domain.Enums;
 using BankingApp.Web.ViewModels.Shared;
 
 public sealed class AccountCardViewModelTests

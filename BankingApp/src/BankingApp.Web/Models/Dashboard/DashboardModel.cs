@@ -1,6 +1,6 @@
 namespace BankingApp.Web.Models.Dashboard;
 
-using BankingApp.Contracts.Features.AccountOverview.Dtos;
+using Contracts.Features.AccountOverview.Dtos;
 
 /// <summary>Top-level model for the Dashboard index page.</summary>
 public class DashboardModel

@@ -2,22 +2,31 @@
 
 using System;
 using System.Diagnostics;
-using BankingApp.Desktop.ViewModels;
-using BankingApp.Domain.Enums;
+using ViewModels;
+using Domain.Enums;
 using Dialogs;
+using Domain.Aggregates.UserAggregate;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using PayInstallmentDialog = Client.View.Dialogs.PayInstallmentDialog;
+using Navigation;
+using Session;
+using PayInstallmentDialog = Dialogs.PayInstallmentDialog;
 
 public sealed partial class LoansView : UserControl
 {
-    public LoansViewModel? ViewModel => this.DataContext as LoansViewModel;
+    private readonly IAuthenticationSession _authenticationSession;
+    private readonly IAppNavigationService _navigationService;
 
-    public LoansView()
+    public LoansViewModel? ViewModel => DataContext as LoansViewModel;
+
+    public LoansView(
+        IAuthenticationSession authenticationSession,
+        IAppNavigationService navigationService)
     {
-        this.InitializeComponent();
-        this.Loaded += LoansView_Loaded;
+        this._authenticationSession = authenticationSession;
+        this._navigationService = navigationService;
+        InitializeComponent();
+        Loaded += LoansView_Loaded;
     }
 
     private async void LoansView_Loaded(object sender, RoutedEventArgs e)
@@ -26,14 +35,14 @@ public sealed partial class LoansView : UserControl
         {
             try
             {
-                var userId = App.AuthService.GetCurrentUserId() ?? throw new Exception("Current user id is null.");
-                this.ViewModel.CurrentUser = new User { Id = userId };
+                int userId = _authenticationSession.CurrentUserId ?? throw new Exception("Current user id is null.");
+                ViewModel.CurrentUser = new User { Id = userId };
 
-                await this.ViewModel.LoadLoansAsync();
+                await ViewModel.LoadLoansAsync();
             }
             catch (Exception ex)
             {
-                this.ViewModel.ErrorMessage = ex.Message;
+                ViewModel.ErrorMessage = ex.Message;
             }
         }
     }
@@ -42,9 +51,9 @@ public sealed partial class LoansView : UserControl
     {
         try
         {
-            var dialog = new LoanApplicationDialog(this.ViewModel)
+            var dialog = new LoanApplicationDialog(ViewModel)
             {
-                XamlRoot = this.XamlRoot,
+                XamlRoot = XamlRoot,
             };
             await dialog.ShowAsync();
         }
@@ -60,10 +69,10 @@ public sealed partial class LoansView : UserControl
         {
             if (sender is Button btn && btn.Tag is LoanViewModel loan)
             {
-                this.ViewModel.SelectedLoan = loan;
-                var dialog = new PayInstallmentDialog(this.ViewModel)
+                ViewModel.SelectedLoan = loan;
+                var dialog = new PayInstallmentDialog(ViewModel)
                 {
-                    XamlRoot = this.XamlRoot,
+                    XamlRoot = XamlRoot,
                 };
                 await dialog.ShowAsync();
             }
@@ -80,19 +89,9 @@ public sealed partial class LoansView : UserControl
         {
             if (sender is Button btn && btn.Tag is LoanViewModel loan)
             {
-                this.ViewModel.SelectedLoan = loan;
-                await this.ViewModel.LoadAmortizationAsync();
-
-                Frame? mainFrame = GetParentFrame();
-
-                if (mainFrame != null)
-                {
-                    mainFrame.Navigate(typeof(AmortizationScheduleView), loan.Loan);
-                }
-                else
-                {
-                    Debug.WriteLine("Nu s-a putut gasi un Frame pentru navigare.");
-                }
+                ViewModel.SelectedLoan = loan;
+                await ViewModel.LoadAmortizationAsync();
+                _navigationService.NavigateToContent<AmortizationScheduleView>(view => view.LoadLoan(loan.Loan));
             }
         }
         catch (Exception ex)
@@ -101,60 +100,43 @@ public sealed partial class LoansView : UserControl
         }
     }
 
-    private Frame? GetParentFrame()
-    {
-        DependencyObject current = this;
-
-        while (current != null)
-        {
-            if (current is Frame frame)
-            {
-                return frame;
-            }
-
-            current = VisualTreeHelper.GetParent(current);
-        }
-
-        return null;
-    }
-
     private void OnFilterAll(object sender, RoutedEventArgs e)
     {
-        this.ViewModel.StatusFilter = null;
+        ViewModel.StatusFilter = null;
     }
 
     private void OnFilterActive(object sender, RoutedEventArgs e)
     {
-        this.ViewModel.StatusFilter = LoanStatus.Active;
+        ViewModel.StatusFilter = LoanStatus.Active;
     }
 
     private void OnFilterClosed(object sender, RoutedEventArgs e)
     {
-        this.ViewModel.StatusFilter = LoanStatus.Passed;
+        ViewModel.StatusFilter = LoanStatus.Passed;
     }
 
     private void OnTypeFilterAll(object sender, RoutedEventArgs e)
     {
-        this.ViewModel.TypeFilter = null;
+        ViewModel.TypeFilter = null;
     }
 
     private void OnTypeFilterPersonal(object sender, RoutedEventArgs e)
     {
-        this.ViewModel.TypeFilter = LoanType.Personal;
+        ViewModel.TypeFilter = LoanType.Personal;
     }
 
     private void OnTypeFilterMortgage(object sender, RoutedEventArgs e)
     {
-        this.ViewModel.TypeFilter = LoanType.Mortgage;
+        ViewModel.TypeFilter = LoanType.Mortgage;
     }
 
     private void OnTypeFilterStudent(object sender, RoutedEventArgs e)
     {
-        this.ViewModel.TypeFilter = LoanType.Student;
+        ViewModel.TypeFilter = LoanType.Student;
     }
 
     private void OnTypeFilterAuto(object sender, RoutedEventArgs e)
     {
-        this.ViewModel.TypeFilter = LoanType.Auto;
+        ViewModel.TypeFilter = LoanType.Auto;
     }
 }

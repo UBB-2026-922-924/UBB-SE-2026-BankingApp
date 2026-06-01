@@ -10,6 +10,7 @@ using Domain.Aggregates.SavingsAggregate;
 using Domain.Aggregates.SavingsAggregate.Entities;
 using Domain.Enums;
 using Domain.Repositories;
+using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -48,7 +49,7 @@ public sealed class SavingsRepository(AppDbContext dbContext) : ISavingsReposito
             SavingsAccount account = await dbContext.SavingsAccounts
                 .FirstAsync(a => a.Id == accountId, cancellationToken);
 
-            var depositResult = account.Deposit(amount);
+            ErrorOr<Success> depositResult = account.Deposit(amount);
             if (depositResult.IsError)
             {
                 await tx.RollbackAsync(cancellationToken);
@@ -84,14 +85,14 @@ public sealed class SavingsRepository(AppDbContext dbContext) : ISavingsReposito
             SavingsAccount source = await dbContext.SavingsAccounts.FirstAsync(a => a.Id == accountId, cancellationToken);
             SavingsAccount destination = await dbContext.SavingsAccounts.FirstAsync(a => a.Id == destinationAccountId, cancellationToken);
 
-            var closeResult = source.Close();
+            ErrorOr<Success> closeResult = source.Close();
             if (closeResult.IsError)
             {
                 await tx.RollbackAsync(cancellationToken);
                 throw new InvalidOperationException(closeResult.FirstError.Description);
             }
 
-            var depositResult = destination.Deposit(transferAmount);
+            ErrorOr<Success> depositResult = destination.Deposit(transferAmount);
             if (depositResult.IsError)
             {
                 await tx.RollbackAsync(cancellationToken);
@@ -126,7 +127,7 @@ public sealed class SavingsRepository(AppDbContext dbContext) : ISavingsReposito
         {
             SavingsAccount account = await dbContext.SavingsAccounts.FirstAsync(a => a.Id == accountId, cancellationToken);
 
-            var withdrawResult = account.Withdraw(amount);
+            ErrorOr<Success> withdrawResult = account.Withdraw(amount);
             if (withdrawResult.IsError)
             {
                 await tx.RollbackAsync(cancellationToken);

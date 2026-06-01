@@ -1,5 +1,5 @@
 ﻿<ContentDialog
-    x:Class="BankingApp.Client.View.Dialogs.PayInstallmentDialog"
+    x:Class="BankingApp.Desktop.Views.Dialogs.PayInstallmentDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Pay Installment"

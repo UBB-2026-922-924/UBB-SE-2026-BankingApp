@@ -1,6 +1,6 @@
 namespace BankingApp.Application.Tests.Features.UserRegistration.Commands;
 
-using BankingApp.Application.Common.Security;
+using Common.Security;
 using BankingApp.Application.Features.Authentication.Services;
 using BankingApp.Domain.Common.Errors;
 using ErrorOr;

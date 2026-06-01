@@ -1,9 +1,9 @@
 ﻿namespace BankingApp.Infrastructure.Http.Features.Savings.Services;
 
 using BankingApp.Contracts.Features.Savings.Dtos;
-using BankingApp.Domain.Aggregates.SavingsAggregate;
+using Domain.Aggregates.SavingsAggregate;
 using BankingApp.Contracts.Features.Investments;
-using BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
+using Domain.Aggregates.SavingsAggregate.Entities;
 
 /// <summary>
 /// RepoProxy for Savings (desktop -> HTTP API).

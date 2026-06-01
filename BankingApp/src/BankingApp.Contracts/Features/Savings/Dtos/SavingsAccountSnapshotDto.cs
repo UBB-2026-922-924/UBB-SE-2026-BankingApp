@@ -1,6 +1,6 @@
 ﻿namespace BankingApp.Contracts.Features.Savings.Dtos;
 
-using BankingApp.Domain.Aggregates.SavingsAggregate;
+using Domain.Aggregates.SavingsAggregate;
 
 public class SavingsAccountSnapshotDto
 {

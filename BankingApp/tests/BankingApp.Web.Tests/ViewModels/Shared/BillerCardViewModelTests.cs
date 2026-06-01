@@ -1,6 +1,6 @@
 namespace BankingApp.Web.Tests.ViewModels.Shared;
 
-using BankingApp.Contracts.Features.Billers.Dtos;
+using Contracts.Features.Billers.Dtos;
 using BankingApp.Web.ViewModels.Shared;
 
 public sealed class BillerCardViewModelTests

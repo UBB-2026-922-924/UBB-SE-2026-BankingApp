@@ -2,7 +2,7 @@ namespace BankingApp.Infrastructure.Http.Features.Savings.Services;
 
 using BankingApp.Contracts.Features.Savings.Dtos;
 using BankingApp.Contracts.Http;
-using BankingApp.Domain.Aggregates.SavingsAggregate;
+using Domain.Aggregates.SavingsAggregate;
 using Shared.Http;
 
 public class SavingsPresentationRepoProxy(ApiService apiService) : ISavingsPresentationRepoProxy

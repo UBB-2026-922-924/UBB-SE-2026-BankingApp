@@ -1,10 +1,10 @@
 ﻿namespace BankingApp.Web.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
-using BankingApp.Application.Features.Chat.Services;
-using BankingApp.Contracts.Features.Chat.Dtos;
+using Application.Features.Chat.Services;
+using Contracts.Features.Chat.Dtos;
 using ErrorOr;
-using BankingApp.Web.Models.Chat;
+using Models.Chat;
 
 public class ChatController : Controller
 {

@@ -1,8 +1,8 @@
 namespace BankingApp.Contracts.Features.Savings.Dtos;
 
 using System;
-using BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
-using BankingApp.Domain.Enums;
+using Domain.Aggregates.SavingsAggregate.Entities;
+using Domain.Enums;
 
 /// <summary>Minimal request contract for creating or updating an auto-deposit schedule.</summary>
 public class AutoDepositUpsertDto

@@ -1,7 +1,7 @@
-namespace BankingApp.Domain.Aggregates.InvestmentAggregate.Entities;
+﻿namespace BankingApp.Domain.Aggregates.InvestmentAggregate.Entities;
 
 using System;
-using BankingApp.Domain.Common.Primitives;
+using Common.Primitives;
 
 /// <summary>Represents a single trade executed against an investment holding.</summary>
 public sealed class InvestmentTransaction : Entity<int>

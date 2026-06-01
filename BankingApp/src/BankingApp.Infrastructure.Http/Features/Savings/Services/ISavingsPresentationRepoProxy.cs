@@ -1,6 +1,6 @@
 ﻿namespace BankingApp.Infrastructure.Http.Features.Savings.Services;
 
-using BankingApp.Domain.Aggregates.SavingsAggregate;
+using Domain.Aggregates.SavingsAggregate;
 
 public interface ISavingsPresentationRepoProxy
 {

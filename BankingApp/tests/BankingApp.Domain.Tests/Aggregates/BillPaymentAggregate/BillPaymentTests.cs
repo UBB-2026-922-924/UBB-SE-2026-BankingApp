@@ -1,7 +1,7 @@
 namespace BankingApp.Domain.Tests.Aggregates.BillPaymentAggregate;
 
 using BankingApp.Domain.Aggregates.BillPaymentAggregate;
-using BankingApp.Domain.Common.Errors;
+using Common.Errors;
 using Enums;
 using ErrorOr;
 using NodaMoney;

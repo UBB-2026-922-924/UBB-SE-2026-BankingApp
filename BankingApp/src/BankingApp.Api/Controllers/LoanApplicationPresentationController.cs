@@ -1,10 +1,10 @@
 ﻿namespace BankingApp.Api.Controllers;
 
-using BankingApp.Contracts.Features.Loans.Dtos;
+using Contracts.Features.Loans.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-    [Route(BankingApp.Contracts.Http.ApiEndpoints.LoanApplicationPresentation.Base)]
+    [Route(Contracts.Http.ApiEndpoints.LoanApplicationPresentation.Base)]
 public class LoanApplicationPresentationController : ControllerBase
 {
     [HttpGet]

@@ -1,11 +1,11 @@
 ﻿namespace BankingApp.Api.Controllers;
 
-using BankingApp.Domain.Aggregates.LoanAggregate;
+using Domain.Aggregates.LoanAggregate;
 using Microsoft.AspNetCore.Mvc;
-using BankingApp.Application.Features.Loans;
+using Application.Features.Loans;
 
 [ApiController]
-    [Route(BankingApp.Contracts.Http.ApiEndpoints.LoanPresentation.Base)]
+    [Route(Contracts.Http.ApiEndpoints.LoanPresentation.Base)]
 public class LoanPresentationController : ControllerBase
 {
     [HttpPost]

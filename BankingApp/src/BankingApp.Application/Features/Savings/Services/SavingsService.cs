@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BankingApp.Domain.Aggregates.SavingsAggregate;
-using BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
+using Domain.Aggregates.SavingsAggregate;
+using Domain.Aggregates.SavingsAggregate.Entities;
 using BankingApp.Domain.Common.Errors;
-using BankingApp.Domain.Enums;
-using BankingApp.Domain.Repositories;
+using Domain.Enums;
+using Domain.Repositories;
 using ErrorOr;
 using Shared.Persistence;
 

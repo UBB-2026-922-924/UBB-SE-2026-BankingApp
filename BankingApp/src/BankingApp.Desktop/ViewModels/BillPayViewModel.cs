@@ -2,8 +2,8 @@ namespace BankingApp.Desktop.ViewModels;
 
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using BankingApp.Contracts.Features.BillPayments.Dtos;
-using BankingApp.Contracts.Features.Billers.Dtos;
+using Contracts.Features.BillPayments.Dtos;
+using Contracts.Features.Billers.Dtos;
 using Contracts.Features.BillPayments.Services;
 using Contracts.Features.Billers.Services;
 using Microsoft.UI.Xaml;

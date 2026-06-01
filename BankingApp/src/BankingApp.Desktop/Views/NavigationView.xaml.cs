@@ -151,23 +151,20 @@ public void NavigateToBillPayments()
 
     private async void NavSavings_Click(object sender, RoutedEventArgs e)
     {
-        try { await ShowComingSoonAsync("Savings & Loans"); }
-        catch
-        { /* Dialog display failure is non-critical. */ }
+        SetActiveNav(NavSavings);
+        _navigationService.NavigateToContent<LoansAndSavingsView>();
     }
 
-    private async void NavInvestments_Click(object sender, RoutedEventArgs e)
+    private void NavInvestments_Click(object sender, RoutedEventArgs e)
     {
-        try { await ShowComingSoonAsync("Investments & Trading"); }
-        catch
-        { /* Dialog display failure is non-critical. */ }
+        SetActiveNav(NavInvestments);
+        _navigationService.NavigateToContent<InvestmentsView>();
     }
 
-    private async void NavStatistics_Click(object sender, RoutedEventArgs e)
+    private void NavStatistics_Click(object sender, RoutedEventArgs e)
     {
-        try { await ShowComingSoonAsync("Statistics"); }
-        catch
-        { /* Dialog display failure is non-critical. */ }
+        SetActiveNav(NavStatistics);
+        _navigationService.NavigateToContent<StatisticsView>();
     }
 
     private async void NavSupport_Click(object sender, RoutedEventArgs e)

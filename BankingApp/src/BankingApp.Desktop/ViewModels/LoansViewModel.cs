@@ -12,13 +12,15 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Application.Features.Loans.Services;
-using BankingApp.Contracts.Features.Loans.Dtos;
-using BankingApp.Domain.Enums;
-using BankingApp.Domain.Aggregates.LoanAggregate;
+using Contracts.Features.Loans.Dtos;
+using Domain.Enums;
+using Domain.Aggregates.LoanAggregate;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Domain.Aggregates.LoanAggregate.Entities;
+using Infrastructure.Http.Features.Loans.Services;
+using ErrorOr;
+using Shared.Enums;
 
 public partial class LoansViewModel : ObservableObject
 {
@@ -28,284 +30,320 @@ public partial class LoansViewModel : ObservableObject
     private const int FirstPage = 1;
     private const int DefaultPageSize = 10;
 
-    private readonly ILoansService loanService;
-    private readonly PdfExporter pdfExporter;
+    private readonly ILoanApplicationPresentationRepoProxy _loanApplicationPresentationRepoProxy;
+    private readonly ILoanDialogStateRepoProxy _loanDialogStateRepoProxy;
+    private readonly ILoansRepoProxy _loansRepoProxy;
+    private readonly PdfExporter _pdfExporter;
 
     [ObservableProperty]
-    private ObservableCollection<AmortizationRow> amortizationRows = new ObservableCollection<AmortizationRow>();
+    private ObservableCollection<AmortizationRow> _amortizationRows = new ObservableCollection<AmortizationRow>();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ApplicationWasApproved))]
-    private string applicationResult = string.Empty;
+    private string _applicationResult = string.Empty;
 
     [ObservableProperty]
-    private bool applicationWasApproved;
+    private bool _applicationWasApproved;
 
     [ObservableProperty]
-    private LoanEstimate currentEstimate;
+    private LoanEstimate _currentEstimate;
 
     [ObservableProperty]
-    private double? customAmount;
+    private double? _customAmount;
 
     [ObservableProperty]
-    private double desiredAmount;
+    private double _desiredAmount;
 
     [ObservableProperty]
-    private string dialogActionText = "Continue";
+    private string _dialogActionText = "Continue";
 
     [ObservableProperty]
-    private string dialogTitle = "Apply for Loan";
+    private string _dialogTitle = "Apply for Loan";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasError))]
-    private string errorMessage = string.Empty;
+    private string _errorMessage = string.Empty;
 
     [ObservableProperty]
-    private bool isEstimateVisible;
+    private bool _isEstimateVisible;
 
     [ObservableProperty]
-    private bool isFormVisible = true;
+    private bool _isFormVisible = true;
 
     [ObservableProperty]
-    private bool isLoading;
+    private bool _isLoading;
 
     [ObservableProperty]
-    private bool isReviewVisible;
+    private bool _isReviewVisible;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FilteredLoans))]
-    private ObservableCollection<LoanViewModel> loans = new ObservableCollection<LoanViewModel>();
+    private ObservableCollection<LoanViewModel> _loans = new ObservableCollection<LoanViewModel>();
 
     [ObservableProperty]
-    private decimal paymentPreviewBalance;
+    private decimal _paymentPreviewBalance;
 
     [ObservableProperty]
-    private int paymentPreviewRemainingMonths;
+    private int _paymentPreviewRemainingMonths;
 
     [ObservableProperty]
-    private int preferredTermMonths;
+    private int _preferredTermMonths;
 
     [ObservableProperty]
-    private string purpose = string.Empty;
+    private string _purpose = string.Empty;
 
     [ObservableProperty]
-    private LoanViewModel selectedLoan;
+    private LoanViewModel _selectedLoan;
 
     [ObservableProperty]
-    private LoanType selectedLoanType;
+    private LoanType _selectedLoanType;
 
     [NotifyPropertyChangedFor(nameof(FilteredLoans))]
     [ObservableProperty]
-    private LoanStatus? statusFilter;
+    private LoanStatus? _statusFilter;
 
     [NotifyPropertyChangedFor(nameof(FilteredLoans))]
     [ObservableProperty]
-    private LoanType? typeFilter;
+    private LoanType? _typeFilter;
 
     [ObservableProperty]
-    private User currentUser;
+    private User _currentUser;
 
-    public LoansViewModel(ILoansService loanService)
+    [ObservableProperty]
+    private LoansState _state = LoansState.Idle;
+
+    public LoansViewModel(
+        ILoansRepoProxy loansRepoProxy,
+        ILoanDialogStateRepoProxy loanDialogStateRepoProxy,
+        ILoanApplicationPresentationRepoProxy loanApplicationPresentationRepoProxy)
     {
-        this.loanService = loanService ?? throw new ArgumentNullException(nameof(loanService));
-        this.pdfExporter = new PdfExporter();
+        this._loansRepoProxy = loansRepoProxy ?? throw new ArgumentNullException(nameof(loansRepoProxy));
+        this._loanDialogStateRepoProxy = loanDialogStateRepoProxy ?? throw new ArgumentNullException(nameof(loanDialogStateRepoProxy));
+        this._loanApplicationPresentationRepoProxy = loanApplicationPresentationRepoProxy ?? throw new ArgumentNullException(nameof(loanApplicationPresentationRepoProxy));
+        _pdfExporter = new PdfExporter();
     }
 
     public IEnumerable<LoanType> LoanTypes => Enum.GetValues<LoanType>();
 
-    public bool HasError => !string.IsNullOrEmpty(this.ErrorMessage);
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
     public IEnumerable<LoanViewModel> FilteredLoans =>
-        this.loans.Where(loan =>
-            (this.statusFilter == null || loan.Loan.LoanStatus == this.statusFilter) &&
-            (this.typeFilter == null || loan.Loan.LoanType == this.typeFilter));
+        _loans.Where(loan =>
+            (_statusFilter == null || loan.Loan.LoanStatus == _statusFilter) &&
+            (_typeFilter == null || loan.Loan.LoanType == _typeFilter));
+
+    public LoanViewModel CreateLoanViewModel(Loan loan)
+    {
+        return new LoanViewModel(loan, GetRepaymentProgress(loan));
+    }
+
+    public void SelectLoan(Loan loan)
+    {
+        SelectedLoan = CreateLoanViewModel(loan);
+    }
 
     [RelayCommand]
     public async Task LoadLoansAsync()
     {
-        this.IsLoading = true;
-        this.ErrorMessage = string.Empty;
+        IsLoading = true;
+        ErrorMessage = string.Empty;
+        State = LoansState.Loading;
         try
         {
-            List<Loan> result = await this.loanService.GetLoansByUserAsync(CurrentUser.Id);
+            List<Loan> result = await _loansRepoProxy.GetLoansByUserAsync(CurrentUser.Id);
             var loanViewModels = new List<LoanViewModel>();
             foreach (Loan loan in result)
             {
-                double repaymentProgress = this.loanService.GetRepaymentProgress(loan);
-                loanViewModels.Add(new LoanViewModel(loan, repaymentProgress));
+                loanViewModels.Add(CreateLoanViewModel(loan));
             }
 
-            this.Loans = new ObservableCollection<LoanViewModel>(loanViewModels);
+            Loans = new ObservableCollection<LoanViewModel>(loanViewModels);
+            State = LoansState.Ready;
         }
         catch (Exception exception)
         {
-            this.ErrorMessage = exception.Message;
+            ErrorMessage = exception.Message;
+            State = LoansState.Error;
         }
         finally
         {
-            this.IsLoading = false;
+            IsLoading = false;
         }
     }
 
     [RelayCommand]
     public async Task ApplyForLoanAsync()
     {
-        this.IsLoading = true;
-        this.ErrorMessage = string.Empty;
+        IsLoading = true;
+        ErrorMessage = string.Empty;
         try
         {
             var request = new LoanApplicationRequest
             {
                 UserId = CurrentUser.Id,
-                LoanType = this.SelectedLoanType,
-                DesiredAmount = (decimal)this.DesiredAmount,
-                PreferredTermMonths = this.PreferredTermMonths,
-                Purpose = this.Purpose,
+                LoanType = SelectedLoanType,
+                DesiredAmount = (decimal)DesiredAmount,
+                PreferredTermMonths = PreferredTermMonths,
+                Purpose = Purpose,
             };
 
-            LoanApplicationResult applicationResult = await this.loanService.SubmitLoanApplicationAsync(request);
+            int applicationId = await _loansRepoProxy.CreateLoanApplicationAsync(request);
 
-            BuildApplicationOutcomeResponse? applicationOutcome = await this.loanService.GetBuildApplicationOutcomeAsync(
-                applicationResult.RejectionReason);
-            this.ApplicationResult = applicationOutcome?.Message ?? string.Empty;
-            this.ApplicationWasApproved = applicationOutcome?.IsApproved ?? false;
-            if (this.ApplicationWasApproved)
+            BuildApplicationOutcomeResponse? applicationOutcome = await _loanApplicationPresentationRepoProxy.GetBuildApplicationOutcome(
+                applicationId > 0 ? null : "Rejected");
+            ApplicationResult = applicationOutcome?.Message ?? (applicationId > 0 ? "Loan application approved." : "Loan application rejected.");
+            ApplicationWasApproved = applicationOutcome?.IsApproved ?? applicationId > 0;
+            if (ApplicationWasApproved)
             {
-                await this.LoadLoansAsync();
-                this.OnPropertyChanged(nameof(this.FilteredLoans));
+                await LoadLoansAsync();
+                OnPropertyChanged(nameof(FilteredLoans));
             }
         }
         catch (Exception exception)
         {
-            this.ErrorMessage = exception.Message;
+            ErrorMessage = exception.Message;
+            State = LoansState.Error;
         }
         finally
         {
-            this.IsLoading = false;
+            IsLoading = false;
         }
     }
 
     [RelayCommand]
     public async Task ComputeLiveEstimate()
     {
-        this.ErrorMessage = string.Empty;
+        ErrorMessage = string.Empty;
         try
         {
             var request = new LoanApplicationRequest
             {
                 UserId = CurrentUser.Id,
-                LoanType = this.SelectedLoanType,
-                DesiredAmount = (decimal)this.DesiredAmount,
-                PreferredTermMonths = this.PreferredTermMonths,
-                Purpose = this.Purpose,
+                LoanType = SelectedLoanType,
+                DesiredAmount = (decimal)DesiredAmount,
+                PreferredTermMonths = PreferredTermMonths,
+                Purpose = Purpose,
             };
-            this.CurrentEstimate = this.loanService.GetLoanEstimate(request);
+            CurrentEstimate = ComputeEstimate(request.DesiredAmount, GetIndicativeRate(request.LoanType), request.PreferredTermMonths);
         }
         catch (Exception exception)
         {
-            this.ErrorMessage = exception.Message;
+            ErrorMessage = exception.Message;
         }
     }
 
     public async Task PayInstallmentAsync()
     {
-        this.IsLoading = true;
-        this.ErrorMessage = string.Empty;
+        IsLoading = true;
+        ErrorMessage = string.Empty;
         try
         {
-            decimal? amount = this.CustomAmount.HasValue
-                ? (decimal?)this.CustomAmount.Value
+            decimal? amount = CustomAmount.HasValue
+                ? (decimal?)CustomAmount.Value
                 : null;
-            await this.loanService.PayInstallmentAsync(this.SelectedLoan.Loan.Id, amount);
-            await this.LoadLoansAsync();
+            Loan loan = SelectedLoan.Loan;
+            decimal paymentAmount = amount ?? Math.Min(loan.MonthlyInstallment, loan.OutstandingBalance);
+            ErrorOr<Success> paymentResult = loan.PayInstallment(paymentAmount);
+            if (paymentResult.IsError)
+            {
+                ErrorMessage = paymentResult.FirstError.Description;
+                throw new InvalidOperationException(ErrorMessage);
+            }
 
-            this.OnPropertyChanged(nameof(this.FilteredLoans));
+            await _loansRepoProxy.UpdateLoanAfterPaymentAsync(
+                loan.Id,
+                loan.OutstandingBalance,
+                loan.RemainingMonths,
+                loan.LoanStatus);
+            await LoadLoansAsync();
+
+            OnPropertyChanged(nameof(FilteredLoans));
         }
         catch (Exception exception)
         {
-            this.ErrorMessage = exception.Message;
+            ErrorMessage = exception.Message;
             throw;
         }
         finally
         {
-            this.IsLoading = false;
+            IsLoading = false;
         }
     }
 
     public void UpdatePaymentPreview(bool isStandardPayment, string customAmountText = "")
     {
-        if (this.SelectedLoan == null)
+        if (SelectedLoan == null)
         {
-            this.PaymentPreviewBalance = ZeroAmount;
-            this.PaymentPreviewRemainingMonths = ZeroCount;
+            PaymentPreviewBalance = ZeroAmount;
+            PaymentPreviewRemainingMonths = ZeroCount;
             return;
         }
 
         decimal? customAmount = null;
         if (!isStandardPayment)
         {
-            customAmount = this.loanService.ParseCustomPaymentAmount(customAmountText);
+            customAmount = ParseCustomPaymentAmount(customAmountText);
         }
 
-        (decimal balance, int months) = CalculatePaymentPreview(this.SelectedLoan.Loan, customAmount);
-        this.PaymentPreviewBalance = balance;
-        this.PaymentPreviewRemainingMonths = months;
+        (decimal balance, int months) = CalculatePaymentPreview(SelectedLoan.Loan, customAmount);
+        PaymentPreviewBalance = balance;
+        PaymentPreviewRemainingMonths = months;
     }
 
     public void SelectStandardPayment()
     {
-        this.CustomAmount = null;
-        this.UpdatePaymentPreview(true);
+        CustomAmount = null;
+        UpdatePaymentPreview(true);
     }
 
     public string SelectCustomPayment()
     {
-        if (this.SelectedLoan == null)
+        if (SelectedLoan == null)
         {
-            this.CustomAmount = null;
-            this.UpdatePaymentPreview(false, string.Empty);
+            CustomAmount = null;
+            UpdatePaymentPreview(false, string.Empty);
             return string.Empty;
         }
 
-        decimal normalizedCustomAmount = this.loanService.NormalizeCustomPaymentAmount(
-            this.SelectedLoan.Loan,
-            this.CustomAmount.HasValue ? (decimal?)this.CustomAmount.Value : null);
+        decimal normalizedCustomAmount = NormalizeCustomPaymentAmount(
+            SelectedLoan.Loan,
+            CustomAmount.HasValue ? (decimal?)CustomAmount.Value : null);
 
-        this.CustomAmount = (double)normalizedCustomAmount;
+        CustomAmount = (double)normalizedCustomAmount;
 
         string currentText = normalizedCustomAmount.ToString(CustomAmountDisplayFormat, CultureInfo.CurrentCulture);
-        this.UpdatePaymentPreview(false, currentText);
+        UpdatePaymentPreview(false, currentText);
         return currentText;
     }
 
     public void UpdateCustomPayment(string customAmountText)
     {
-        decimal? parsedAmount = this.loanService.ParseCustomPaymentAmount(customAmountText);
-        this.CustomAmount = parsedAmount.HasValue ? (double)parsedAmount.Value : null;
-        this.UpdatePaymentPreview(false, customAmountText);
+        decimal? parsedAmount = ParseCustomPaymentAmount(customAmountText);
+        CustomAmount = parsedAmount.HasValue ? (double)parsedAmount.Value : null;
+        UpdatePaymentPreview(false, customAmountText);
     }
 
     public async Task LoadAmortizationAsync()
     {
-        if (this.SelectedLoan == null)
+        if (SelectedLoan == null)
         {
             return;
         }
 
-        this.IsLoading = true;
-        this.ErrorMessage = string.Empty;
+        IsLoading = true;
+        ErrorMessage = string.Empty;
         try
         {
-            List<AmortizationRow> rows = await this.loanService.GetAmortizationAsync(this.SelectedLoan.Loan.Id);
-            this.AmortizationRows = new ObservableCollection<AmortizationRow>(rows);
+            List<AmortizationRow> rows = await _loansRepoProxy.GetAmortizationAsync(SelectedLoan.Loan.Id);
+            AmortizationRows = new ObservableCollection<AmortizationRow>(rows);
         }
         catch (Exception exception)
         {
-            this.ErrorMessage = exception.Message;
+            ErrorMessage = exception.Message;
         }
         finally
         {
-            this.IsLoading = false;
+            IsLoading = false;
         }
     }
 
@@ -314,10 +352,10 @@ public partial class LoansViewModel : ObservableObject
     {
         try
         {
-            List<AmortizationRow> rows = await this.loanService.GetAmortizationAsync(this.SelectedLoan.Loan.Id);
-            var pdfBytes = this.pdfExporter.ExportAmortization(rows);
+            List<AmortizationRow> rows = await _loansRepoProxy.GetAmortizationAsync(SelectedLoan.Loan.Id);
+            var pdfBytes = _pdfExporter.ExportAmortization(rows);
             string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            string fileName = $"amortization_schedule_{this.SelectedLoan.Loan.Id}.pdf";
+            string fileName = $"amortization_schedule_{SelectedLoan.Loan.Id}.pdf";
             string filePath = Path.Combine(desktopPath, fileName);
 
             await File.WriteAllBytesAsync(filePath, pdfBytes);
@@ -331,76 +369,75 @@ public partial class LoansViewModel : ObservableObject
         }
         catch (Exception exception)
         {
-            this.ErrorMessage = exception.Message;
+            ErrorMessage = exception.Message;
         }
     }
 
-    // --- Metode de control pentru Dialog ---
     public void SwitchToReviewStage()
     {
-        this.IsFormVisible = false;
-        this.IsReviewVisible = true;
-        this.DialogTitle = "Application Review";
-        this.DialogActionText = "Submit";
+        IsFormVisible = false;
+        IsReviewVisible = true;
+        DialogTitle = "Application Review";
+        DialogActionText = "Submit";
     }
 
     public void ResetDialogState()
     {
-        this.IsFormVisible = true;
-        this.IsReviewVisible = false;
-        this.DialogTitle = "Apply for Loan";
-        this.DialogActionText = "Continue";
-        this.ApplicationResult = string.Empty;
-        this.ApplicationWasApproved = false;
+        IsFormVisible = true;
+        IsReviewVisible = false;
+        DialogTitle = "Apply for Loan";
+        DialogActionText = "Continue";
+        ApplicationResult = string.Empty;
+        ApplicationWasApproved = false;
 
-        this.DesiredAmount = default;
-        this.PreferredTermMonths = default;
-        this.Purpose = string.Empty;
-        this.CurrentEstimate = null;
-        this.IsEstimateVisible = false;
+        DesiredAmount = default;
+        PreferredTermMonths = default;
+        Purpose = string.Empty;
+        CurrentEstimate = null;
+        IsEstimateVisible = false;
     }
 
     partial void OnDesiredAmountChanged(double value)
     {
-        this.TryComputeEstimate();
+        TryComputeEstimate();
     }
 
     partial void OnPreferredTermMonthsChanged(int value)
     {
-        this.TryComputeEstimate();
+        TryComputeEstimate();
     }
 
     partial void OnSelectedLoanTypeChanged(LoanType value)
     {
-        this.TryComputeEstimate();
+        TryComputeEstimate();
     }
 
     partial void OnPurposeChanged(string value)
     {
-        this.TryComputeEstimate();
+        TryComputeEstimate();
     }
 
     private void TryComputeEstimate()
     {
-        _ = this.TryComputeEstimateAsync();
+        _ = TryComputeEstimateAsync();
     }
 
     private async Task TryComputeEstimateAsync()
     {
-        bool isFullyFilled = await this.loanService.GetShouldComputeEstimateAsync(
-            this.DesiredAmount,
-            this.PreferredTermMonths,
-            this.Purpose);
+        bool isFullyFilled = await _loanDialogStateRepoProxy.GetShouldComputeEstimate(
+            DesiredAmount,
+            PreferredTermMonths,
+            Purpose);
 
         if (isFullyFilled)
         {
-            await this.ComputeLiveEstimate();
-            this.IsEstimateVisible = true;
+            await ComputeLiveEstimate();
+            IsEstimateVisible = true;
         }
         else
         {
-            this.CurrentEstimate = null;
-            this.IsEstimateVisible = false;
+            CurrentEstimate = null;
+            IsEstimateVisible = false;
         }
     }
 
@@ -424,5 +461,60 @@ public partial class LoansViewModel : ObservableObject
             : 1;
         int newRemainingMonths = Math.Max(ZeroCount, loan.RemainingMonths - monthsPaid);
         return (balanceAfterPayment, newRemainingMonths);
+    }
+
+    private static LoanEstimate ComputeEstimate(decimal amount, decimal annualRate, int termMonths)
+    {
+        if (amount <= ZeroAmount || termMonths <= ZeroCount)
+        {
+            return new LoanEstimate(annualRate, ZeroAmount, ZeroAmount);
+        }
+
+        decimal monthlyRate = annualRate / 12m / 100m;
+        decimal monthlyInstallment = monthlyRate == ZeroAmount
+            ? amount / termMonths
+            : amount * monthlyRate * (decimal)Math.Pow((double)(1m + monthlyRate), termMonths) /
+              ((decimal)Math.Pow((double)(1m + monthlyRate), termMonths) - 1m);
+
+        monthlyInstallment = Math.Round(monthlyInstallment, 2);
+        return new LoanEstimate(annualRate, monthlyInstallment, Math.Round(monthlyInstallment * termMonths, 2));
+    }
+
+    private static decimal GetIndicativeRate(LoanType loanType)
+    {
+        return loanType switch
+        {
+            LoanType.Mortgage => 5.25m,
+            LoanType.Student => 4.50m,
+            LoanType.Auto => 6.75m,
+            _ => 8.50m
+        };
+    }
+
+    private static double GetRepaymentProgress(Loan loan)
+    {
+        if (loan.Principal <= ZeroAmount)
+        {
+            return 0;
+        }
+
+        decimal paidAmount = Math.Max(ZeroAmount, loan.Principal - loan.OutstandingBalance);
+        decimal progress = paidAmount / loan.Principal;
+        return (double)Math.Clamp(progress, ZeroAmount, 1m);
+    }
+
+    private static decimal? ParseCustomPaymentAmount(string customAmountText)
+    {
+        return decimal.TryParse(customAmountText, NumberStyles.Number, CultureInfo.CurrentCulture, out decimal value)
+            && value > ZeroAmount
+                ? value
+                : null;
+    }
+
+    private static decimal NormalizeCustomPaymentAmount(Loan loan, decimal? amount)
+    {
+        decimal minimumDue = Math.Min(loan.MonthlyInstallment, loan.OutstandingBalance);
+        decimal requestedAmount = amount ?? minimumDue;
+        return Math.Min(Math.Max(requestedAmount, minimumDue), loan.OutstandingBalance);
     }
 }

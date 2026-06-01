@@ -1,24 +1,24 @@
 ﻿namespace BankingApp.Desktop.Views;
 
-using BankingApp.Domain.Aggregates.ChatAggregate;
+using Domain.Aggregates.ChatAggregate;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using BankingApp.Application.Features.Chat.Services;
+using Application.Features.Chat.Services;
 
 public sealed partial class ChatRoutingView : Page
 {
-    private readonly IChatService chatService;
+    private readonly IChatService _chatService;
 
     public ChatRoutingView()
     {
         InitializeComponent();
-        chatService = App.ChatService;
+        _chatService = App.ChatService;
         Loaded += ChatRoutingView_Loaded;
     }
 
     private async void ChatRoutingView_Loaded(object sender, RoutedEventArgs e)
     {
-        List<ChatSession>? sessions = await chatService.GetSessionsAsync();
+        List<ChatSession>? sessions = await _chatService.GetSessionsAsync();
         List<ChatSession> safeSessions = sessions ?? new List<ChatSession>();
         foreach (ChatSession session in safeSessions)
         {
@@ -34,7 +34,7 @@ public sealed partial class ChatRoutingView : Page
         try
         {
             string issueCategory = IssueCategoryComboBox.SelectedItem?.ToString() ?? "General";
-            CreateChatSessionResponse? response = await chatService.CreateSessionAsync(issueCategory);
+            CreateChatSessionResponse? response = await _chatService.CreateSessionAsync(issueCategory);
             if (response == null || !response.Success || response.SessionId <= 0)
             {
                 return;

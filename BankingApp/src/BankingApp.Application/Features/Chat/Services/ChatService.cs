@@ -1,6 +1,6 @@
 ﻿namespace BankingApp.Application.Features.Chat.Services;
 
-using BankingApp.Domain.Enums;
+using Domain.Enums;
 using Contracts.Features.Chat.Dtos;
 using Domain.Aggregates.ChatAggregate;
 using Domain.Aggregates.ChatAggregate.Entities;

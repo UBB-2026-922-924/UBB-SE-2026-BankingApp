@@ -1,7 +1,6 @@
 ﻿namespace BankingApp.Desktop.Views;
 
-using BankingApp.Desktop.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
+using ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -9,13 +8,12 @@ public sealed partial class CryptoTradingView : Page
 {
     public CryptoTradingViewModel ViewModel { get; }
 
-    public CryptoTradingView()
+    public CryptoTradingView(CryptoTradingViewModel viewModel)
     {
-        this.InitializeComponent();
+        InitializeComponent();
 
-        var app = (App)Application.Current;
-        this.ViewModel = app.Services.GetService<CryptoTradingViewModel>();
-        this.DataContext = this.ViewModel;
+        ViewModel = viewModel;
+        DataContext = ViewModel;
     }
 
     private void OnActionTypeChecked(object sender, RoutedEventArgs e)
@@ -29,13 +27,13 @@ public sealed partial class CryptoTradingView : Page
     private void OnBackButtonClicked(object sender, RoutedEventArgs e)
     {
         // Reliable UI-level frame manipulation routing
-        if (this.Frame != null && this.Frame.CanGoBack)
+        if (Frame != null && Frame.CanGoBack)
         {
-            this.Frame.GoBack();
+            Frame.GoBack();
         }
         else
         {
-            this.Frame?.Navigate(typeof(InvestmentsView));
+            ViewModel.NavigateBackToInvestments();
         }
     }
 }

@@ -2,16 +2,16 @@ namespace BankingApp.Web.Controllers;
 
 using System.Globalization;
 using System.Security.Claims;
-using BankingApp.Contracts.Features.Authentication.Dtos;
-using BankingApp.Contracts.Features.UserRegistration.Dtos;
+using Contracts.Features.Authentication.Dtos;
+using Contracts.Features.UserRegistration.Dtos;
 using BankingApp.Contracts.Http;
-using BankingApp.Web.Models;
+using Models;
 using ErrorOr;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ClientAuthenticationService = BankingApp.Application.Features.Authentication.Services.IAuthenticationService;
+using ClientAuthenticationService = Application.Features.Authentication.Services.IAuthenticationService;
 
 public sealed class AuthController : Controller
 {

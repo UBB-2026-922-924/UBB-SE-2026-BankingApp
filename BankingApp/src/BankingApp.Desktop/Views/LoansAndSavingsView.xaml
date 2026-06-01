@@ -8,11 +8,11 @@
         <TabView IsAddTabButtonVisible="False" CanDragTabs="False">
 
             <TabViewItem Header="Savings">
-                <views:SavingsView DataContext="{Binding SavingsVM}" />
+                <views:SavingsView DataContext="{Binding SavingsVm}" />
             </TabViewItem>
 
             <TabViewItem Header="Loans">
-                <views:LoansView DataContext="{Binding LoansVM}" />
+                <views:LoansView DataContext="{Binding LoansVm}" />
             </TabViewItem>
 
         </TabView>

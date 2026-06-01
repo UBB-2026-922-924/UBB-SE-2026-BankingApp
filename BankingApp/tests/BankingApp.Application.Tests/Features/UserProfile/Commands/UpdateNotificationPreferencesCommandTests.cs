@@ -1,6 +1,6 @@
 namespace BankingApp.Application.Tests.Features.UserProfile.Commands;
 
-using BankingApp.Application.Common.Security;
+using Common.Security;
 using BankingApp.Application.Features.UserProfile.Services;
 using BankingApp.Domain.Common.Errors;
 using Contracts.Features.UserProfile.Dtos;

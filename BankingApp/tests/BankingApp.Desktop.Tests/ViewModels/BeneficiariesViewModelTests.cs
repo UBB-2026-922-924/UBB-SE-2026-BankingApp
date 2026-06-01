@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using BankingApp.Desktop.ViewModels;
 using Contracts.Features.Beneficiaries.Dtos;
 using Contracts.Features.Beneficiaries.Services;
-using Desktop.State;
+using State;
 using ErrorOr;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;

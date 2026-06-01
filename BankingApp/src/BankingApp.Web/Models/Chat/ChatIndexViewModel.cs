@@ -1,6 +1,6 @@
 ﻿namespace BankingApp.Web.Models.Chat;
 
-using BankingApp.Domain.Aggregates.ChatAggregate;
+using Domain.Aggregates.ChatAggregate;
 
 public class ChatIndexViewModel
 {
@@ -12,5 +12,5 @@ public class ChatIndexViewModel
     };
 
     public string? SelectedCategory { get; set; }
-    public string? errorMessage { get; set; }
+    public string? ErrorMessage { get; set; }
 }

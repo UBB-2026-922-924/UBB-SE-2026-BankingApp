@@ -3,9 +3,9 @@ namespace BankingApp.Domain.Repositories;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using BankingApp.Domain.Aggregates.LoanAggregate;
-using BankingApp.Domain.Aggregates.LoanAggregate.Entities;
-using BankingApp.Domain.Enums;
+using Aggregates.LoanAggregate;
+using Aggregates.LoanAggregate.Entities;
+using Enums;
 
 public interface ILoanRepository
 {

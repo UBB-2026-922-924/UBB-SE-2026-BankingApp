@@ -1,7 +1,7 @@
 ﻿namespace BankingApp.Web.Models.Savings;
 
 using System.ComponentModel.DataAnnotations;
-using BankingApp.Domain.Aggregates.SavingsAggregate;
+using Domain.Aggregates.SavingsAggregate;
 
 using BankingApp.Contracts.Features.Investments;
 

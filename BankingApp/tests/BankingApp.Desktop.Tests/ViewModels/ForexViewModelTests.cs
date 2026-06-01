@@ -3,7 +3,7 @@ namespace BankingApp.Desktop.Tests.ViewModels;
 using Contracts.Features.Forex.Dtos;
 using Contracts.Features.Forex.Services;
 using Contracts.Features.BillPayments.Services;
-using BankingApp.Contracts.Features.BillPayments.Dtos;
+using Contracts.Features.BillPayments.Dtos;
 using Desktop.ViewModels;
 using ErrorOr;
 using Microsoft.Extensions.Logging.Abstractions;

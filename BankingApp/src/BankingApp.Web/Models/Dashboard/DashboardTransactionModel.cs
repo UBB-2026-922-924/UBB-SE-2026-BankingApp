@@ -1,8 +1,8 @@
 namespace BankingApp.Web.Models.Dashboard;
 
 using System.Globalization;
-using BankingApp.Contracts.Features.AccountOverview.Dtos;
-using BankingApp.Domain.Enums;
+using Contracts.Features.AccountOverview.Dtos;
+using Domain.Enums;
 
 /// <summary>Model for a single transaction row displayed on the dashboard.</summary>
 public class DashboardTransactionModel
@@ -56,8 +56,6 @@ public class DashboardTransactionModel
 
         StatusDisplay = dto.Status.ToString();
     }
-
-    // ── Helpers ──────────────────────────────────────────────────────────────
 
     private static string FirstNonEmpty(params string?[] values) =>
         values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? string.Empty;

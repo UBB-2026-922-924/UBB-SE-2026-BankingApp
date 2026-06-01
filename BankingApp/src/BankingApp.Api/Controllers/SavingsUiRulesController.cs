@@ -1,21 +1,21 @@
 ﻿namespace BankingApp.Api.Controllers;
 
 using System.Globalization;
-using BankingApp.Contracts.Features.Savings.Dtos;
-using BankingApp.Domain.Enums;
+using Contracts.Features.Savings.Dtos;
+using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-    [Route(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.Base)]
+    [Route(Contracts.Http.ApiEndpoints.SavingsUiRules.Base)]
 public class SavingsUiRulesController : ControllerBase
 {
     private const decimal PositiveAmountThreshold = 0m;
     private const int NoPages = 0;
 
-        [HttpGet(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.ParsePositiveAmount)]
+        [HttpGet(Contracts.Http.ApiEndpoints.SavingsUiRules.ParsePositiveAmount)]
     public ActionResult<decimal> ParsePositiveAmount([FromQuery] string text)
     {
-        bool isValid = SavingsUiRulesController.TryParsePositiveAmount(text, out decimal amount);
+        bool isValid = TryParsePositiveAmount(text, out decimal amount);
         if (isValid)
         {
             return Ok(amount);
@@ -23,11 +23,11 @@ public class SavingsUiRulesController : ControllerBase
         return BadRequest("Invalid amount. Please enter a positive number.");
     }
 
-        [HttpPost(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.DepositPreview)]
+        [HttpPost(Contracts.Http.ApiEndpoints.SavingsUiRules.DepositPreview)]
     public ActionResult<string> GetDepositPreview([FromQuery] string depositAmountText, [FromBody] SavingsAccountSnapshotDto selectedAccount)
     {
         string previewText;
-        bool isDepositTextPositiveAmount = SavingsUiRulesController.TryParsePositiveAmount(depositAmountText, out decimal amount);
+        bool isDepositTextPositiveAmount = TryParsePositiveAmount(depositAmountText, out decimal amount);
 
         if (selectedAccount == null || !isDepositTextPositiveAmount)
         {
@@ -40,14 +40,14 @@ public class SavingsUiRulesController : ControllerBase
         return Ok(previewText);
     }
 
-        [HttpGet(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.WithdrawNetAmount)]
+        [HttpGet(Contracts.Http.ApiEndpoints.SavingsUiRules.WithdrawNetAmount)]
     public ActionResult<decimal> GetWithdrawNetAmount([FromQuery] decimal requestedAmount, [FromQuery] decimal penalty)
     {
         decimal netAmount = requestedAmount - penalty;
         return Ok(netAmount);
     }
 
-        [HttpGet(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.ParseDepositFrequency)]
+        [HttpGet(Contracts.Http.ApiEndpoints.SavingsUiRules.ParseDepositFrequency)]
     public ActionResult<DepositFrequency> ParseDepositFrequency([FromQuery] string frequencyText)
     {
         bool isValid = Enum.TryParse(frequencyText, out DepositFrequency frequency);
@@ -58,7 +58,7 @@ public class SavingsUiRulesController : ControllerBase
         return BadRequest();
     }
 
-        [HttpGet(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.TotalPages)]
+        [HttpGet(Contracts.Http.ApiEndpoints.SavingsUiRules.TotalPages)]
     public ActionResult<int> GetTotalPages([FromQuery] int totalCount, [FromQuery] int pageSize)
     {
         int pages = pageSize <= NoPages
@@ -67,7 +67,7 @@ public class SavingsUiRulesController : ControllerBase
         return Ok(pages);
     }
 
-        [HttpPost(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.ValidateCreateAccount)]
+        [HttpPost(Contracts.Http.ApiEndpoints.SavingsUiRules.ValidateCreateAccount)]
     public ActionResult<Dictionary<string, string>> ValidateCreateAccount([FromBody] ValidateCreateAccountRequest request)
     {
         var errors = new Dictionary<string, string>();
@@ -82,7 +82,7 @@ public class SavingsUiRulesController : ControllerBase
             errors["AccountName"] = "Account name is required.";
         }
 
-        if (!SavingsUiRulesController.TryParsePositiveAmount(request.InitialDepositText, out _))
+        if (!TryParsePositiveAmount(request.InitialDepositText, out _))
         {
             errors["InitialDeposit"] = "Initial deposit must be a positive number.";
         }

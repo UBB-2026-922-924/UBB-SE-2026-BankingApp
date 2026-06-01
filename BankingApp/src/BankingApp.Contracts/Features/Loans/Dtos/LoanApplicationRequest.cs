@@ -6,7 +6,7 @@
 /// Request payload used to submit a new loan application.
 /// </summary>
 namespace BankingApp.Contracts.Features.Loans.Dtos;
-using BankingApp.Domain.Enums;
+using Domain.Enums;
 
 public class LoanApplicationRequest
 {

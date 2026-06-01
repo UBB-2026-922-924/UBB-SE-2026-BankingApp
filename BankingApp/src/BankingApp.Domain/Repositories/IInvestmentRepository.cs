@@ -1,11 +1,11 @@
-namespace BankingApp.Domain.Repositories;
+﻿namespace BankingApp.Domain.Repositories;
 
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using BankingApp.Domain.Aggregates.InvestmentAggregate;
-using BankingApp.Domain.Aggregates.InvestmentAggregate.Entities;
+using Aggregates.InvestmentAggregate;
+using Aggregates.InvestmentAggregate.Entities;
 
 /// <summary>Defines persistence operations for investment portfolios and trades.</summary>
 public interface IInvestmentRepository

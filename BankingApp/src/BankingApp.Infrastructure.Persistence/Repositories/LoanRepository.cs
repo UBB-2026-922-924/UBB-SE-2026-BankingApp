@@ -122,7 +122,7 @@ public sealed class LoanRepository(AppDbContext dbContext) : ILoanRepository
         bool isCurrentSet = false;
         foreach (AmortizationRow row in rows)
         {
-            if (!isCurrentSet && row.DueDate.Date >= System.DateTime.Today)
+            if (!isCurrentSet && row.DueDate.Date >= DateTime.Today)
             {
                 row.MarkAsCurrent();
                 isCurrentSet = true;

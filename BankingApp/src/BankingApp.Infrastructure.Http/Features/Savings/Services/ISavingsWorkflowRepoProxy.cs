@@ -1,7 +1,7 @@
 ﻿namespace BankingApp.Infrastructure.Http.Features.Savings.Services;
 
 using BankingApp.Contracts.Features.Savings.Dtos;
-using BankingApp.Domain.Aggregates.SavingsAggregate;
+using Domain.Aggregates.SavingsAggregate;
 using BankingApp.Contracts.Features.Investments;
 
 public interface ISavingsWorkflowRepoProxy

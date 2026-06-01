@@ -1,6 +1,6 @@
 ﻿namespace BankingApp.Desktop.Views;
 
-using BankingApp.Domain.Aggregates.ChatAggregate;
+using Domain.Aggregates.ChatAggregate;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
@@ -8,12 +8,12 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
-using BankingApp.Application.Features.Chat.Services;
+using Application.Features.Chat.Services;
 
 public sealed partial class ChatView : Page
 {
     private const int MaxAttachmentSizeBytes = 10 * 1024 * 1024;
-    private static readonly Dictionary<string, string> DefaultChatbotResponses = new Dictionary<string, string>
+    private static readonly Dictionary<string, string> _defaultChatbotResponses = new Dictionary<string, string>
     {
         ["How do I reset my password?"] =
             "You can reset your password from the login screen by choosing Forgot password and following the verification steps.",
@@ -27,20 +27,20 @@ public sealed partial class ChatView : Page
             "Please contact the team from this chat and include a short description of what happened. Screenshots or PDFs can help the team investigate faster.",
     };
 
-    private readonly IChatService chatService;
-    private readonly DispatcherTimer refreshTimer;
-    private int sessionId;
-    private StorageFile? pendingAttachment;
+    private readonly IChatService _chatService;
+    private readonly DispatcherTimer _refreshTimer;
+    private int _sessionId;
+    private StorageFile? _pendingAttachment;
 
     public ChatView()
     {
         InitializeComponent();
-        chatService = App.ChatService;
-        refreshTimer = new DispatcherTimer
+        _chatService = App.ChatService;
+        _refreshTimer = new DispatcherTimer
         {
             Interval = TimeSpan.FromSeconds(3)
         };
-        refreshTimer.Tick += RefreshTimer_Tick;
+        _refreshTimer.Tick += RefreshTimer_Tick;
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -49,27 +49,27 @@ public sealed partial class ChatView : Page
 
         if (e.Parameter is int parameterSessionId)
         {
-            sessionId = parameterSessionId;
+            _sessionId = parameterSessionId;
         }
 
-        if (sessionId <= 0)
+        if (_sessionId <= 0)
         {
             return;
         }
 
         try
         {
-            ChatSession? session = await chatService.GetSessionAsync(sessionId);
+            ChatSession? session = await _chatService.GetSessionAsync(_sessionId);
             HeaderText.Text = session == null
-                ? $"Chat #{sessionId}"
+                ? $"Chat #{_sessionId}"
                 : $"{session.IssueCategory} - #{session.Id}";
 
             await LoadMessagesAsync();
-            refreshTimer.Start();
+            _refreshTimer.Start();
         }
         catch (Exception ex)
         {
-            HeaderText.Text = $"Chat #{sessionId}";
+            HeaderText.Text = $"Chat #{_sessionId}";
             var dialog = new ContentDialog
             {
                 Title = "Could not load chat",
@@ -84,12 +84,12 @@ public sealed partial class ChatView : Page
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
         base.OnNavigatedFrom(e);
-        refreshTimer.Stop();
+        _refreshTimer.Stop();
     }
 
-    private async System.Threading.Tasks.Task LoadMessagesAsync()
+    private async Task LoadMessagesAsync()
     {
-        List<ChatMessage>? messages = await chatService.GetMessagesAsync(sessionId);
+        List<ChatMessage>? messages = await _chatService.GetMessagesAsync(_sessionId);
         MessagesList.ItemsSource = messages ?? new List<ChatMessage>();
         if (messages != null && messages.Count > 0)
         {
@@ -100,34 +100,34 @@ public sealed partial class ChatView : Page
     private async void AskPresetQuestionButton_Click(object sender, RoutedEventArgs e)
     {
         string content = PresetQuestionsComboBox.SelectedItem?.ToString()?.Trim() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(content) || sessionId <= 0)
+        if (string.IsNullOrWhiteSpace(content) || _sessionId <= 0)
         {
             return;
         }
 
-        CreateChatMessageResponse? response = await chatService.CreateMessageAsync(sessionId, "User", content);
+        CreateChatMessageResponse? response = await _chatService.CreateMessageAsync(_sessionId, "User", content);
         if (response == null || !response.Success)
         {
             return;
         }
 
-        if (pendingAttachment != null)
+        if (_pendingAttachment != null)
         {
-            BasicProperties props = await pendingAttachment.GetBasicPropertiesAsync();
-            string extension = System.IO.Path.GetExtension(pendingAttachment.Name)?.ToLowerInvariant() ?? string.Empty;
+            BasicProperties props = await _pendingAttachment.GetBasicPropertiesAsync();
+            string extension = Path.GetExtension(_pendingAttachment.Name)?.ToLowerInvariant() ?? string.Empty;
             string fileType = extension == ".pdf" ? "application/pdf" : "image";
 
-            await chatService.CreateAttachmentAsync(response.MessageId, new CreateChatAttachmentRequest
+            await _chatService.CreateAttachmentAsync(response.MessageId, new CreateChatAttachmentRequest
             {
-                AttachmentName = pendingAttachment.Name,
+                AttachmentName = _pendingAttachment.Name,
                 FileType = fileType,
                 FileSizeBytes = (int)props.Size,
-                StorageUrl = pendingAttachment.Path
+                StorageUrl = _pendingAttachment.Path
             });
         }
 
         PresetQuestionsComboBox.SelectedItem = null;
-        pendingAttachment = null;
+        _pendingAttachment = null;
         AttachmentText.Text = string.Empty;
         await LoadMessagesAsync();
     }
@@ -153,11 +153,11 @@ public sealed partial class ChatView : Page
             return;
         }
 
-        string extension = System.IO.Path.GetExtension(file.Name)?.ToLowerInvariant() ?? string.Empty;
+        string extension = Path.GetExtension(file.Name)?.ToLowerInvariant() ?? string.Empty;
         if (extension != ".png" && extension != ".jpg" && extension != ".jpeg" && extension != ".pdf")
         {
             AttachmentText.Text = "Only images or PDF files are allowed.";
-            pendingAttachment = null;
+            _pendingAttachment = null;
             return;
         }
 
@@ -165,23 +165,23 @@ public sealed partial class ChatView : Page
         if (properties.Size > MaxAttachmentSizeBytes)
         {
             AttachmentText.Text = "Attachment must be up to 10 MB.";
-            pendingAttachment = null;
+            _pendingAttachment = null;
             return;
         }
 
-        pendingAttachment = file;
+        _pendingAttachment = file;
         AttachmentText.Text = $"{file.Name} ({properties.Size / 1024} KB)";
     }
 
     private async void EscalateButton_Click(object sender, RoutedEventArgs e)
     {
-        await chatService.UpdateSessionStatusAsync(sessionId, "Escalated");
+        await _chatService.UpdateSessionStatusAsync(_sessionId, "Escalated");
         await LoadMessagesAsync();
     }
 
     private async void EndSessionButton_Click(object sender, RoutedEventArgs e)
     {
-        await chatService.UpdateSessionStatusAsync(sessionId, "Closed");
+        await _chatService.UpdateSessionStatusAsync(_sessionId, "Closed");
 
         var ratingBox = new ComboBox
         {
@@ -220,7 +220,7 @@ public sealed partial class ChatView : Page
         {
             if (ratingBox.SelectedItem is int rating)
             {
-                await chatService.SaveFeedbackAsync(sessionId, rating, feedbackBox.Text ?? string.Empty);
+                await _chatService.SaveFeedbackAsync(_sessionId, rating, feedbackBox.Text ?? string.Empty);
             }
         }
     }
@@ -242,7 +242,7 @@ public sealed partial class ChatView : Page
         ContentDialogResult result = await dialog.ShowAsync();
         if (result == ContentDialogResult.Primary && dialog.Content is TextBox emailBox)
         {
-            await chatService.EmailTranscriptAsync(sessionId, emailBox.Text ?? string.Empty);
+            await _chatService.EmailTranscriptAsync(_sessionId, emailBox.Text ?? string.Empty);
         }
     }
 

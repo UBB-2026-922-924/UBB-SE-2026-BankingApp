@@ -1,7 +1,7 @@
 ﻿namespace BankingApp.Web.Models.Chat;
 
-using BankingApp.Domain.Aggregates.ChatAggregate;
-using BankingApp.Domain.Aggregates.ChatAggregate.Entities;
+using Domain.Aggregates.ChatAggregate;
+using Domain.Aggregates.ChatAggregate.Entities;
 
 public class ChatDetailsViewModel
 {

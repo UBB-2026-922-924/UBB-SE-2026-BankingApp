@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using BankingApp.Domain.Aggregates.SavingsAggregate;
-using BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
+using Aggregates.SavingsAggregate;
+using Aggregates.SavingsAggregate.Entities;
 
 /// <summary>Defines persistence operations for savings accounts and transactions.</summary>
 public interface ISavingsRepository

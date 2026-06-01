@@ -48,7 +48,7 @@ public partial class App
     /// <summary>
     ///     Gets the root service provider for the application.
     /// </summary>
-    private IServiceProvider Services { get; }
+    public IServiceProvider Services { get; }
 
     /// <summary>
     ///     Handles application launch by creating and activating the main window.

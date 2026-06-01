@@ -1,7 +1,7 @@
 namespace BankingApp.Web.ViewModels.Profile;
 
 using System.ComponentModel.DataAnnotations;
-using BankingApp.Contracts.Features.UserProfile.Validation;
+using Contracts.Features.UserProfile.Validation;
 
 /// <summary>
 ///     Legacy view model kept for backward compatibility.

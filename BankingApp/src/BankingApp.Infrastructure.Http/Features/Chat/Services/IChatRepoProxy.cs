@@ -1,7 +1,7 @@
 ﻿namespace BankingApp.Infrastructure.Http.Features.Chat.Services;
 
-using BankingApp.Domain.Aggregates.ChatAggregate;
-using BankingApp.Domain.Aggregates.ChatAggregate.Entities;
+using Domain.Aggregates.ChatAggregate;
+using Domain.Aggregates.ChatAggregate.Entities;
 
 public interface IChatRepoProxy
 {

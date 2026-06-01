@@ -1,7 +1,7 @@
 namespace BankingApp.Application.Features.Loans;
 
 using BankingApp.Contracts.Features.Loans.Dtos;
-using BankingApp.Domain.Enums;
+using Domain.Enums;
 using ErrorOr;
 
 /// <summary>Validates incoming loan application requests.</summary>

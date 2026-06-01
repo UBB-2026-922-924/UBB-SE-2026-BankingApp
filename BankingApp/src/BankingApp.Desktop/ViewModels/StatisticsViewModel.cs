@@ -1,17 +1,18 @@
-﻿namespace BankingApp.Desktop.ViewModels;
+namespace BankingApp.Desktop.ViewModels;
 
 using System.Collections.ObjectModel;
-using BankingApp.Contracts.Features.Statistics.Dtos;
+using Contracts.Features.Statistics.Dtos;
+using Infrastructure.Http.Features.Statistics.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using BankingApp.Application.Features.Authentication.Services;
-using BankingApp.Application.Features.Statistics.Services;
+using Session;
+using Shared.Enums;
 
-public class StatisticsViewModel : BaseViewModel
+public partial class StatisticsViewModel : ObservableObject, IDisposable
 {
-    private readonly IStatisticsService _statisticsService;
-    private readonly IAuthService _authService;
+    private readonly IAuthenticationSession _authenticationSession;
     private readonly AsyncRelayCommand _refreshCommand;
+    private readonly IStatisticsRepoProxy _statisticsRepoProxy;
 
     private bool _isLoading;
     private string _statusMessage = string.Empty;
@@ -25,10 +26,15 @@ public class StatisticsViewModel : BaseViewModel
     private double _maxBalanceAmount = 1;
     private double _maxTopRecipientAmount = 1;
 
-    public StatisticsViewModel(IStatisticsService statisticsService, IAuthService authService)
+    [ObservableProperty]
+    private StatisticsState _state = StatisticsState.Idle;
+
+    public StatisticsViewModel(
+        IStatisticsRepoProxy statisticsRepoProxy,
+        IAuthenticationSession authenticationSession)
     {
-        _statisticsService = statisticsService;
-        _authService = authService;
+        this._statisticsRepoProxy = statisticsRepoProxy;
+        this._authenticationSession = authenticationSession;
         SpendingByCategory = new ObservableCollection<CategorySpendingPointDto>();
         BalanceTrends = new ObservableCollection<BalanceTrendPointDto>();
         TopRecipients = new ObservableCollection<TopCounterpartyDto>();
@@ -130,8 +136,9 @@ public class StatisticsViewModel : BaseViewModel
 
     public async Task LoadAsync()
     {
-        if (!_authService.IsAuthenticated())
+        if (!_authenticationSession.CurrentUserId.HasValue)
         {
+            State = StatisticsState.Error;
             ShowStatus("You must sign in to view statistics.", InfoBarSeverity.Warning);
             return;
         }
@@ -139,12 +146,13 @@ public class StatisticsViewModel : BaseViewModel
         try
         {
             IsLoading = true;
+            State = StatisticsState.Loading;
             ShowStatus(string.Empty, InfoBarSeverity.Informational);
 
-            Task<SpendingByCategoryResponse?> spendingTask = _statisticsService.GetSpendingByCategoryAsync();
-            Task<IncomeVsExpensesResponse?> incomeTask = _statisticsService.GetIncomeVsExpensesAsync();
-            Task<BalanceTrendsResponse?> balanceTask = _statisticsService.GetBalanceTrendsAsync();
-            Task<TopRecipientsResponse?> topRecipientsTask = _statisticsService.GetTopRecipientsAsync();
+            Task<SpendingByCategoryResponse?> spendingTask = _statisticsRepoProxy.GetSpendingByCategoryAsync();
+            Task<IncomeVsExpensesResponse?> incomeTask = _statisticsRepoProxy.GetIncomeVsExpensesAsync();
+            Task<BalanceTrendsResponse?> balanceTask = _statisticsRepoProxy.GetBalanceTrendsAsync();
+            Task<TopRecipientsResponse?> topRecipientsTask = _statisticsRepoProxy.GetTopRecipientsAsync();
 
             await Task.WhenAll(spendingTask, incomeTask, balanceTask, topRecipientsTask);
 
@@ -158,6 +166,7 @@ public class StatisticsViewModel : BaseViewModel
                 balanceResponse?.Success != true ||
                 topRecipientsResponse?.Success != true)
             {
+                State = StatisticsState.Error;
                 ShowStatus("Failed to load one or more statistics sections.", InfoBarSeverity.Error);
                 return;
             }
@@ -174,15 +183,18 @@ public class StatisticsViewModel : BaseViewModel
             MaxBalanceAmount = BalanceTrends.Count == 0 ? 1 : (double)BalanceTrends.Max(item => item.Balance);
             MaxTopRecipientAmount = TopRecipients.Count == 0 ? 1 : (double)TopRecipients.Max(item => item.TotalAmount);
 
+            State = StatisticsState.Ready;
             ShowStatus("Statistics refreshed successfully.", InfoBarSeverity.Success);
             OnPropertyChanged(nameof(HasData));
         }
         catch (UnauthorizedAccessException)
         {
+            State = StatisticsState.Error;
             ShowStatus("Your session expired. Please sign in again.", InfoBarSeverity.Warning);
         }
         catch (Exception ex)
         {
+            State = StatisticsState.Error;
             ShowStatus($"Failed to load statistics: {ex.Message}", InfoBarSeverity.Error);
         }
         finally
@@ -192,14 +204,11 @@ public class StatisticsViewModel : BaseViewModel
         }
     }
 
-    private void ShowStatus(string message, InfoBarSeverity severity)
+    public void Dispose()
     {
-        StatusMessage = message;
-        StatusSeverity = severity;
-        IsStatusOpen = !string.IsNullOrWhiteSpace(message);
     }
 
-    private static void ReplaceCollection<T>(ObservableCollection<T> target, System.Collections.Generic.IEnumerable<T> source)
+    private static void ReplaceCollection<T>(ObservableCollection<T> target, IEnumerable<T> source)
     {
         target.Clear();
         foreach (T item in source)
@@ -208,7 +217,10 @@ public class StatisticsViewModel : BaseViewModel
         }
     }
 
-    public override void Dispose()
+    private void ShowStatus(string message, InfoBarSeverity severity)
     {
+        StatusMessage = message;
+        StatusSeverity = severity;
+        IsStatusOpen = !string.IsNullOrWhiteSpace(message);
     }
 }

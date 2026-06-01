@@ -1,6 +1,6 @@
 namespace BankingApp.Web.ViewModels.Shared;
 
-using BankingApp.Contracts.Features.Billers.Dtos;
+using Contracts.Features.Billers.Dtos;
 
 public sealed class BillerCardViewModel
 {

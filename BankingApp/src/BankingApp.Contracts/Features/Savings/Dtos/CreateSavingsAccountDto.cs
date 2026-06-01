@@ -5,7 +5,7 @@
 namespace BankingApp.Contracts.Features.Savings.Dtos;
 
 using System;
-using BankingApp.Domain.Enums;
+using Domain.Enums;
 
 /// <summary>
 /// Request payload for creating a new savings account.

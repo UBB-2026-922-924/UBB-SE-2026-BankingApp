@@ -1,6 +1,6 @@
 namespace BankingApp.Web.ViewModels.Shared;
 
-using BankingApp.Web.Models.BillPayments;
+using Models.BillPayments;
 
 public sealed class TransactionRowViewModel
 {

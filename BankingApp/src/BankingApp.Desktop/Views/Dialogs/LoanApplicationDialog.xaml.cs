@@ -1,40 +1,40 @@
 ﻿namespace BankingApp.Desktop.Views.Dialogs;
 
-using BankingApp.Desktop.ViewModels;
+using ViewModels;
 using Microsoft.UI.Xaml.Controls;
 
 public sealed partial class LoanApplicationDialog : ContentDialog
 {
-    private readonly LoansViewModel viewModel;
+    private readonly LoansViewModel _viewModel;
 
     public LoanApplicationDialog(LoansViewModel viewModel)
     {
-        this.InitializeComponent();
-        this.viewModel = viewModel;
-        this.DataContext = viewModel;
+        InitializeComponent();
+        this._viewModel = viewModel;
+        DataContext = viewModel;
     }
 
     private async void OnSubmitClicked(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
         ContentDialogButtonClickDeferral? deferral = args.GetDeferral();
-        if (!this.viewModel.IsReviewVisible)
+        if (!_viewModel.IsReviewVisible)
         {
             args.Cancel = true;
-            this.viewModel.SwitchToReviewStage();
-            sender.Title = this.viewModel.DialogTitle;
-            sender.PrimaryButtonText = this.viewModel.DialogActionText;
+            _viewModel.SwitchToReviewStage();
+            sender.Title = _viewModel.DialogTitle;
+            sender.PrimaryButtonText = _viewModel.DialogActionText;
         }
         else
         {
-            await this.viewModel.ApplyForLoanAsync();
+            await _viewModel.ApplyForLoanAsync();
 
-            if (!string.IsNullOrEmpty(this.viewModel.ApplicationResult))
+            if (!string.IsNullOrEmpty(_viewModel.ApplicationResult))
             {
-                this.ResultBar.Message = this.viewModel.ApplicationResult;
-                this.ResultBar.Severity = this.viewModel.ApplicationWasApproved
+                ResultBar.Message = _viewModel.ApplicationResult;
+                ResultBar.Severity = _viewModel.ApplicationWasApproved
                     ? InfoBarSeverity.Success
                     : InfoBarSeverity.Error;
-                this.ResultBar.IsOpen = true;
+                ResultBar.IsOpen = true;
                 args.Cancel = true;
             }
         }
