@@ -42,7 +42,7 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (BankingApp.Web.Models.Beneficiaries.BeneficiaryListItemModel row in Model.Beneficiaries)
+                        @foreach (var row in Model.Beneficiaries)
                         {
                             <tr>
                                 <td class="fw-medium">@row.Name</td>

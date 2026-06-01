@@ -55,7 +55,7 @@ public sealed class SavingsRepository(AppDbContext dbContext) : ISavingsReposito
                 throw new InvalidOperationException(depositResult.FirstError.Description);
             }
 
-            SavingsTransaction savingsTransaction = SavingsTransaction.Create(
+            var savingsTransaction = SavingsTransaction.Create(
                 accountId, amount, SavingsTransactionType.Deposit, source, accountId, account.Balance, DateTime.UtcNow);
             dbContext.SavingsTransactions.Add(savingsTransaction);
 

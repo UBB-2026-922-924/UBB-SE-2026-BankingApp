@@ -76,7 +76,7 @@ namespace BankingApp.Desktop.Views
             catch (Exception ex)
             {
                 HeaderText.Text = $"Chat #{sessionId}";
-                ContentDialog dialog = new ContentDialog
+                var dialog = new ContentDialog
                 {
                     Title = "Could not load chat",
                     Content = ex.Message,
@@ -145,7 +145,7 @@ namespace BankingApp.Desktop.Views
                 return;
             }
 
-            FileOpenPicker picker = new FileOpenPicker();
+            var picker = new FileOpenPicker();
             picker.FileTypeFilter.Add(".png");
             picker.FileTypeFilter.Add(".jpg");
             picker.FileTypeFilter.Add(".jpeg");
@@ -189,7 +189,7 @@ namespace BankingApp.Desktop.Views
         {
             await chatService.UpdateSessionStatusAsync(sessionId, "Closed");
 
-            ComboBox ratingBox = new ComboBox
+            var ratingBox = new ComboBox
             {
                 PlaceholderText = "Select rating (1-5)"
             };
@@ -199,12 +199,12 @@ namespace BankingApp.Desktop.Views
             ratingBox.Items.Add(4);
             ratingBox.Items.Add(5);
 
-            TextBox feedbackBox = new TextBox
+            var feedbackBox = new TextBox
             {
                 PlaceholderText = "Optional written feedback."
             };
 
-            ContentDialog dialog = new ContentDialog
+            var dialog = new ContentDialog
             {
                 Title = "Rate your support experience",
                 Content = new StackPanel
@@ -233,7 +233,7 @@ namespace BankingApp.Desktop.Views
 
         private async void EmailTranscriptButton_Click(object sender, RoutedEventArgs e)
         {
-            ContentDialog dialog = new ContentDialog
+            var dialog = new ContentDialog
             {
                 Title = "Email chat transcript",
                 Content = new TextBox

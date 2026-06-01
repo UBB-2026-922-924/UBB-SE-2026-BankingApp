@@ -13,12 +13,12 @@
 <body>
 
     @{
-        string? currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-        string? currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
         bool IsActive(string controller, string? action = null)
         {
-            bool controllerMatch = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase);
+            var controllerMatch = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase);
             if (action is null) return controllerMatch;
             return controllerMatch && string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
         }
@@ -49,7 +49,7 @@
                                        asp-controller="Dashboard" asp-action="Index">
                                     <i class="bi bi-grid-1x2 me-1"></i>Dashboard
                                     @{
-                                        int notifCount = ViewData["NotificationCount"] is int n ? n : 0;
+                                        var notifCount = ViewData["NotificationCount"] is int n ? n : 0;
                                     }
                                     @if (notifCount > 0)
                                     {
@@ -100,7 +100,7 @@
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-1">
 
                             @{
-                                string displayName = User.FindFirst("name")?.Value
+                                var displayName = User.FindFirst("name")?.Value
                                                   ?? User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
                                                   ?? User.Identity?.Name
                                                   ?? "Account";

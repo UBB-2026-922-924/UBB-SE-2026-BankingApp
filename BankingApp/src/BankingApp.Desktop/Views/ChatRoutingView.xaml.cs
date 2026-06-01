@@ -49,7 +49,7 @@ namespace BankingApp.Desktop.Views
             }
             catch (Exception ex)
             {
-                ContentDialog dialog = new ContentDialog
+                var dialog = new ContentDialog
                 {
                     Title = "Could not start chat",
                     Content = ex.Message,

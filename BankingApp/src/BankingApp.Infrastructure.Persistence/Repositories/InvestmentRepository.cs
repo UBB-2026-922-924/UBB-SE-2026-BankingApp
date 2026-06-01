@@ -49,7 +49,7 @@ public sealed class InvestmentRepository(AppDbContext dbContext) : IInvestmentRe
                 await dbContext.SaveChangesAsync(cancellationToken);
             }
 
-            InvestmentTransaction transaction = InvestmentTransaction.Create(
+            var transaction = InvestmentTransaction.Create(
                 holding.Id, ticker, actionType.ToUpperInvariant(), quantity, pricePerUnit, fees, "Market", DateTime.UtcNow);
             dbContext.InvestmentTransactions.Add(transaction);
 

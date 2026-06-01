@@ -51,7 +51,7 @@
                     </label>
                     <select asp-for="IssueForm.CardBrand" class="form-select">
                         <option value="">— Select carrier —</option>
-                        @foreach (string brand in IssueCardRequest.SupportedBrands)
+                        @foreach (var brand in IssueCardRequest.SupportedBrands)
                         {
                             <option value="@brand">@brand</option>
                         }

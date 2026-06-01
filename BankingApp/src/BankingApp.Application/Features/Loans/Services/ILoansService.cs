@@ -1,44 +1,30 @@
-﻿using System.Collections.Generic;
+namespace BankingApp.Application.Features.Loans.Services;
+
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using BankingApp.Contracts.Features.Loans.Dtos;
-using BankingApp.Domain.Enums;
-using BankingApp.Domain.Aggregates.LoanAggregate;
+using Contracts.Features.Loans.Dtos;
+using Domain.Aggregates.LoanAggregate;
+using Domain.Aggregates.LoanAggregate.Entities;
+using ErrorOr;
 
-namespace BankingApp.Application.Features.Loans.Services
+public interface ILoansService
 {
-    using Domain.Aggregates.LoanAggregate.Entities;
+    public Task<ErrorOr<IReadOnlyCollection<Loan>>> GetLoansByUserAsync(int userId, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Desktop business service for Loans.
-    /// Implements business rules locally and uses a RepoProxy for persistence.
-    /// </summary>
-    public interface ILoansService
-    {
-        Task<List<Loan>> GetLoansByUserAsync(int userId);
+    public Task<ErrorOr<Loan>> GetLoanByIdAsync(int loanId, CancellationToken cancellationToken = default);
 
-        Task<LoanApplicationResult> SubmitLoanApplicationAsync(LoanApplicationRequest request);
+    public Task<ErrorOr<LoanApplicationResult>> SubmitApplicationAsync(LoanApplicationRequest request, CancellationToken cancellationToken = default);
 
-        LoanEstimate GetLoanEstimate(LoanApplicationRequest request);
+    public ErrorOr<LoanEstimate> GetEstimate(LoanApplicationRequest request);
 
-        Task PayInstallmentAsync(int loanId, decimal? customAmount);
+    public Task<ErrorOr<Success>> PayInstallmentAsync(int loanId, decimal? customAmount, CancellationToken cancellationToken = default);
 
-        decimal? ParseCustomPaymentAmount(string input);
-
-        decimal NormalizeCustomPaymentAmount(Loan loan, decimal? currentCustomAmount);
-
-        double GetRepaymentProgress(Loan loan);
-
-        Task<List<AmortizationRow>> GetAmortizationAsync(int loanId);
-
-        Task<BuildApplicationOutcomeResponse?> GetBuildApplicationOutcomeAsync(string? rejectionReason);
-
-        Task<bool> GetShouldComputeEstimateAsync(double desiredAmount, int preferredTermMonths, string purpose);
-    }
-
-    public class LoanApplicationResult
-    {
-        public LoanApplicationStatus Status { get; set; }
-        public string? RejectionReason { get; set; }
-    }
+    public Task<ErrorOr<IReadOnlyCollection<AmortizationRow>>> GetAmortizationAsync(int loanId, CancellationToken cancellationToken = default);
 }
 
+public sealed class LoanApplicationResult
+{
+    public required string Status { get; init; }
+    public string? RejectionReason { get; init; }
+}

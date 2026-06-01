@@ -63,7 +63,7 @@
             </button>
 
             @* Card slides *@
-            @for (int i = 0; i < Model.Cards.Count; i++)
+            @for (var i = 0; i < Model.Cards.Count; i++)
             {
                 var card = Model.Cards[i];
                 <div class="dash-card-slide @(i == 0 ? "dash-card-slide--active" : string.Empty)"
@@ -148,7 +148,7 @@
         @if (Model.Cards.Count > 1)
         {
             <div id="dash-dots" class="dash-card-dots mt-3" aria-hidden="true">
-                @for (int i = 0; i < Model.Cards.Count; i++)
+                @for (var i = 0; i < Model.Cards.Count; i++)
                 {
                     <span class="dash-dot @(i == 0 ? "dash-dot--active" : string.Empty)"
                           data-dot-index="@i"></span>

@@ -23,8 +23,8 @@
                     <div>
                         <div class="small text-muted">Total Profit / Loss</div>
                         @{
-                            string glClass = Model.TotalGainLoss >= 0 ? "text-success" : "text-danger";
-                            string glSign = Model.TotalGainLoss >= 0 ? "+" : "";
+                            var glClass = Model.TotalGainLoss >= 0 ? "text-success" : "text-danger";
+                            var glSign = Model.TotalGainLoss >= 0 ? "+" : "";
                         }
                         <h4 class="fw-bold @glClass">@glSign@Model.TotalGainLoss.ToString("N2") RON</h4>
                         <span class="small fw-semibold @glClass">(@((Model.GainLossPercent * 100).ToString("N2"))%)</span>

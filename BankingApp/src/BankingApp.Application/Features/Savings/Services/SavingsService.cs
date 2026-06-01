@@ -1,332 +1,197 @@
-﻿using System;
+namespace BankingApp.Application.Features.Savings.Services;
+
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using BankingApp.Contracts.Features.Savings.Dtos;
-using BankingApp.Domain.Enums;
-using BankingApp.Domain.Aggregates.InvestmentAggregate;
 using BankingApp.Domain.Aggregates.SavingsAggregate;
+using BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
+using BankingApp.Domain.Common.Errors;
+using BankingApp.Domain.Enums;
+using BankingApp.Domain.Repositories;
+using ErrorOr;
+using Shared.Persistence;
 
-namespace BankingApp.Application.Features.Savings.Services
+public sealed class SavingsService(
+    ISavingsRepository savingsRepository,
+    IUnitOfWork unitOfWork)
+    : ISavingsService
 {
-    using Contracts.Features.Investments;
-    using Domain.Aggregates.SavingsAggregate.Entities;
+    private const int MaxActiveAccounts = 5;
+    private const decimal FixedDepositApy = 0.04m;
+    private const decimal GoalSavingsApy = 0.03m;
+    private const decimal HighYieldApy = 0.03m;
+    private const decimal DefaultApy = 0.02m;
+    private const decimal EarlyClosurePenaltyRate = 0.02m;
+    private const decimal EarlyWithdrawalPenaltyRate = 0.02m;
 
-    public class SavingsService : ISavingsService
+    public async Task<ErrorOr<SavingsAccount>> CreateAccountAsync(
+        int userId,
+        SavingsType savingsType,
+        string? accountName,
+        int? fundingAccountId,
+        decimal initialDeposit,
+        decimal? targetAmount,
+        DateTime? targetDate,
+        DateTime? maturityDate,
+        DepositFrequency? depositFrequency,
+        CancellationToken cancellationToken = default)
     {
-        private const int MaxActiveAccounts = 5;
-        private const int MinUserId = 0;
-        private const decimal MinPositiveAmount = 0m;
-        private const decimal NoPenalty = 0m;
-        private const int MinPage = 1;
-        private const int MaxPageSize = 100;
-        private const int DefaultPageSize = 20;
-        private const string InvalidPositiveAmountMessage = "Invalid amount. Please enter a positive number.";
-
-        private const decimal FixedDepositApy = 0.04m;
-        private const decimal GoalSavingsApy = 0.03m;
-        private const decimal HighYieldApy = 0.03m;
-        private const decimal DefaultApy = 0.02m;
-
-        private const decimal DecimalEarlyClosurePenalty = 0.02m;
-        private const decimal DecimalEarlyWithdrawalPenalty = 0.02m;
-
-        private readonly ISavingsRepoProxy _savingsRepoProxy;
-        private readonly ISavingsUiRulesRepoProxy _savingsUiRules;
-        private readonly ISavingsPresentationRepoProxy _savingsPresentation;
-        private readonly ISavingsWorkflowRepoProxy _savingsWorkflow;
-
-        public SavingsService(
-            ISavingsRepoProxy savingsRepoProxy,
-            ISavingsUiRulesRepoProxy savingsUiRules,
-            ISavingsPresentationRepoProxy savingsPresentation,
-            ISavingsWorkflowRepoProxy savingsWorkflow)
+        IReadOnlyCollection<SavingsAccount> active = await savingsRepository.GetSavingsAccountsByUserIdAsync(userId, false, cancellationToken);
+        if (active.Count >= MaxActiveAccounts)
         {
-            _savingsRepoProxy = savingsRepoProxy ?? throw new ArgumentNullException(nameof(savingsRepoProxy));
-            _savingsUiRules = savingsUiRules ?? throw new ArgumentNullException(nameof(savingsUiRules));
-            _savingsPresentation = savingsPresentation ?? throw new ArgumentNullException(nameof(savingsPresentation));
-            _savingsWorkflow = savingsWorkflow ?? throw new ArgumentNullException(nameof(savingsWorkflow));
+            return Error.Validation("Savings.MaxAccountsReached", $"Cannot have more than {MaxActiveAccounts} active savings accounts.");
         }
 
-        public async Task<SavingsAccount> CreateAccountAsync(CreateSavingsAccountDto dto)
+        if (savingsType == SavingsType.GoalSavings)
         {
-            // Business rule: enforce max active accounts per user.
-            var activeAccountsList = await _savingsRepoProxy.GetSavingsAccountsByUserIdAsync(dto.UserIdentificationNumber, false);
-            if (activeAccountsList.Count >= MaxActiveAccounts)
+            if (!targetDate.HasValue || targetDate.Value.Date <= DateTime.Today)
             {
-                throw new InvalidOperationException($"You cannot have more than {MaxActiveAccounts} active savings accounts.");
+                return Error.Validation("Savings.InvalidTargetDate", "GoalSavings accounts require a future target date.");
             }
 
-            // Business rule: goal savings requires a future target date and positive target amount.
-            if (dto.SavingsType == "GoalSavings")
+            if (!targetAmount.HasValue || targetAmount.Value <= 0)
             {
-                if (!dto.TargetDate.HasValue)
-                {
-                    throw new ArgumentException("GoalSavings accounts require a target date.");
-                }
-
-                if (dto.TargetDate.Value <= DateTime.Today)
-                {
-                    throw new ArgumentException("Target date must be in the future.");
-                }
-
-                if (!dto.TargetAmount.HasValue || dto.TargetAmount.Value <= MinPositiveAmount)
-                {
-                    throw new ArgumentException("GoalSavings accounts require a positive target amount.");
-                }
+                return Error.Validation("Savings.InvalidTargetAmount", "GoalSavings accounts require a positive target amount.");
             }
-
-            decimal apy = dto.SavingsType switch
-            {
-                "FixedDeposit" => FixedDepositApy,
-                "GoalSavings" => GoalSavingsApy,
-                "HighYield" => HighYieldApy,
-                _ => DefaultApy,
-            };
-
-            return await _savingsRepoProxy.CreateSavingsAccountAsync(dto, apy);
         }
 
-        public Task<List<SavingsAccount>> GetAccountsAsync(int userId, bool includesClosed = false)
+        decimal apy = savingsType switch
         {
-            if (userId < MinUserId)
-            {
-                throw new ArgumentException("User ID must be a positive integer.");
-            }
+            SavingsType.FixedDeposit => FixedDepositApy,
+            SavingsType.GoalSavings => GoalSavingsApy,
+            SavingsType.HighYield => HighYieldApy,
+            _ => DefaultApy,
+        };
 
-            return _savingsRepoProxy.GetSavingsAccountsByUserIdAsync(userId, includesClosed);
+        var account = SavingsAccount.Create(userId, savingsType, apy, accountName, fundingAccountId, targetAmount, targetDate, maturityDate, DateTime.UtcNow);
+        SavingsAccount created = await savingsRepository.CreateSavingsAccountAsync(account, cancellationToken);
+
+        if (initialDeposit > 0)
+        {
+            await savingsRepository.DepositAsync(created.Id, initialDeposit, "Initial deposit", cancellationToken);
         }
 
-        public async Task<DepositResponseDto> DepositAsync(int accountId, decimal amount, string source, int userId)
+        return created;
+    }
+
+    public async Task<ErrorOr<IReadOnlyCollection<SavingsAccount>>> GetAccountsAsync(int userId, bool includesClosed, CancellationToken cancellationToken = default)
+    {
+        IReadOnlyCollection<SavingsAccount> accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(userId, includesClosed, cancellationToken);
+        return ErrorOrFactory.From(accounts);
+    }
+
+    public async Task<ErrorOr<(decimal NewBalance, int TransactionId, DateTime Timestamp)>> DepositAsync(
+        int userId, int accountId, decimal amount, string source, CancellationToken cancellationToken = default)
+    {
+        if (amount <= 0)
         {
-            if (amount <= MinPositiveAmount)
-            {
-                throw new ArgumentException("Deposit amount must be positive.");
-            }
-
-            // Business rule: validate ownership and status before deposit.
-            var userAccountsList = await _savingsRepoProxy.GetSavingsAccountsByUserIdAsync(userId, true);
-            var destinationAccount = userAccountsList.FirstOrDefault(account => account.IdentificationNumber == accountId)
-                ?? throw new InvalidOperationException("Account not found or does not belong to you.");
-
-            if (destinationAccount.AccountStatus == "Closed")
-            {
-                throw new InvalidOperationException("Cannot deposit into a closed account.");
-            }
-
-            if (destinationAccount.DisplayStatus == "Matured")
-            {
-                throw new InvalidOperationException("Cannot deposit into a matured account.");
-            }
-
-            return await _savingsRepoProxy.DepositAsync(accountId, amount, source);
+            return SavingsErrors.InvalidDepositAmount;
         }
 
-        public async Task<ClosureResultDto> CloseAccountAsync(int accountId, int destinationAccountId, int userId)
+        IReadOnlyCollection<SavingsAccount> accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(userId, true, cancellationToken);
+        if (!accounts.Any(a => a.Id == accountId))
         {
-            var userAccountsList = await _savingsRepoProxy.GetSavingsAccountsByUserIdAsync(userId, true);
-
-            var closingAccount = userAccountsList.FirstOrDefault(account => account.IdentificationNumber == accountId)
-                                 ?? throw new InvalidOperationException("Account not found.");
-
-            if (closingAccount.AccountStatus == "Closed")
-            {
-                throw new InvalidOperationException("Account already closed.");
-            }
-
-            var destinationAccount = userAccountsList.FirstOrDefault(account => account.IdentificationNumber == destinationAccountId)
-                                     ?? throw new InvalidOperationException("Destination account not found.");
-
-            if (destinationAccount.AccountStatus == "Closed")
-            {
-                throw new InvalidOperationException("Cannot transfer to a closed account.");
-            }
-
-            decimal earlyClosurePenalty = NoPenalty;
-            if (closingAccount.SavingsType == "FixedDeposit" &&
-                closingAccount.MaturityDate.HasValue &&
-                closingAccount.MaturityDate > DateTime.UtcNow)
-            {
-                earlyClosurePenalty = closingAccount.Balance * DecimalEarlyClosurePenalty;
-            }
-
-            decimal transferAmount = closingAccount.Balance - earlyClosurePenalty;
-
-            return await _savingsRepoProxy.CloseSavingsAccountAsync(
-                accountId,
-                destinationAccountId,
-                transferAmount,
-                earlyClosurePenalty);
+            return SavingsErrors.AccountNotFound;
         }
 
-        public async Task<WithdrawResponseDto> WithdrawAsync(int accountId, decimal amount, string destinationLabel, int userId)
+        (decimal newBalance, int transactionId, DateTime timestamp) = await savingsRepository.DepositAsync(accountId, amount, source, cancellationToken);
+        return (newBalance, transactionId, timestamp);
+    }
+
+    public async Task<ErrorOr<(decimal AmountWithdrawn, decimal PenaltyApplied, decimal NewBalance)>> WithdrawAsync(
+        int userId, int accountId, decimal amount, string destinationLabel, CancellationToken cancellationToken = default)
+    {
+        if (amount <= 0)
         {
-            if (amount <= MinPositiveAmount)
-            {
-                throw new ArgumentException("Withdrawal amount must be positive.");
-            }
-
-            var userAccountsList = await _savingsRepoProxy.GetSavingsAccountsByUserIdAsync(userId, true);
-            var destinationAccount = userAccountsList.FirstOrDefault(account => account.IdentificationNumber == accountId)
-                ?? throw new InvalidOperationException("Account not found or does not belong to you.");
-
-            if (destinationAccount.AccountStatus == "Closed")
-            {
-                throw new InvalidOperationException("Cannot withdraw from a closed account.");
-            }
-
-            if (destinationAccount.Balance < amount)
-            {
-                throw new InvalidOperationException("Insufficient balance.");
-            }
-
-            decimal earlyWithdrawalPenalty = NoPenalty;
-            if (destinationAccount.SavingsType == "FixedDeposit" &&
-                destinationAccount.MaturityDate.HasValue &&
-                destinationAccount.MaturityDate.Value > DateTime.UtcNow)
-            {
-                earlyWithdrawalPenalty = amount * DecimalEarlyWithdrawalPenalty;
-            }
-
-            decimal totalSumToWithdraw = amount + earlyWithdrawalPenalty;
-            if (totalSumToWithdraw > destinationAccount.Balance)
-            {
-                throw new InvalidOperationException("Insufficient balance after penalty.");
-            }
-
-            // Note: repository expects total amount debited; penalty recorded separately.
-            return await _savingsRepoProxy.WithdrawAsync(
-                accountId,
-                totalSumToWithdraw,
-                destinationLabel,
-                earlyWithdrawalPenalty);
+            return SavingsErrors.InvalidDepositAmount;
         }
 
-        public Task<AutoDeposit> GetAutoDepositAsync(int accountId) => _savingsRepoProxy.GetAutoDepositAsync(accountId);
-
-        public Task SaveAutoDepositAsync(AutoDeposit autoDeposit) => _savingsRepoProxy.SaveAutoDepositAsync(autoDeposit);
-
-        public Task<List<FundingSourceOption>> GetFundingSourcesAsync(int userId) => _savingsRepoProxy.GetFundingSourcesAsync(userId);
-
-        public async Task<GetTransactionsResponse> GetTransactionsAsync(int accountId, string filter = "", int page = 1, int pageSize = 20)
+        IReadOnlyCollection<SavingsAccount> accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(userId, true, cancellationToken);
+        SavingsAccount? account = accounts.FirstOrDefault(a => a.Id == accountId);
+        if (account is null)
         {
-            if (page < MinPage)
-            {
-                throw new ArgumentException("Page must be greater than or equal to one.");
-            }
-
-            if (pageSize <= MinUserId || pageSize > MaxPageSize)
-            {
-                pageSize = DefaultPageSize;
-            }
-
-            return await _savingsRepoProxy.GetTransactionsAsync(accountId, filter, page, pageSize);
+            return SavingsErrors.AccountNotFound;
         }
 
-        public Task<List<SavingsAccount>> GetValidTransferDestinationsAsync(int currentAccountId, int userId)
-            => _savingsRepoProxy.GetValidTransferDestinationsAsync(currentAccountId, userId);
-
-        public Task<decimal> ComputeWithdrawalPenalty(decimal amount)
+        if (account.Balance < amount)
         {
-            return Task.FromResult(amount * DecimalEarlyWithdrawalPenalty);
+            return SavingsErrors.InsufficientBalance;
         }
 
-        public Task<bool> HasRiskEarlyWithdrawal(SavingsAccount savingsAccount)
+        decimal penalty = IsEarlyWithdrawal(account) ? amount * EarlyWithdrawalPenaltyRate : 0m;
+        decimal totalDebit = amount + penalty;
+
+        if (totalDebit > account.Balance)
         {
-            bool hasRisk = savingsAccount?.SavingsType == "FixedDeposit" &&
-                           savingsAccount.MaturityDate.HasValue &&
-                           savingsAccount.MaturityDate.Value > DateTime.UtcNow;
-            return Task.FromResult(hasRisk);
+            return SavingsErrors.InsufficientBalance;
         }
 
-        public Task<decimal> GetPenaltyDecimalFor(string penaltyCase)
-        {
-            decimal penaltyRate = penaltyCase switch
-            {
-                "EarlyWithdrawal" => DecimalEarlyWithdrawalPenalty,
-                "EarlyClosure" => DecimalEarlyClosurePenalty,
-                _ => throw new ArgumentException("Invalid penalty case."),
-            };
+        (decimal withdrawn, decimal penaltyApplied, decimal newBalance, _) = await savingsRepository.WithdrawAsync(accountId, totalDebit, destinationLabel, penalty, cancellationToken);
+        return (withdrawn, penaltyApplied, newBalance);
+    }
 
-            return Task.FromResult(penaltyRate);
+    public async Task<ErrorOr<(decimal TransferredAmount, decimal PenaltyApplied)>> CloseAccountAsync(
+        int userId, int accountId, int destinationAccountId, CancellationToken cancellationToken = default)
+    {
+        IReadOnlyCollection<SavingsAccount> accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(userId, true, cancellationToken);
+        SavingsAccount? closing = accounts.FirstOrDefault(a => a.Id == accountId);
+        if (closing is null)
+        {
+            return SavingsErrors.AccountNotFound;
         }
 
-        public Task<decimal> ParsePositiveAmountAsync(string text)
+        if (closing.AccountStatus == "Closed")
         {
-            if (!TryParsePositiveAmount(text, out decimal amount))
-            {
-                throw new InvalidOperationException(InvalidPositiveAmountMessage);
-            }
-
-            return Task.FromResult(amount);
+            return SavingsErrors.AccountAlreadyClosed;
         }
 
-        public Task<string> GetDepositPreviewAsync(string depositAmountText, SavingsAccount selectedAccount) =>
-            _savingsUiRules.GetDepositPreview(depositAmountText, selectedAccount);
-
-        public Task<decimal> GetWithdrawNetAmountAsync(decimal requestedAmount, decimal penalty) =>
-            _savingsUiRules.GetWithdrawNetAmount(requestedAmount, penalty);
-
-        public Task<DepositFrequency> ParseDepositFrequencyAsync(string frequencyText) =>
-            _savingsUiRules.ParseDepositFrequency(frequencyText);
-
-        public Task<int> GetTotalPagesAsync(int totalCount, int pageSize) =>
-            _savingsUiRules.GetTotalPages(totalCount, pageSize);
-
-        public Task<Dictionary<string, string>> ValidateCreateAccountAsync(ValidateCreateAccountRequest request) =>
-            _savingsUiRules.ValidateCreateAccount(request);
-
-        public Task<string> GetTotalSavedAmountAsync(IEnumerable<SavingsAccount> accounts) =>
-            _savingsPresentation.GetTotalSavedAmount(accounts);
-
-        public Task<string> GetNumberOfAccountsTextAsync(int accountCount) =>
-            _savingsPresentation.GetNumberOfAccountsText(accountCount);
-
-        public Task<string> GetBestInterestRateAsync(IEnumerable<SavingsAccount> accounts) =>
-            _savingsPresentation.GetBestInterestRate(accounts);
-
-        public Task<bool> CheckClosePenaltyRiskAsync(SavingsAccount selectedAccount) =>
-            _savingsPresentation.CheckClosePenaltyRisk(selectedAccount);
-
-        public Task<FundingSourceOption> GetDefaultFundingSourceAsync(IEnumerable<FundingSourceOption> fundingSources) =>
-            _savingsWorkflow.GetDefaultFundingSource(fundingSources);
-
-        public Task<int> GetDefaultCloseDestinationIdAsync(IEnumerable<SavingsAccount> destinationAccounts) =>
-            _savingsWorkflow.GetDefaultCloseDestinationId(destinationAccounts);
-
-        public Task<ValidationResponse> ValidateWithdrawRequestAsync(decimal amount, FundingSourceOption? destination) =>
-            _savingsWorkflow.ValidateWithdrawRequest(amount, destination);
-
-        public Task<string> BuildWithdrawResultMessageAsync(WithdrawResponseDto response) =>
-            _savingsWorkflow.BuildWithdrawResultMessage(response);
-
-        public Task<ValidationResponse> ValidateCloseConfirmationAsync(bool userConfirmed, int destinationId) =>
-            _savingsWorkflow.ValidateCloseConfirmation(userConfirmed, destinationId);
-
-        public Task<bool> CanMoveToNextPageAsync(int currentPage, int totalPages) =>
-            _savingsWorkflow.CanMoveToNextPage(currentPage, totalPages);
-
-        public Task<bool> CanMoveToPreviousPageAsync(int currentPage) =>
-            _savingsWorkflow.CanMoveToPreviousPage(currentPage);
-
-        private static bool TryParsePositiveAmount(string text, out decimal amount)
+        SavingsAccount? destination = accounts.FirstOrDefault(a => a.Id == destinationAccountId);
+        if (destination is null || destination.AccountStatus == "Closed")
         {
-            if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.CurrentCulture, out amount) &&
-                amount > MinPositiveAmount)
-            {
-                return true;
-            }
-
-            if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out amount) &&
-                amount > MinPositiveAmount)
-            {
-                return true;
-            }
-
-            amount = MinPositiveAmount;
-            return false;
+            return SavingsErrors.AccountNotFound;
         }
+
+        decimal penalty = IsEarlyWithdrawal(closing) ? closing.Balance * EarlyClosurePenaltyRate : 0m;
+        decimal transferAmount = closing.Balance - penalty;
+
+        (decimal transferred, decimal penaltyApplied, _) = await savingsRepository.CloseSavingsAccountAsync(
+            accountId, destinationAccountId, transferAmount, penalty, cancellationToken);
+
+        return (transferred, penaltyApplied);
+    }
+
+    public async Task<ErrorOr<AutoDeposit?>> GetAutoDepositAsync(int accountId, CancellationToken cancellationToken = default)
+    {
+        AutoDeposit? autoDeposit = await savingsRepository.GetAutoDepositAsync(accountId, cancellationToken);
+        return autoDeposit;
+    }
+
+    public async Task<ErrorOr<Success>> SaveAutoDepositAsync(AutoDeposit autoDeposit, CancellationToken cancellationToken = default)
+    {
+        await savingsRepository.SaveAutoDepositAsync(autoDeposit, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return Result.Success;
+    }
+
+    public async Task<ErrorOr<IReadOnlyCollection<(int Id, string DisplayName)>>> GetFundingSourcesAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        IReadOnlyCollection<(int Id, string DisplayName)> sources = await savingsRepository.GetFundingSourcesAsync(userId, cancellationToken);
+        return ErrorOrFactory.From(sources);
+    }
+
+    public async Task<ErrorOr<(IReadOnlyCollection<SavingsTransaction> Items, int TotalCount)>> GetTransactionsAsync(
+        int accountId, string typeFilter, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        (IReadOnlyCollection<SavingsTransaction> items, int totalCount) = await savingsRepository.GetTransactionsPagedAsync(accountId, typeFilter, page, pageSize, cancellationToken);
+        return (items, totalCount);
+    }
+
+    private static bool IsEarlyWithdrawal(SavingsAccount account)
+    {
+        return account.SavingsType == SavingsType.FixedDeposit
+            && account.MaturityDate.HasValue
+            && account.MaturityDate.Value > DateTime.UtcNow;
     }
 }
-

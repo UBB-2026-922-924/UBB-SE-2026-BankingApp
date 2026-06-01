@@ -2,19 +2,23 @@ namespace BankingApp.Application.Features.Loans.Services;
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Contracts.Features.Loans.Dtos;
 using Domain.Aggregates.LoanAggregate;
 using Domain.Aggregates.LoanAggregate.Entities;
+using Domain.Common.Errors;
 using Domain.Enums;
+using Domain.Repositories;
 using ErrorOr;
+using Shared.Persistence;
 
-public class LoansService : ILoansService
+public sealed class LoansService(
+    ILoanRepository loanRepository,
+    IUnitOfWork unitOfWork)
+    : ILoansService
 {
-    private const int MinimumIdExclusive = 0;
-    private const decimal ZeroAmount = 0m;
-    private const int NoRowsCount = 0;
     private const int MaxActiveLoans = 5;
     private const decimal TotalDebtLimit = 200000m;
     private const decimal PersonalLoanRate = 8.5m;
@@ -22,336 +26,134 @@ public class LoansService : ILoansService
     private const decimal StudentLoanRate = 3.0m;
     private const decimal AutoLoanRate = 6.5m;
 
-    private readonly ILoansRepoProxy _loanRepoProxy;
-    private readonly ILoanDialogStateRepoProxy _loanDialogState;
-    private readonly ILoanApplicationPresentationRepoProxy _loanApplicationPresentation;
-    private readonly LoanApplicationValidator _validator;
-    private readonly PaymentCalculationService _paymentCalculationService;
+    private readonly LoanApplicationValidator _validator = new();
 
-    public LoansService(
-        ILoansRepoProxy loanRepoProxy,
-        ILoanDialogStateRepoProxy loanDialogState,
-        ILoanApplicationPresentationRepoProxy loanApplicationPresentation)
+    public async Task<ErrorOr<IReadOnlyCollection<Loan>>> GetLoansByUserAsync(int userId, CancellationToken cancellationToken = default)
     {
-        _loanRepoProxy = loanRepoProxy ?? throw new ArgumentNullException(nameof(loanRepoProxy));
-        _loanDialogState = loanDialogState ?? throw new ArgumentNullException(nameof(loanDialogState));
-        _loanApplicationPresentation = loanApplicationPresentation ?? throw new ArgumentNullException(nameof(loanApplicationPresentation));
-        _validator = new LoanApplicationValidator();
-        _paymentCalculationService = new PaymentCalculationService();
+        IReadOnlyCollection<Loan> loans = await loanRepository.GetLoansByUserAsync(userId, cancellationToken);
+        return ErrorOrFactory.From(loans);
     }
 
-    public Task<List<Loan>> GetLoansByUserAsync(int userId)
+    public async Task<ErrorOr<Loan>> GetLoanByIdAsync(int loanId, CancellationToken cancellationToken = default)
     {
-        if (userId <= MinimumIdExclusive)
+        Loan? loan = await loanRepository.GetLoanByIdAsync(loanId, cancellationToken);
+        if (loan is null)
         {
-            return Task.FromResult<List<Loan>>([]);
+            return LoanErrors.LoanNotFound;
         }
 
-        return _loanRepoProxy.GetLoansByUserAsync(userId);
+        return loan;
     }
 
-    public async Task<LoanApplicationResult> SubmitLoanApplicationAsync(LoanApplicationRequest request)
+    public async Task<ErrorOr<LoanApplicationResult>> SubmitApplicationAsync(LoanApplicationRequest request, CancellationToken cancellationToken = default)
     {
         ErrorOr<Success> validation = _validator.Validate(request);
         if (validation.IsError)
         {
             return new LoanApplicationResult
             {
-                Status = LoanApplicationStatus.Rejected,
+                Status = LoanApplicationStatus.Rejected.ToString(),
                 RejectionReason = validation.FirstError.Description,
             };
         }
 
-        int applicationId = await _loanRepoProxy.CreateLoanApplicationAsync(request);
-        if (applicationId <= MinimumIdExclusive)
-        {
-            return new LoanApplicationResult
-            {
-                Status = LoanApplicationStatus.Rejected,
-                RejectionReason = "Could not create loan application.",
-            };
-        }
-
         var application = LoanApplication.Create(
-            request.UserId,
-            request.LoanType,
-            request.DesiredAmount,
-            request.PreferredTermMonths,
-            request.Purpose);
+            request.UserId, request.LoanType, request.DesiredAmount, request.PreferredTermMonths, request.Purpose);
 
-        (LoanApplicationStatus status, string? reason) = await EvaluateApplicationAsync(application);
-        await _loanRepoProxy.UpdateLoanApplicationStatusAsync(applicationId, status, reason);
+        int applicationId = await loanRepository.CreateLoanApplicationAsync(application, cancellationToken);
 
-        if (status == LoanApplicationStatus.Approved)
+        IReadOnlyCollection<Loan> existing = await loanRepository.GetLoansByUserAsync(request.UserId, cancellationToken);
+        decimal totalOutstanding = existing.Sum(l => l.OutstandingBalance);
+        int activeCount = existing.Count(l => l.LoanStatus == LoanStatus.Active);
+
+        if (activeCount >= MaxActiveLoans)
         {
-            int loanId = await CreateApprovedLoanAsync(application);
-            await EnsureAmortizationAsync(loanId);
+            application.Reject("Maximum number of active loans reached.");
+            await loanRepository.UpdateLoanApplicationStatusAsync(applicationId, LoanApplicationStatus.Rejected, application.RejectionReason, cancellationToken);
+            return new LoanApplicationResult { Status = LoanApplicationStatus.Rejected.ToString(), RejectionReason = application.RejectionReason };
         }
 
-        return new LoanApplicationResult
+        if (totalOutstanding + request.DesiredAmount >= TotalDebtLimit)
         {
-            Status = status,
-            RejectionReason = reason,
-        };
+            application.Reject("Total debt limit exceeded.");
+            await loanRepository.UpdateLoanApplicationStatusAsync(applicationId, LoanApplicationStatus.Rejected, application.RejectionReason, cancellationToken);
+            return new LoanApplicationResult { Status = LoanApplicationStatus.Rejected.ToString(), RejectionReason = application.RejectionReason };
+        }
+
+        application.Approve();
+        await loanRepository.UpdateLoanApplicationStatusAsync(applicationId, LoanApplicationStatus.Approved, null, cancellationToken);
+
+        decimal rate = GetInterestRate(request.LoanType);
+        LoanEstimate estimate = AmortizationCalculator.ComputeEstimate(request.DesiredAmount, rate, request.PreferredTermMonths);
+
+        var loan = Loan.Create(request.UserId, request.LoanType, request.DesiredAmount, rate, estimate.MonthlyInstallment, request.PreferredTermMonths, DateTime.UtcNow);
+        int loanId = await loanRepository.CreateLoanAsync(loan, cancellationToken);
+
+        IReadOnlyCollection<AmortizationRow> schedule = AmortizationCalculator.Generate(loan);
+        await loanRepository.SaveAmortizationAsync(schedule, cancellationToken);
+
+        return new LoanApplicationResult { Status = LoanApplicationStatus.Approved.ToString() };
     }
 
-    public LoanEstimate GetLoanEstimate(LoanApplicationRequest request)
+    public ErrorOr<LoanEstimate> GetEstimate(LoanApplicationRequest request)
     {
         ErrorOr<Success> validation = _validator.Validate(request);
         if (validation.IsError)
         {
-            return new LoanEstimate();
+            return validation.FirstError;
         }
 
-        decimal rate = GetInterestRateForType(request.LoanType);
-        return AmortizationCalculator.ComputeEstimate(
-            request.DesiredAmount,
-            rate,
-            request.PreferredTermMonths);
+        decimal rate = GetInterestRate(request.LoanType);
+        return AmortizationCalculator.ComputeEstimate(request.DesiredAmount, rate, request.PreferredTermMonths);
     }
 
-    public async Task PayInstallmentAsync(int loanId, decimal? customAmount)
+    public async Task<ErrorOr<Success>> PayInstallmentAsync(int loanId, decimal? customAmount, CancellationToken cancellationToken = default)
     {
-        var loan = await _loanRepoProxy.GetLoanByIdAsync(loanId);
-        if (loan == null)
+        Loan? loan = await loanRepository.GetLoanByIdAsync(loanId, cancellationToken);
+        if (loan is null)
         {
-            throw new InvalidOperationException("Loan not found.");
+            return LoanErrors.LoanNotFound;
         }
 
-        if (loan.RemainingMonths <= MinimumIdExclusive || loan.LoanStatus == LoanStatus.Passed)
-        {
-            throw new InvalidOperationException("This loan is already closed.");
-        }
-
-        decimal minimumDue = GetMinimumDue(loan.MonthlyInstallment, loan.OutstandingBalance);
+        decimal minimumDue = Math.Min(loan.MonthlyInstallment, loan.OutstandingBalance);
         decimal paymentAmount = customAmount ?? minimumDue;
 
-        if (paymentAmount <= ZeroAmount)
+        ErrorOr<Success> payResult = loan.PayInstallment(paymentAmount);
+        if (payResult.IsError)
         {
-            throw new ArgumentException("Payment amount must be greater than zero.");
+            return payResult.FirstError;
         }
 
-        if (customAmount.HasValue && paymentAmount < minimumDue)
+        await loanRepository.UpdateLoanAfterPaymentAsync(loanId, loan.OutstandingBalance, loan.RemainingMonths, loan.LoanStatus, cancellationToken);
+        return Result.Success;
+    }
+
+    public async Task<ErrorOr<IReadOnlyCollection<AmortizationRow>>> GetAmortizationAsync(int loanId, CancellationToken cancellationToken = default)
+    {
+        Loan? loan = await loanRepository.GetLoanByIdAsync(loanId, cancellationToken);
+        if (loan is null)
         {
-            throw new InvalidOperationException("Payment amount must be at least the amount currently due.");
+            return LoanErrors.LoanNotFound;
         }
 
-        if (paymentAmount > loan.OutstandingBalance)
+        IReadOnlyCollection<AmortizationRow> rows = await loanRepository.GetAmortizationAsync(loanId, cancellationToken);
+
+        if (rows.Count == 0)
         {
-            throw new InvalidOperationException("Payment amount exceeds the outstanding balance.");
+            IReadOnlyCollection<AmortizationRow> generated = AmortizationCalculator.Generate(loan);
+            await loanRepository.SaveAmortizationAsync(generated, cancellationToken);
+            rows = generated;
         }
 
-        (decimal newBalance, int newRemainingMonths) = CalculatePaymentPreview(
-            loan.MonthlyInstallment,
-            loan.OutstandingBalance,
-            loan.RemainingMonths,
-            isStandardPayment: !customAmount.HasValue,
-            customPaymentAmount: paymentAmount);
-
-        LoanStatus newStatus = newBalance <= ZeroAmount || newRemainingMonths == MinimumIdExclusive
-            ? LoanStatus.Passed
-            : loan.LoanStatus;
-
-        await _loanRepoProxy.UpdateLoanAfterPaymentAsync(loanId, newBalance, newRemainingMonths, newStatus);
+        return ErrorOrFactory.From(rows);
     }
 
-    public decimal? ParseCustomPaymentAmount(string input)
+    private static decimal GetInterestRate(LoanType loanType) => loanType switch
     {
-        (bool success, decimal amount) = _paymentCalculationService.ParsePaymentAmount(input);
-        return success ? amount : null;
-    }
-
-    public decimal NormalizeCustomPaymentAmount(Loan loan, decimal? currentCustomAmount)
-    {
-        return _paymentCalculationService.GetInitialCustomAmount(
-            loan.MonthlyInstallment,
-            loan.OutstandingBalance,
-            currentCustomAmount.HasValue ? (double?)currentCustomAmount.Value : null);
-    }
-
-    public double GetRepaymentProgress(Loan loan)
-    {
-        return (double)AmortizationCalculator.ComputeRepaymentProgress(loan.Principal, loan.OutstandingBalance);
-    }
-
-    public async Task<List<AmortizationRow>> GetAmortizationAsync(int loanId)
-    {
-        var rows = await _loanRepoProxy.GetAmortizationAsync(loanId);
-        if (rows == null || rows.Count == NoRowsCount)
-        {
-            await EnsureAmortizationAsync(loanId);
-            rows = await _loanRepoProxy.GetAmortizationAsync(loanId);
-        }
-
-        MarkCurrentRow(rows);
-        return rows;
-    }
-
-    public Task<BuildApplicationOutcomeResponse?> GetBuildApplicationOutcomeAsync(string? rejectionReason) =>
-        _loanApplicationPresentation.GetBuildApplicationOutcome(rejectionReason);
-
-    public Task<bool> GetShouldComputeEstimateAsync(double desiredAmount, int preferredTermMonths, string purpose) =>
-        _loanDialogState.GetShouldComputeEstimate(desiredAmount, preferredTermMonths, purpose);
-
-    private async Task EnsureAmortizationAsync(int loanId)
-    {
-        var loan = await _loanRepoProxy.GetLoanByIdAsync(loanId);
-        List<AmortizationRow> rows = AmortizationCalculator.Generate(loan);
-        await _loanRepoProxy.SaveAmortizationAsync(loanId, rows);
-    }
-
-    private static void MarkCurrentRow(List<AmortizationRow> rows)
-    {
-        bool isCurrentSet = false;
-        foreach (AmortizationRow row in rows)
-        {
-            if (!isCurrentSet && row.DueDate.Date >= DateTime.Today)
-            {
-                row.MarkAsCurrent();
-                isCurrentSet = true;
-            }
-            else
-            {
-                row.ClearCurrent();
-            }
-        }
-    }
-
-    private async Task<(LoanApplicationStatus approved, string? reason)> EvaluateApplicationAsync(LoanApplication application)
-    {
-        var currentLoans = await _loanRepoProxy.GetLoansByUserAsync(application.UserId);
-        var totalOutstanding = currentLoans.Sum(loan => loan.OutstandingBalance);
-        int activeLoansCount = currentLoans.Count(loan => loan.LoanStatus == LoanStatus.Active);
-
-        if (activeLoansCount >= MaxActiveLoans)
-        {
-            return (LoanApplicationStatus.Rejected, "Maximum number of active loans reached.");
-        }
-
-        if (totalOutstanding + application.DesiredAmount >= TotalDebtLimit)
-        {
-            return (LoanApplicationStatus.Rejected, "Total debt limit exceeded.");
-        }
-
-        return (LoanApplicationStatus.Approved, null);
-    }
-
-    private async Task<int> CreateApprovedLoanAsync(LoanApplication application)
-    {
-        decimal rate = GetInterestRateForType(application.LoanType);
-        LoanEstimate estimate = AmortizationCalculator.ComputeEstimate(
-            application.DesiredAmount,
-            rate,
-            application.PreferredTermMonths);
-
-        var loan = Loan.Create(
-            application.UserId,
-            application.LoanType,
-            application.DesiredAmount,
-            rate,
-            estimate.MonthlyInstallment,
-            application.PreferredTermMonths,
-            DateTime.UtcNow);
-
-        return await _loanRepoProxy.CreateLoanAsync(loan);
-    }
-
-    private static decimal GetInterestRateForType(LoanType loanType)
-    {
-        return loanType switch
-        {
-            LoanType.Personal => PersonalLoanRate,
-            LoanType.Mortgage => MortgageLoanRate,
-            LoanType.Student => StudentLoanRate,
-            LoanType.Auto => AutoLoanRate,
-            _ => PersonalLoanRate,
-        };
-    }
-
-    private static decimal GetMinimumDue(decimal monthlyInstallment, decimal outstandingBalance)
-    {
-        return Math.Min(monthlyInstallment, outstandingBalance);
-    }
-
-    private (decimal BalanceAfterPayment, int RemainingMonths) CalculatePaymentPreview(
-        decimal monthlyInstallment,
-        decimal outstandingBalance,
-        int remainingMonths,
-        bool isStandardPayment,
-        decimal customPaymentAmount)
-    {
-        return _paymentCalculationService.CalculatePaymentPreview(
-            monthlyInstallment,
-            outstandingBalance,
-            remainingMonths,
-            isStandardPayment,
-            customPaymentAmount);
-    }
-
-    private sealed class PaymentCalculationService
-    {
-        private const decimal LocalZeroAmount = 0m;
-        private const int ZeroMonths = 0;
-        private const int SingleMonth = 1;
-
-        public (decimal BalanceAfterPayment, int RemainingMonths) CalculatePaymentPreview(
-            decimal monthlyInstallment,
-            decimal outstandingBalance,
-            int remainingMonths,
-            bool isStandardPayment,
-            decimal customPaymentAmount = LocalZeroAmount)
-        {
-            decimal minimumDue = GetMinimumDue(monthlyInstallment, outstandingBalance);
-            decimal paymentAmount = isStandardPayment ? minimumDue : customPaymentAmount;
-            decimal balanceAfterPayment = Math.Max(LocalZeroAmount, outstandingBalance - paymentAmount);
-
-            if (balanceAfterPayment <= LocalZeroAmount)
-            {
-                return (LocalZeroAmount, ZeroMonths);
-            }
-
-            int monthsPaid = isStandardPayment
-                ? SingleMonth
-                : paymentAmount <= LocalZeroAmount
-                    ? ZeroMonths
-                    : (int)Math.Floor(paymentAmount / monthlyInstallment);
-
-            int newRemainingMonths = Math.Max(ZeroMonths, remainingMonths - monthsPaid);
-            return (balanceAfterPayment, newRemainingMonths);
-        }
-
-        public (bool Success, decimal Amount) ParsePaymentAmount(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-            {
-                return (false, LocalZeroAmount);
-            }
-
-            if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint, CultureInfo.CurrentCulture, out decimal currentCultureResult))
-            {
-                return (true, currentCultureResult);
-            }
-
-            if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out decimal invariantCultureResult))
-            {
-                return (true, invariantCultureResult);
-            }
-
-            return (false, LocalZeroAmount);
-        }
-
-        public decimal GetInitialCustomAmount(
-            decimal monthlyInstallment,
-            decimal outstandingBalance,
-            double? currentCustomAmount)
-        {
-            decimal amount = currentCustomAmount.HasValue ? (decimal)currentCustomAmount.Value : monthlyInstallment;
-            return amount > outstandingBalance ? outstandingBalance : amount;
-        }
-
-        private static decimal GetMinimumDue(decimal monthlyInstallment, decimal outstandingBalance)
-        {
-            return Math.Min(monthlyInstallment, outstandingBalance);
-        }
-    }
+        LoanType.Personal => PersonalLoanRate,
+        LoanType.Mortgage => MortgageLoanRate,
+        LoanType.Student => StudentLoanRate,
+        LoanType.Auto => AutoLoanRate,
+        _ => PersonalLoanRate,
+    };
 }

@@ -31,7 +31,7 @@ namespace BankingApp.Api.Controllers
                 .ToList();
 
             decimal totalSpending = spendingTransactions.Sum(transaction => transaction.Amount);
-            List<CategorySpendingPointDto> categories = spendingTransactions
+            var categories = spendingTransactions
                 .GroupBy(transaction => string.IsNullOrWhiteSpace(transaction.CategoryName) ? "Uncategorized" : transaction.CategoryName)
                 .Select(group => new CategorySpendingPointDto
                 {
@@ -77,8 +77,8 @@ namespace BankingApp.Api.Controllers
         public IActionResult GetBalanceTrends()
         {
             int userId = GetAuthenticatedUserId();
-            DateTime cutoffDate = new DateTime(2026, 3, 24, 0, 0, 0, DateTimeKind.Utc);
-            List<BalanceTrendPointDto> points = GetAnalyticsTransactions(userId)
+            var cutoffDate = new DateTime(2026, 3, 24, 0, 0, 0, DateTimeKind.Utc);
+            var points = GetAnalyticsTransactions(userId)
                 .Where(transaction => transaction.Timestamp.Date >= cutoffDate)
                 .GroupBy(transaction => transaction.Timestamp.Date)
                 .Select(group => group.OrderByDescending(transaction => transaction.Timestamp).ThenByDescending(transaction => transaction.Id).First())
