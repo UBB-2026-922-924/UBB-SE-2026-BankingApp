@@ -1,38 +1,44 @@
-﻿namespace BankingApp.Infrastructure.Http.Features.Savings.Services;
+namespace BankingApp.Infrastructure.Http.Features.Savings.Services;
 
 using BankingApp.Contracts.Features.Savings.Dtos;
+using BankingApp.Contracts.Http;
 using BankingApp.Domain.Aggregates.SavingsAggregate;
-using BankingApp.Infrastructure.Http.Shared.Http;
+using Shared.Http;
 
-public class SavingsPresentationRepoProxy : ISavingsPresentationRepoProxy
+public class SavingsPresentationRepoProxy(ApiService apiService) : ISavingsPresentationRepoProxy
 {
-    private readonly ApiService _apiService;
-
-    public SavingsPresentationRepoProxy(ApiService apiService)
-    {
-        _apiService = apiService;
-    }
-
     public async Task<bool> CheckClosePenaltyRisk(SavingsAccount selectedAccount)
     {
         var accountSnapshot = SavingsAccountSnapshotDto.FromAccount(selectedAccount);
-        return await _apiService.PostAsync<SavingsAccountSnapshotDto, bool>("/api/savings-presentation/close-penalty-risk", accountSnapshot);
+        return await apiService.PostAsync<SavingsAccountSnapshotDto, bool>(
+            ApiEndpoints.SavingsPresentation.ClosePenaltyRiskFull,
+            accountSnapshot);
     }
 
     public async Task<string> GetBestInterestRate(IEnumerable<SavingsAccount> accounts)
     {
-        var accountSnapshots = accounts.Select(SavingsAccountSnapshotDto.FromAccount).ToList();
-        return await _apiService.PostAsync<IEnumerable<SavingsAccountSnapshotDto>, string>("/api/savings-presentation/best-interest-rate", accountSnapshots);
+        var accountSnapshots = accounts
+            .Select(SavingsAccountSnapshotDto.FromAccount)
+            .ToList();
+
+        return await apiService.PostAsync<IEnumerable<SavingsAccountSnapshotDto>, string>(
+            ApiEndpoints.SavingsPresentation.BestInterestRateFull,
+            accountSnapshots);
     }
 
     public async Task<string> GetNumberOfAccountsText(int accountCount)
     {
-        return await _apiService.GetAsync<string>($"/api/savings-presentation/accounts-text/{accountCount}");
+        return await apiService.GetAsync<string>(ApiEndpoints.SavingsPresentation.AccountsTextFull(accountCount));
     }
 
     public async Task<string> GetTotalSavedAmount(IEnumerable<SavingsAccount> accounts)
     {
-        var accountSnapshots = accounts.Select(SavingsAccountSnapshotDto.FromAccount).ToList();
-        return await _apiService.PostAsync<IEnumerable<SavingsAccountSnapshotDto>, string>("/api/savings-presentation/total-saved", accountSnapshots);
+        var accountSnapshots = accounts
+            .Select(SavingsAccountSnapshotDto.FromAccount)
+            .ToList();
+
+        return await apiService.PostAsync<IEnumerable<SavingsAccountSnapshotDto>, string>(
+            ApiEndpoints.SavingsPresentation.TotalSavedFull,
+            accountSnapshots);
     }
 }

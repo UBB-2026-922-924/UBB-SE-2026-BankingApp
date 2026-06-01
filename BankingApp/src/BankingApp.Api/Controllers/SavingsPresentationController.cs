@@ -4,28 +4,28 @@ using BankingApp.Contracts.Features.Savings.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/savings-presentation")]
+[Route(BankingApp.Contracts.Http.ApiEndpoints.SavingsPresentation.Base)]
 public class SavingsPresentationController : ControllerBase
 {
     private const int SingularAccountCount = 1;
     private const decimal DefaultBestApy = 0m;
     private const decimal PercentageScale = 100m;
 
-    [HttpPost("total-saved")]
+    [HttpPost(BankingApp.Contracts.Http.ApiEndpoints.SavingsPresentation.TotalSaved)]
     public ActionResult<string> GetTotalSavedAmount([FromBody] IEnumerable<SavingsAccountSnapshotDto> accounts)
     {
         string result = $"${accounts.Sum(account => account.Balance):F2}";
         return Ok(result);
     }
 
-    [HttpGet("accounts-text/{accountCount}")]
+    [HttpGet($"{BankingApp.Contracts.Http.ApiEndpoints.SavingsPresentation.AccountsText}/{{accountCount}}")]
     public ActionResult<string> GetNumberOfAccountsText([FromRoute] int accountCount)
     {
         string result = $"across {accountCount} account{(accountCount == SingularAccountCount ? string.Empty : "s")}";
         return Ok(result);
     }
 
-    [HttpPost("best-interest-rate")]
+    [HttpPost(BankingApp.Contracts.Http.ApiEndpoints.SavingsPresentation.BestInterestRate)]
     public ActionResult<string> GetBestInterestRate([FromBody] IEnumerable<SavingsAccountSnapshotDto> accounts)
     {
         decimal bestApy = accounts.Any() ? accounts.Max(account => account.AnnualPercentageYield) : DefaultBestApy;
@@ -33,7 +33,7 @@ public class SavingsPresentationController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("close-penalty-risk")]
+    [HttpPost(BankingApp.Contracts.Http.ApiEndpoints.SavingsPresentation.ClosePenaltyRisk)]
     public ActionResult<bool> CheckClosePenaltyRisk([FromBody] SavingsAccountSnapshotDto selectedAccount)
     {
         bool hasRisk = selectedAccount?.SavingsType == "FixedDeposit" &&

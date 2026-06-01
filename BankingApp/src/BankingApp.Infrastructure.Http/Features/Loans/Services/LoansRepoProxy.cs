@@ -17,7 +17,7 @@ public class LoansRepoProxy(ApiService apiService) : ILoansRepoProxy
 
     public Task<Loan> GetLoanByIdAsync(int id)
     {
-        return apiService.GetAsync<Loan>($"{ApiEndpoints.Loans.Base}/{id}");
+        return apiService.GetAsync<Loan>(ApiEndpoints.Loans.ByIdFull(id));
     }
 
     public Task<List<Loan>> GetLoansByUserAsync(int userId)
@@ -51,7 +51,7 @@ public class LoansRepoProxy(ApiService apiService) : ILoansRepoProxy
     {
         string reasonParam = reason == null ? string.Empty : $"&reason={Uri.EscapeDataString(reason)}";
         await apiService.PutAsync<object, object>(
-            $"{ApiEndpoints.Loans.ApplicationsFull}/{applicationId}/status?status={status}{reasonParam}",
+            $"{ApiEndpoints.Loans.ApplicationStatusFull(applicationId)}?status={status}{reasonParam}",
             new { });
     }
 
@@ -70,20 +70,20 @@ public class LoansRepoProxy(ApiService apiService) : ILoansRepoProxy
         LoanStatus newStatus)
     {
         await apiService.PutAsync<object, object>(
-            $"{ApiEndpoints.Loans.Base}/{loanId}/after-payment?newBalance={newBalance}&newRemainingMonths={newRemainingMonths}&newStatus={newStatus}",
+            $"{ApiEndpoints.Loans.AfterPaymentFull(loanId)}?newBalance={newBalance}&newRemainingMonths={newRemainingMonths}&newStatus={newStatus}",
             new { });
     }
 
     public Task<List<AmortizationRow>> GetAmortizationAsync(int loanId)
     {
         return apiService.GetAsync<List<AmortizationRow>>(
-            $"{ApiEndpoints.Loans.Base}/{loanId}/amortization-schedule");
+            ApiEndpoints.Loans.AmortizationScheduleFull(loanId));
     }
 
     public async Task SaveAmortizationAsync(int loanId, List<AmortizationRow> rows)
     {
         await apiService.PostAsync<List<AmortizationRowUpsertDto>, object>(
-            $"{ApiEndpoints.Loans.Base}/{loanId}/amortization-schedule",
+            ApiEndpoints.Loans.AmortizationScheduleFull(loanId),
             rows.ConvertAll(AmortizationRowUpsertDto.FromAmortizationRow));
     }
 }

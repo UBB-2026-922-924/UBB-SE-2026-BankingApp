@@ -1,19 +1,13 @@
-﻿namespace BankingApp.Infrastructure.Http.Features.Loans.Services;
+namespace BankingApp.Infrastructure.Http.Features.Loans.Services;
 
+using BankingApp.Contracts.Http;
 using Shared.Http;
 
-public class LoanDialogStateRepoProxy : ILoanDialogStateRepoProxy
+public class LoanDialogStateRepoProxy(ApiService apiService) : ILoanDialogStateRepoProxy
 {
-    private readonly ApiService _apiService;
-
-    public LoanDialogStateRepoProxy(ApiService apiService)
-    {
-        _apiService = apiService;
-    }
-
     public Task<bool> GetShouldComputeEstimate(double desiredAmount, int preferredTermMonths, string purpose)
     {
-        return _apiService.GetAsync<bool>(
-            $"/api/loans/should-compute-estimate?desiredAmount={desiredAmount}&preferredTermMonths={preferredTermMonths}&purpose={Uri.EscapeDataString(purpose)}");
+        return apiService.GetAsync<bool>(
+            $"{ApiEndpoints.LoanDialogState.Base}?desiredAmount={desiredAmount}&preferredTermMonths={preferredTermMonths}&purpose={Uri.EscapeDataString(purpose)}");
     }
 }

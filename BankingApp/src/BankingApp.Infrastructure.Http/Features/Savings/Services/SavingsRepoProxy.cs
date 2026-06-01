@@ -17,7 +17,7 @@ public class SavingsRepoProxy(ApiService apiService) : ISavingsRepoProxy
         decimal earlyClosurePenalty)
     {
         return await apiService.PostAsync<object, ClosureResultDto>(
-            $"{ApiEndpoints.Savings.Base}/{accountId}/close?destinationAccountId={destinationAccountId}",
+            $"{ApiEndpoints.Savings.CloseFull(accountId)}?destinationAccountId={destinationAccountId}",
             new { });
     }
 
@@ -31,7 +31,7 @@ public class SavingsRepoProxy(ApiService apiService) : ISavingsRepoProxy
     public async Task<DepositResponseDto> DepositAsync(int accountId, decimal amount, string source)
     {
         return await apiService.PostAsync<object, DepositResponseDto>(
-            $"{ApiEndpoints.Savings.Base}/{accountId}/deposit?amount={amount}&source={Uri.EscapeDataString(source)}",
+            $"{ApiEndpoints.Savings.DepositFull(accountId)}?amount={amount}&source={Uri.EscapeDataString(source)}",
             new { });
     }
 
@@ -47,7 +47,7 @@ public class SavingsRepoProxy(ApiService apiService) : ISavingsRepoProxy
     {
         try
         {
-            return await apiService.GetAsync<AutoDeposit>($"{ApiEndpoints.Savings.Base}/{accountId}/auto-deposit");
+            return await apiService.GetAsync<AutoDeposit>(ApiEndpoints.Savings.AutoDepositByAccountFull(accountId));
         }
         catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
         {
@@ -62,7 +62,7 @@ public class SavingsRepoProxy(ApiService apiService) : ISavingsRepoProxy
 
     public async Task<decimal> GetPenaltyDecimalFor(string penaltyCase)
     {
-        return await apiService.GetAsync<decimal>($"{ApiEndpoints.Savings.Base}/penalty/rate/{penaltyCase}");
+        return await apiService.GetAsync<decimal>(ApiEndpoints.Savings.PenaltyRateFull(penaltyCase));
     }
 
     public async Task<GetTransactionsResponse> GetTransactionsAsync(
@@ -72,13 +72,13 @@ public class SavingsRepoProxy(ApiService apiService) : ISavingsRepoProxy
         int pageSize = 20)
     {
         return await apiService.GetAsync<GetTransactionsResponse>(
-            $"{ApiEndpoints.Savings.Base}/{accountId}/transactions?filter={Uri.EscapeDataString(filter)}&page={page}&pageSize={pageSize}");
+            $"{ApiEndpoints.Savings.TransactionsFull(accountId)}?filter={Uri.EscapeDataString(filter)}&page={page}&pageSize={pageSize}");
     }
 
     public async Task<List<SavingsAccount>> GetValidTransferDestinationsAsync(int currentAccountId, int userId)
     {
         return await apiService.GetAsync<List<SavingsAccount>>(
-            $"{ApiEndpoints.Savings.Base}/{currentAccountId}/valid-destinations");
+            ApiEndpoints.Savings.ValidDestinationsFull(currentAccountId));
     }
 
     public async Task SaveAutoDepositAsync(AutoDeposit autoDeposit)
@@ -95,7 +95,7 @@ public class SavingsRepoProxy(ApiService apiService) : ISavingsRepoProxy
         decimal earlyWithdrawalPenalty)
     {
         return await apiService.PostAsync<object, WithdrawResponseDto>(
-            $"{ApiEndpoints.Savings.Base}/{accountId}/withdraw?amount={amount}&destinationLabel={Uri.EscapeDataString(destinationLabel)}",
+            $"{ApiEndpoints.Savings.WithdrawFull(accountId)}?amount={amount}&destinationLabel={Uri.EscapeDataString(destinationLabel)}",
             new { });
     }
 }

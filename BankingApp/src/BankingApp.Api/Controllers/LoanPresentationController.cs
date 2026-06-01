@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using BankingApp.Application.Features.Loans;
 
 [ApiController]
-[Route("api/loans/repayment-progress")]
+    [Route(BankingApp.Contracts.Http.ApiEndpoints.LoanPresentation.Base)]
 public class LoanPresentationController : ControllerBase
 {
     [HttpPost]

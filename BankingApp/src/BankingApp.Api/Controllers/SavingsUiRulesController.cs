@@ -6,13 +6,13 @@ using BankingApp.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/savings-ui-rules")]
+    [Route(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.Base)]
 public class SavingsUiRulesController : ControllerBase
 {
     private const decimal PositiveAmountThreshold = 0m;
     private const int NoPages = 0;
 
-    [HttpGet("parse-positive-amount")]
+        [HttpGet(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.ParsePositiveAmount)]
     public ActionResult<decimal> ParsePositiveAmount([FromQuery] string text)
     {
         bool isValid = SavingsUiRulesController.TryParsePositiveAmount(text, out decimal amount);
@@ -23,7 +23,7 @@ public class SavingsUiRulesController : ControllerBase
         return BadRequest("Invalid amount. Please enter a positive number.");
     }
 
-    [HttpPost("deposit-preview")]
+        [HttpPost(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.DepositPreview)]
     public ActionResult<string> GetDepositPreview([FromQuery] string depositAmountText, [FromBody] SavingsAccountSnapshotDto selectedAccount)
     {
         string previewText;
@@ -40,14 +40,14 @@ public class SavingsUiRulesController : ControllerBase
         return Ok(previewText);
     }
 
-    [HttpGet("withdraw-net-amount")]
+        [HttpGet(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.WithdrawNetAmount)]
     public ActionResult<decimal> GetWithdrawNetAmount([FromQuery] decimal requestedAmount, [FromQuery] decimal penalty)
     {
         decimal netAmount = requestedAmount - penalty;
         return Ok(netAmount);
     }
 
-    [HttpGet("parse-deposit-frequency")]
+        [HttpGet(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.ParseDepositFrequency)]
     public ActionResult<DepositFrequency> ParseDepositFrequency([FromQuery] string frequencyText)
     {
         bool isValid = Enum.TryParse(frequencyText, out DepositFrequency frequency);
@@ -58,7 +58,7 @@ public class SavingsUiRulesController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("total-pages")]
+        [HttpGet(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.TotalPages)]
     public ActionResult<int> GetTotalPages([FromQuery] int totalCount, [FromQuery] int pageSize)
     {
         int pages = pageSize <= NoPages
@@ -67,7 +67,7 @@ public class SavingsUiRulesController : ControllerBase
         return Ok(pages);
     }
 
-    [HttpPost("validate-create-account")]
+        [HttpPost(BankingApp.Contracts.Http.ApiEndpoints.SavingsUiRules.ValidateCreateAccount)]
     public ActionResult<Dictionary<string, string>> ValidateCreateAccount([FromBody] ValidateCreateAccountRequest request)
     {
         var errors = new Dictionary<string, string>();

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 ///     and for mapping <see cref="ErrorOr{T}" /> results to <see cref="IActionResult" /> responses.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route(BankingApp.Contracts.Http.ApiEndpoints.ApiBase + "/[controller]")]
 public abstract class ApiControllerBase : ControllerBase
 {
     /// <summary>

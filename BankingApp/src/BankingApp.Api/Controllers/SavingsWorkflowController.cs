@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using BankingApp.Contracts.Features.Investments;
 
 [ApiController]
-[Route("api/savings-workflow")]
+    [Route(BankingApp.Contracts.Http.ApiEndpoints.SavingsWorkflow.Base)]
 public class SavingsWorkflowController : ControllerBase
 {
     private const int NoDestinationId = 0;
@@ -13,7 +13,7 @@ public class SavingsWorkflowController : ControllerBase
     private const decimal NoPenaltyAmount = 0m;
     private const int FirstPage = 1;
 
-    [HttpPost("default-funding-source")]
+        [HttpPost(BankingApp.Contracts.Http.ApiEndpoints.SavingsWorkflow.DefaultFundingSource)]
     public ActionResult<FundingSourceOption> GetDefaultFundingSource([FromBody] IEnumerable<FundingSourceOption> fundingSources)
     {
         if (fundingSources == null)
@@ -31,7 +31,7 @@ public class SavingsWorkflowController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("default-close-destination")]
+        [HttpPost(BankingApp.Contracts.Http.ApiEndpoints.SavingsWorkflow.DefaultCloseDestination)]
     public ActionResult<int> GetDefaultCloseDestinationId([FromBody] IEnumerable<SavingsAccountSnapshotDto> destinationAccounts)
     {
         if (destinationAccounts == null)
@@ -43,7 +43,7 @@ public class SavingsWorkflowController : ControllerBase
         return Ok(destinationId);
     }
 
-    [HttpPost("validate-withdraw")]
+        [HttpPost(BankingApp.Contracts.Http.ApiEndpoints.SavingsWorkflow.ValidateWithdraw)]
     public ActionResult ValidateWithdrawRequest([FromQuery] decimal amount, [FromBody] FundingSourceOption? destination)
     {
         (bool IsValid, string ErrorMessage) result;
@@ -68,7 +68,7 @@ public class SavingsWorkflowController : ControllerBase
         });
     }
 
-    [HttpPost("withdraw-result-message")]
+        [HttpPost(BankingApp.Contracts.Http.ApiEndpoints.SavingsWorkflow.WithdrawResultMessage)]
     public ActionResult<string> BuildWithdrawResultMessage([FromBody] WithdrawResponseDto response)
     {
         string message;
@@ -88,7 +88,7 @@ public class SavingsWorkflowController : ControllerBase
         return Ok(message);
     }
 
-    [HttpGet("validate-close")]
+        [HttpGet(BankingApp.Contracts.Http.ApiEndpoints.SavingsWorkflow.ValidateClose)]
     public ActionResult ValidateCloseConfirmation([FromQuery] bool userConfirmed, [FromQuery] int destinationId)
     {
         (bool IsValid, string ErrorMessage) result;
@@ -113,14 +113,14 @@ public class SavingsWorkflowController : ControllerBase
         });
     }
 
-    [HttpGet("can-move-next")]
+        [HttpGet(BankingApp.Contracts.Http.ApiEndpoints.SavingsWorkflow.CanMoveNext)]
     public ActionResult<bool> CanMoveToNextPage([FromQuery] int currentPage, [FromQuery] int totalPages)
     {
         bool canMove = currentPage < totalPages;
         return Ok(canMove);
     }
 
-    [HttpGet("can-move-previous")]
+        [HttpGet(BankingApp.Contracts.Http.ApiEndpoints.SavingsWorkflow.CanMovePrevious)]
     public ActionResult<bool> CanMoveToPreviousPage([FromQuery] int currentPage)
     {
         bool canMove = currentPage > FirstPage;

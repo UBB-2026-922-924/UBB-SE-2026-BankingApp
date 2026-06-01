@@ -14,5 +14,28 @@ public static partial class ApiEndpoints
 
         public const string ApplicationsFull = $"{Base}/{Applications}";
         public const string EstimateFull = $"{Base}/{Estimate}";
+
+        public static string ByIdFull(int id) => $"{Base}/{id}";
+
+        public static string ApplicationStatusFull(int applicationId) => $"{ApplicationsFull}/{applicationId}/status";
+
+        public static string AfterPaymentFull(int loanId) => $"{Base}/{loanId}/after-payment";
+
+        public static string AmortizationScheduleFull(int loanId) => $"{Base}/{loanId}/amortization-schedule";
+    }
+
+    public static class LoanDialogState
+    {
+        public const string Base = $"{Loans.Base}/should-compute-estimate";
+    }
+
+    public static class LoanApplicationPresentation
+    {
+        public const string Base = $"{Loans.Base}/loan-application-presentation-outcome";
+    }
+
+    public static class LoanPresentation
+    {
+        public const string Base = $"{Loans.Base}/repayment-progress";
     }
 }

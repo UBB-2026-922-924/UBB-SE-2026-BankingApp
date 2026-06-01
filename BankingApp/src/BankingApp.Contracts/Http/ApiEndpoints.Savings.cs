@@ -19,5 +19,19 @@ public static partial class ApiEndpoints
         public const string AccountsFull = $"{Base}/{Accounts}";
         public const string AutoDepositFull = $"{Base}/{AutoDeposit}";
         public const string FundingSourcesFull = $"{Base}/{FundingSources}";
+
+        public static string DepositFull(int accountId) => $"{Base}/{accountId}/deposit";
+
+        public static string WithdrawFull(int accountId) => $"{Base}/{accountId}/withdraw";
+
+        public static string CloseFull(int accountId) => $"{Base}/{accountId}/close";
+
+        public static string AutoDepositByAccountFull(int accountId) => $"{Base}/{accountId}/auto-deposit";
+
+        public static string TransactionsFull(int accountId) => $"{Base}/{accountId}/transactions";
+
+        public static string ValidDestinationsFull(int currentAccountId) => $"{Base}/{currentAccountId}/valid-destinations";
+
+        public static string PenaltyRateFull(string penaltyCase) => $"{Base}/penalty/rate/{penaltyCase}";
     }
 }
