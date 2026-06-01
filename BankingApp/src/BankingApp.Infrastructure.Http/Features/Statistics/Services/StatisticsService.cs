@@ -7,6 +7,7 @@ using BankingApp.Application.Features.Authentication.Services;
 using BankingApp.Application.Shared.Http;
 using BankingApp.Contracts.Features.Statistics.Dtos;
 using BankingApp.Contracts.Features.Statistics.Services;
+using Contracts.Http;
 using ErrorOr;
 
 public class StatisticsService(IApiClient apiClient) : IStatisticsService
@@ -15,25 +16,25 @@ public class StatisticsService(IApiClient apiClient) : IStatisticsService
     public Task<ErrorOr<SpendingByCategoryResponse>> GetSpendingByCategoryAsync(CancellationToken ct = default)
     {
         EnsureAuthenticatedSession();
-        return apiClient.GetAsync<SpendingByCategoryResponse>("/api/statistics/spending-by-category", ct);
+        return apiClient.GetAsync<SpendingByCategoryResponse>(ApiEndpoints.Statistics.SpendingByCategoryFull, ct);
     }
 
     public Task<ErrorOr<IncomeVsExpensesResponse>> GetIncomeVsExpensesAsync(CancellationToken ct = default)
     {
         EnsureAuthenticatedSession();
-        return apiClient.GetAsync<IncomeVsExpensesResponse>("/api/statistics/income-vs-expenses", ct);
+        return apiClient.GetAsync<IncomeVsExpensesResponse>(ApiEndpoints.Statistics.IncomeVsExpensesFull, ct);
     }
 
     public Task<ErrorOr<BalanceTrendsResponse>> GetBalanceTrendsAsync(CancellationToken ct = default)
     {
         EnsureAuthenticatedSession();
-        return apiClient.GetAsync<BalanceTrendsResponse>("/api/statistics/balance-trends", ct);
+        return apiClient.GetAsync<BalanceTrendsResponse>(ApiEndpoints.Statistics.BalanceTrendsFull, ct);
     }
 
     public Task<ErrorOr<TopRecipientsResponse>> GetTopRecipientsAsync(CancellationToken ct = default)
     {
         EnsureAuthenticatedSession();
-        return apiClient.GetAsync<TopRecipientsResponse>("/api/statistics/top-recipients", ct);
+        return apiClient.GetAsync<TopRecipientsResponse>(ApiEndpoints.Statistics.TopRecipientsFull, ct);
     }
 
     private void EnsureAuthenticatedSession()
