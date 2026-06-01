@@ -1,91 +1,48 @@
-﻿namespace BankingApp.Api.Controllers
+namespace BankingApp.Api.Controllers;
+
+using Application.Features.Investments.Services;
+using Contracts.Features.Investments.Dtos;
+using Contracts.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+[Authorize]
+[ApiController]
+[Route(ApiEndpoints.Investments.Base)]
+public class InvestmentsController(IInvestmentsService investmentsService) : ApiControllerBase
 {
-    using System.Linq;
-    using System.Threading.Tasks;
-    using BankingApp.Domain.Aggregates.InvestmentAggregate;
-    using BankingApp.Domain.Repositories;
-    using Microsoft.AspNetCore.Mvc;
-
-    [ApiController]
-    [Route("api/[controller]")]
-    public class InvestmentsController : ControllerBase
+    [HttpGet(ApiEndpoints.Investments.Portfolio)]
+    public async Task<IActionResult> GetPortfolio(CancellationToken cancellationToken)
     {
-        private readonly IInvestmentRepository _repo;
-
-        public InvestmentsController(IInvestmentRepository repo)
-        {
-            _repo = repo;
-        }
-
-        // --- THE MISSING METHOD ---
-        [HttpGet("portfolio/{userId}")]
-        public async Task<IActionResult> GetPortfolio(int userId)
-        {
-            // This calls the repository method we just verified
-            var portfolio = _repo.GetPortfolio(userId);
-
-            if (portfolio == null)
-            {
-                return NotFound($"Portfolio for user {userId} not found.");
-            }
-
-            return Ok(portfolio);
-        }
-        [HttpPost("trade")]
-        public async Task<IActionResult> ExecuteTrade([FromBody] TradeRequest request)
-        {
-            // 1. Calculate trade math (values and fees) upfront
-            decimal feeRate = 0.015m;
-            decimal tradeValue = request.quantity * request.price;
-            decimal fees = Math.Round(tradeValue * feeRate, 2);
-            decimal totalCost = tradeValue + fees;
-
-            // 2. Fetch current user portfolio context
-            var portfolio = _repo.GetPortfolio(request.userId);
-            var holding = portfolio.Holdings.FirstOrDefault(h => h.Ticker == request.ticker);
-
-            decimal currentQty = holding?.Quantity ?? 0;
-            decimal currentAvgPrice = holding?.AvgPurchasePrice ?? 0;
-
-            if (request.action == "SELL" && currentQty < request.quantity)
-            {
-                return BadRequest(new
-                {
-                    error = "Insufficient Asset Balance",
-                    detail = $"You cannot sell {request.quantity} {request.ticker}. You only hold {currentQty} {request.ticker}."
-                });
-            }
-
-            if (request.action == "BUY" && portfolio.TotalValue < totalCost)
-            {
-                return BadRequest(new
-                {
-                    error = "Insufficient Capital Buying Power",
-                    detail = $"Transaction cost of {totalCost:N2} RON exceeds your portfolio account margin limits."
-                });
-            }
-
-            // 3. Calculate new totals safely
-            decimal finalQty = request.action == "BUY" ? currentQty + request.quantity : currentQty - request.quantity;
-
-            decimal finalAvgPrice = (request.action == "BUY" && finalQty > 0)
-                ? ((currentQty * currentAvgPrice) + (request.quantity * request.price)) / finalQty
-                : currentAvgPrice;
-
-            // 4. Save clean data state to database
-            await _repo.RecordCryptoTradeAsync(
-                portfolio.Id,
-                request.ticker,
-                request.action,
-                request.quantity,
-                request.price,
-                fees,
-                finalQty,
-                finalAvgPrice);
-
-            return Ok(true);
-        }
+        int userId = GetAuthenticatedUserId();
+        return ToActionResult(await investmentsService.GetPortfolioAsync(userId, cancellationToken), value => Ok(value));
     }
 
-    public record TradeRequest(int userId, string ticker, string action, decimal quantity, decimal price);
+    [HttpPost(ApiEndpoints.Investments.Trade)]
+    public async Task<IActionResult> ExecuteTrade(
+        [FromBody] ExecuteTradeRequest request,
+        CancellationToken cancellationToken)
+    {
+        int userId = GetAuthenticatedUserId();
+        return ToActionResult(
+            await investmentsService.ExecuteTradeAsync(
+                userId,
+                request.Ticker,
+                request.ActionType,
+                request.Quantity,
+                request.PricePerUnit,
+                request.Fees,
+                cancellationToken));
+    }
+
+    [HttpGet(ApiEndpoints.Investments.Logs)]
+    public async Task<IActionResult> GetLogs(
+        DateTime? from,
+        DateTime? to,
+        string? ticker,
+        CancellationToken cancellationToken)
+    {
+        int userId = GetAuthenticatedUserId();
+        return ToActionResult(await investmentsService.GetLogsAsync(userId, from, to, ticker, cancellationToken), value => Ok(value));
+    }
 }

@@ -1,14 +1,23 @@
-﻿using System.Threading.Tasks;
-using BankingApp.Contracts.Features.Statistics.Dtos;
+namespace BankingApp.Application.Features.Statistics.Services;
 
-namespace BankingApp.Application.Features.Statistics.Services
+using Contracts.Features.Statistics.Dtos;
+using ErrorOr;
+
+public interface IStatisticsService
 {
-    public interface IStatisticsService
-    {
-        Task<SpendingByCategoryResponse?> GetSpendingByCategoryAsync();
-        Task<IncomeVsExpensesResponse?> GetIncomeVsExpensesAsync();
-        Task<BalanceTrendsResponse?> GetBalanceTrendsAsync();
-        Task<TopRecipientsResponse?> GetTopRecipientsAsync();
-    }
-}
+    public Task<ErrorOr<SpendingByCategoryResponse>> GetSpendingByCategoryAsync(
+        int userId,
+        CancellationToken cancellationToken = default);
 
+    public Task<ErrorOr<IncomeVsExpensesResponse>> GetIncomeVsExpensesAsync(
+        int userId,
+        CancellationToken cancellationToken = default);
+
+    public Task<ErrorOr<BalanceTrendsResponse>> GetBalanceTrendsAsync(
+        int userId,
+        CancellationToken cancellationToken = default);
+
+    public Task<ErrorOr<TopRecipientsResponse>> GetTopRecipientsAsync(
+        int userId,
+        CancellationToken cancellationToken = default);
+}

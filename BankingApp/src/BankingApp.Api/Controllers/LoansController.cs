@@ -1,146 +1,59 @@
-﻿using BankingApp.Contracts.Features.Loans.Dtos;
-using BankingApp.Domain.Enums;
-using BankingApp.Domain.Aggregates.LoanAggregate;
-using BankingApp.Domain.Repositories;
+namespace BankingApp.Api.Controllers;
+
+using Application.Features.Loans.Services;
+using Contracts.Features.Loans.Dtos;
+using Contracts.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BankingApp.Api.Controllers
+[Authorize]
+[ApiController]
+[Route(ApiEndpoints.Loans.Base)]
+public class LoansController(ILoansService loansService) : ApiControllerBase
 {
-    using Domain.Aggregates.LoanAggregate.Entities;
-
-    [ApiController]
-    [Route("api/[controller]")]
-    public class LoansController : ControllerBase
+    [HttpGet]
+    public async Task<IActionResult> GetLoansByUserAsync(CancellationToken cancellationToken)
     {
-        private readonly ILoanRepository _loanRepository;
+        int userId = GetAuthenticatedUserId();
+        return ToActionResult(await loansService.GetLoansByUserAsync(userId, cancellationToken), value => Ok(value));
+    }
 
-        public LoansController(ILoanRepository loanRepository)
-        {
-            _loanRepository = loanRepository;
-        }
+    [HttpGet(ApiEndpoints.Loans.ById)]
+    public async Task<IActionResult> GetLoanByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        return ToActionResult(await loansService.GetLoanByIdAsync(id, cancellationToken), value => Ok(value));
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<List<Loan>>> GetAllLoansAsync()
-        {
-            IReadOnlyCollection<Loan> result = await _loanRepository.GetAllLoansAsync();
-            return Ok(result);
-        }
+    [HttpPost(ApiEndpoints.Loans.Applications)]
+    public async Task<IActionResult> SubmitApplicationAsync(
+        [FromBody] LoanApplicationRequest request,
+        CancellationToken cancellationToken)
+    {
+        int userId = GetAuthenticatedUserId();
+        request.UserId = userId;
+        return ToActionResult(await loansService.SubmitApplicationAsync(request, cancellationToken), value => Ok(value));
+    }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<Loan>> GetLoanByIdAsync([FromRoute] int id)
-        {
-            Loan? loan = await _loanRepository.GetLoanByIdAsync(id);
-            return Ok(loan);
-        }
+    [HttpPost(ApiEndpoints.Loans.Estimate)]
+    public IActionResult GetEstimate([FromBody] LoanApplicationRequest request)
+    {
+        int userId = GetAuthenticatedUserId();
+        request.UserId = userId;
+        return ToActionResult(loansService.GetEstimate(request), value => Ok(value));
+    }
 
-        [HttpGet("by-user/{userId:int}")]
-        public async Task<ActionResult<List<Loan>>> GetLoansByUserAsync([FromRoute] int userId)
-        {
-            IReadOnlyCollection<Loan>? result = await _loanRepository.GetLoansByUserAsync(userId);
-            return Ok(result ?? new List<Loan>());
-        }
+    [HttpPut(ApiEndpoints.Loans.PayInstallment)]
+    public async Task<IActionResult> PayInstallmentAsync(
+        int loanId,
+        [FromQuery] decimal? customAmount,
+        CancellationToken cancellationToken)
+    {
+        return ToActionResult(await loansService.PayInstallmentAsync(loanId, customAmount, cancellationToken));
+    }
 
-        [HttpGet("by-status/{loanStatus}")]
-        public async Task<ActionResult<List<Loan>>> GetLoansByStatusAsync([FromRoute] LoanStatus loanStatus)
-        {
-            IReadOnlyCollection<Loan> result = await _loanRepository.GetLoansByStatusAsync(loanStatus);
-            return Ok(result);
-        }
-
-        [HttpGet("by-type/{loanType}")]
-        public async Task<ActionResult<List<Loan>>> GetLoansByTypeAsync([FromRoute] LoanType loanType)
-        {
-            IReadOnlyCollection<Loan> result = await _loanRepository.GetLoansByTypeAsync(loanType);
-            return Ok(result);
-        }
-
-        [HttpPost("applications")]
-        public async Task<ActionResult<int>> CreateLoanApplicationAsync([FromBody] LoanApplicationRequest request)
-        {
-            try
-            {
-                int id = await _loanRepository.CreateLoanApplicationAsync(request);
-                return Ok(id);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPut("applications/{applicationId:int}/status")]
-        public async Task<IActionResult> UpdateLoanApplicationStatusAsync(
-            [FromRoute] int applicationId,
-            [FromQuery] LoanApplicationStatus status,
-            [FromQuery] string? reason)
-        {
-            try
-            {
-                await _loanRepository.UpdateLoanApplicationStatusAsync(applicationId, status, reason);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<int>> CreateLoanAsync([FromBody] LoanCreateDto loan)
-        {
-            try
-            {
-                int id = await _loanRepository.CreateLoanAsync(loan.ToLoan());
-                return Ok(id);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPut("{loanId:int}/after-payment")]
-        public async Task<IActionResult> UpdateLoanAfterPaymentAsync(
-            [FromRoute] int loanId,
-            [FromQuery] decimal newBalance,
-            [FromQuery] int newRemainingMonths,
-            [FromQuery] LoanStatus newStatus)
-        {
-            try
-            {
-                await _loanRepository.UpdateLoanAfterPaymentAsync(loanId, newBalance, newRemainingMonths, newStatus);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpGet("{loanId:int}/amortization-schedule")]
-        public async Task<ActionResult<List<AmortizationRow>>> GetAmortizationAsync(int loanId)
-        {
-            IReadOnlyCollection<AmortizationRow> rows = await _loanRepository.GetAmortizationAsync(loanId);
-            return Ok(rows);
-        }
-
-        [HttpPost("{loanId:int}/amortization-schedule")]
-        public async Task<IActionResult> SaveAmortizationAsync([FromRoute] int loanId, [FromBody] List<AmortizationRowUpsertDto> rows)
-        {
-            try
-            {
-                if (rows == null || rows.Any(r => r.LoanId != loanId))
-                {
-                    return BadRequest("Invalid amortization rows payload.");
-                }
-
-                await _loanRepository.SaveAmortizationAsync(rows.Select(row => row.ToAmortizationRow()).ToList());
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+    [HttpGet(ApiEndpoints.Loans.AmortizationSchedule)]
+    public async Task<IActionResult> GetAmortizationAsync(int loanId, CancellationToken cancellationToken)
+    {
+        return ToActionResult(await loansService.GetAmortizationAsync(loanId, cancellationToken), value => Ok(value));
     }
 }

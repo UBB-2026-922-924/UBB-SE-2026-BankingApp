@@ -12,6 +12,7 @@ using Features.Forex.Services;
 using Features.Investments.Services;
 using Features.Loans.Services;
 using Features.Savings.Services;
+using Features.Statistics.Services;
 using Features.Transfers.Services;
 using Features.UserProfile.Services;
 using FluentValidation;
@@ -43,6 +44,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IInvestmentsService, InvestmentsService>();
         services.AddScoped<ISavingsService, SavingsService>();
         services.AddScoped<ILoansService, LoansService>();
+        services.AddScoped<IStatisticsService, StatisticsService>();
         return services;
     }
 }
