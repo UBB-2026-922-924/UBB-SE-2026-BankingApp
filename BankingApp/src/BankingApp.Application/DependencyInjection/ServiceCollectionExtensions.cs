@@ -1,11 +1,12 @@
 namespace BankingApp.Application.DependencyInjection;
 
 using System.Reflection;
+using BankingApp.Application.Features.Chat.Services;
 using Features.AccountOverview.Services;
 using Features.Authentication.Services;
 using Features.Beneficiaries.Services;
-using Features.BillPayments.Services;
 using Features.Billers.Services;
+using Features.BillPayments.Services;
 using Features.Cards.Services;
 using Features.Forex.Services;
 using Features.Transfers.Services;
@@ -35,6 +36,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IForexService, ForexService>();
         services.AddScoped<IUserProfileService, UserProfileService>();
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddScoped<IChatService, ChatService>();
         return services;
     }
 }
