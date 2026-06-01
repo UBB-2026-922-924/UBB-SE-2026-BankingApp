@@ -60,7 +60,7 @@ public partial class AsyncRelayCommand : ICommand
     /// <summary>
     ///     Raises the <see cref="CanExecuteChanged" /> event so the UI re-evaluates command availability.
     /// </summary>
-    private void RaiseCanExecuteChanged()
+    public void RaiseCanExecuteChanged()
     {
         CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
