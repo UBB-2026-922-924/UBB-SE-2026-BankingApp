@@ -27,16 +27,6 @@
         </div>
     </section>
 
-    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
-    {
-        <div class="alert alert-success shadow-sm" role="alert">@Model.StatusMessage</div>
-    }
-
-    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-    {
-        <div class="alert alert-danger shadow-sm" role="alert">@Model.ErrorMessage</div>
-    }
-
     <div class="row g-4 align-items-start">
         <div class="col-12 col-xl-4">
             <section class="surface-card h-100">
@@ -336,7 +326,7 @@
                                             <option value="0">Select destination</option>
                                             @foreach (var destination in Model.CloseDestinationAccounts)
                                             {
-                                                <option value="@destination.IdentificationNumber">@destination.AccountName</option>
+                                                <option value="@destination.Id">@destination.AccountName</option>
                                             }
                                         </select>
                                     }
@@ -375,9 +365,9 @@
                 @foreach (var account in Model.Accounts)
                 {
                     <div class="col-12 col-lg-6">
-                        <a class="account-card @(selectedAccount?.IdentificationNumber == account.IdentificationNumber ? "active" : string.Empty)"
+                        <a class="account-card @(selectedAccount?.Id == account.Id ? "active" : string.Empty)"
                            asp-action="Index"
-                           asp-route-accountId="@account.IdentificationNumber"
+                           asp-route-accountId="@account.Id"
                            asp-route-manageTab="@Model.ActiveManageTab">
                             <div class="d-flex justify-content-between align-items-start gap-3">
                                 <div>

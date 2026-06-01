@@ -1,22 +1,18 @@
-﻿@{
+﻿del BankingApp.Web.Models.Investments.TradePageViewModel
+
+@{
     ViewData["Title"] = "Crypto Exchange Trading";
-    decimal currentAvailableBalance = ViewBag.WalletBalance ?? 0m;
+    decimal currentAvailableBalance = Model.WalletBalance;
 }
 
 <div class="container py-4" style="max-width: 700px;">
     <div class="mb-4">
-        <a asp-action="Index" class="text-decoration-none text-secondary">← Back to Portfolio Overview</a>
+        <a asp-action="Index" class="text-decoration-none text-secondary">Back to Portfolio Overview</a>
         <h2 class="fw-bold mt-2">Execute Crypto Order</h2>
         <p class="text-muted">Place real-time market execution buy or sell orders for assets.</p>
     </div>
 
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger shadow-sm">@TempData["ErrorMessage"]</div>
-    }
-
     <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center mb-4" role="alert">
-        <div class="me-3 fs-3"></div>
         <div>
             <strong>High Volatility Asset Warning</strong>
             <div class="small text-dark">Digital crypto asset metrics change rapidly. Ensure target capitalization bounds fit your strategy risks before trading.</div>
@@ -26,7 +22,6 @@
     <div class="card shadow-sm">
         <div class="card-body p-4">
             <form asp-action="ExecuteTrade" method="post" id="webTradingForm">
-                
                 <div class="mb-3">
                     <label for="ticker" class="form-label fw-semibold">Select Asset Token</label>
                     <select class="form-select" id="ticker" name="ticker">
@@ -80,7 +75,6 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Live order calculation matching client desktop logic pipelines
             function updateCryptoExchangeTotals() {
                 var selectedToken = $('#ticker').val();
                 var rawQuantityValue = $('#quantity').val();
@@ -107,28 +101,25 @@
                 var estimatedFeeNode = Math.round((baseCostValuation * 0.015) * 100) / 100;
                 var netCalculatedTotal = Math.round((baseCostValuation + estimatedFeeNode) * 100) / 100;
 
-                // Output calculations directly to screen summary labels
                 $('#labelWebFee').text(estimatedFeeNode.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' RON');
                 $('#labelWebTotal').text(netCalculatedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' RON');
-                
+
                 $('#webClientFeedbackMessage')
                     .removeClass('d-none alert-danger alert-info')
                     .addClass('alert-info')
                     .text('Routing network quotes at ' + priceScalarValue.toLocaleString('en-US') + ' RON valuation per unit token.');
 
-                // UI safety balance checking guard rule protection parameters
                 if (chosenActionType === 'BUY' && netCalculatedTotal > cashThresholdLimit) {
                     $('#webClientFeedbackMessage')
                         .removeClass('alert-info')
                         .addClass('alert-danger')
-                        .text(' Order execution locked: Total value limits exceed portfolio spending margins.');
+                        .text('Order execution locked: Total value limits exceed portfolio spending margins.');
                     $('#btnWebSubmitOrder').prop('disabled', true);
                 } else {
                     $('#btnWebSubmitOrder').prop('disabled', false);
                 }
             }
 
-            // Bind triggers to update calculation components instantly
             $('#quantity').on('input', updateCryptoExchangeTotals);
             $('#ticker').on('change', updateCryptoExchangeTotals);
             $('input[name="actionType"]').on('change', updateCryptoExchangeTotals);

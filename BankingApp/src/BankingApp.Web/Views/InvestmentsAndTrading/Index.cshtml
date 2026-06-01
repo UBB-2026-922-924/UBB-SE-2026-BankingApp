@@ -1,7 +1,8 @@
-﻿@model BankingApp.Domain.Aggregates.InvestmentAggregate.Portfolio
+@model BankingApp.Web.Models.Investments.InvestmentsPageViewModel
 
 @{
     ViewData["Title"] = "Investments Portfolio";
+    var portfolio = Model.Portfolio;
 }
 
 <div class="container py-4">
@@ -17,17 +18,17 @@
                     <h5 class="card-title text-uppercase text-muted small fw-bold">Portfolio Metric Valuation</h5>
                     <div class="my-3">
                         <div class="small text-muted">Total Portfolio Value</div>
-                        <h3 class="fw-bold text-primary">@Model.TotalValue.ToString("N2") RON</h3>
+                        <h3 class="fw-bold text-primary">@portfolio.TotalValue.ToString("N2") RON</h3>
                     </div>
                     <hr />
                     <div>
                         <div class="small text-muted">Total Profit / Loss</div>
                         @{
-                            var glClass = Model.TotalGainLoss >= 0 ? "text-success" : "text-danger";
-                            var glSign = Model.TotalGainLoss >= 0 ? "+" : "";
+                            var glClass = portfolio.TotalGainLoss >= 0 ? "text-success" : "text-danger";
+                            var glSign = portfolio.TotalGainLoss >= 0 ? "+" : "";
                         }
-                        <h4 class="fw-bold @glClass">@glSign@Model.TotalGainLoss.ToString("N2") RON</h4>
-                        <span class="small fw-semibold @glClass">(@((Model.GainLossPercent * 100).ToString("N2"))%)</span>
+                        <h4 class="fw-bold @glClass">@glSign@portfolio.TotalGainLoss.ToString("N2") RON</h4>
+                        <span class="small fw-semibold @glClass">(@((portfolio.GainLossPercent * 100).ToString("N2"))%)</span>
                     </div>
                 </div>
             </div>
@@ -51,7 +52,7 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h4 class="fw-bold mb-3">Asset Positions</h4>
-                    
+
                     <div class="table-responsive">
                         <table class="table table-hover align-middle" id="webHoldingsTable">
                             <thead class="table-light">
@@ -64,9 +65,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (Model.Holdings != null && Model.Holdings.Any())
+                                @if (portfolio.Holdings != null && portfolio.Holdings.Any())
                                 {
-                                    foreach (var holding in Model.Holdings)
+                                    foreach (var holding in portfolio.Holdings)
                                     {
                                         <tr class="holding-row-item" data-type="@holding.AssetType">
                                             <td><span class="fw-bold text-dark">@holding.Ticker</span></td>
@@ -94,7 +95,6 @@
 
 @section Scripts {
     <script>
-        // High-performance jQuery client-side filtering matching WinUI desktop interaction speeds
         $(document).ready(function () {
             $('.filter-item').click(function () {
                 $('.filter-item').removeClass('active');

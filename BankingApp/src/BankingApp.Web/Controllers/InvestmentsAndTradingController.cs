@@ -1,89 +1,85 @@
-﻿namespace BankingApp.Web.Controllers;
+namespace BankingApp.Web.Controllers;
 
+using Contracts.Features.Investments.Dtos;
+using Contracts.Http;
+using Infrastructure.Http.Features.Investments.Services;
+using Models.Investments;
 using Microsoft.AspNetCore.Mvc;
-using BankingApp.Application.Features.Investments.Services;
-using BankingApp.Domain.Aggregates.InvestmentAggregate;
 
-// The global RequireSessionLoginFilter in Program.cs covers this, 
-// but inheriting or leaving it plain aligns with your team's architecture.
-public class InvestmentsAndTradingController : Controller
+public class InvestmentsAndTradingController(IInvestmentsRepoProxy investmentsRepoProxy) : Controller
 {
-    private readonly IInvestmentsService _investmentsService;
-    private readonly IWebSessionContext _sessionContext;
+    private const decimal TradeFeeRate = 0.015m;
 
-    public InvestmentsAndTradingController(IInvestmentsService investmentsService, IWebSessionContext sessionContext)
-    {
-        this._investmentsService = investmentsService;
-        this._sessionContext = sessionContext;
-    }
-
-    // GET: /InvestmentsAndTrading
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
-        // Pull the dynamic logged-in user ID via your team's WebSessionContext
-        Portfolio? portfolio = await this._investmentsService.GetPortfolioForCurrentUserAsync();
-
-        if (portfolio == null)
+        try
         {
-            // Fallback safe object instantiation to prevent NullReferenceExceptions in the View
-            portfolio = new BankingApp.Domain.Aggregates.InvestmentAggregate.Portfolio();
+            PortfolioDto portfolio = await GetPortfolioAsync();
+            return View(new InvestmentsPageViewModel { Portfolio = portfolio });
         }
-
-        return View(portfolio);
+        catch (Exception exception)
+        {
+            TempData["Error"] = exception.Message;
+            return View(new InvestmentsPageViewModel());
+        }
     }
 
-    // GET: /InvestmentsAndTrading/Trade
+    [HttpGet]
     public async Task<IActionResult> Trade()
     {
-        Portfolio? portfolio = await this._investmentsService.GetPortfolioForCurrentUserAsync();
-
-        // Send the available portfolio cash/value balance over to the view data container
-        ViewBag.WalletBalance = portfolio?.TotalValue ?? 0m;
-
-        return View();
+        try
+        {
+            PortfolioDto portfolio = await GetPortfolioAsync();
+            return View(new TradePageViewModel { WalletBalance = portfolio.TotalValue });
+        }
+        catch (Exception exception)
+        {
+            TempData["Error"] = exception.Message;
+            return View(new TradePageViewModel());
+        }
     }
 
-    // POST: /InvestmentsAndTrading/ExecuteTrade
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ExecuteTrade(string ticker, string actionType, decimal quantity)
     {
-        int? userId = this._sessionContext.CurrentUserId;
-        if (!userId.HasValue)
-        {
-            return RedirectToAction("Index", "Auth");
-        }
-
-        // Standard target asset prices matching your system specifications
         decimal executionPrice = ticker switch
         {
             "BTC" => 65000.00m,
             "ETH" => 2550.00m,
             "SOL" => 145.00m,
-            _ => 0m
+            _ => 0m,
         };
+
+        decimal fees = Math.Round(quantity * executionPrice * TradeFeeRate, 2);
 
         try
         {
-            bool success = await this._investmentsService.ExecuteTradeAsync(
-                userId.Value,
-                ticker,
-                actionType,
-                quantity,
-                executionPrice);
+            await investmentsRepoProxy.PostAsync<ExecuteTradeRequest, object>(
+                ApiEndpoints.Investments.TradeFull,
+                new ExecuteTradeRequest
+                {
+                    Ticker = ticker,
+                    ActionType = actionType,
+                    Quantity = quantity,
+                    PricePerUnit = executionPrice,
+                    Fees = fees,
+                });
 
-            if (success)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            TempData["ErrorMessage"] = "Transaction was rejected by transaction validation rule parameters.";
+            TempData["Success"] = "Trade submitted successfully.";
+            return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            TempData["ErrorMessage"] = $"Execution failure: {ex.Message}";
+            TempData["Error"] = $"Execution failure: {exception.Message}";
+            return RedirectToAction(nameof(Trade));
         }
+    }
 
-        return RedirectToAction(nameof(Trade));
+    private async Task<PortfolioDto> GetPortfolioAsync()
+    {
+        PortfolioDto? portfolio = await investmentsRepoProxy.GetAsync<PortfolioDto>(ApiEndpoints.Investments.PortfolioFull);
+        return portfolio ?? new PortfolioDto();
     }
 }

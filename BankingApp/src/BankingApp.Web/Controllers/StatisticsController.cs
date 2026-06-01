@@ -1,42 +1,30 @@
-﻿namespace BankingApp.Web.Controllers;
+namespace BankingApp.Web.Controllers;
 
+using Infrastructure.Http.Features.Statistics.Services;
+using Models.Statistics;
 using Microsoft.AspNetCore.Mvc;
-using BankingApp.Web.ViewModels.Statistics;
-using BankingApp.Application.Features.Statistics.Services;
-using BankingApp.Contracts.Features.Statistics.Dtos;
 
-public class StatisticsController : Controller
+public class StatisticsController(IStatisticsRepoProxy statisticsRepoProxy) : Controller
 {
-    private readonly IStatisticsService _statisticsService;
-
-    public StatisticsController(IStatisticsService statisticsService)
-    {
-        _statisticsService = statisticsService;
-    }
-
     [HttpGet]
     public async Task<IActionResult> Index()
     {
         try
         {
-            SpendingByCategoryResponse? spendingByCategory = await _statisticsService.GetSpendingByCategoryAsync();
-            IncomeVsExpensesResponse? incomeVsExpenses = await _statisticsService.GetIncomeVsExpensesAsync();
-            BalanceTrendsResponse? balanceTrends = await _statisticsService.GetBalanceTrendsAsync();
-            TopRecipientsResponse? topRecipients = await _statisticsService.GetTopRecipientsAsync();
-
-            var viewModel = new StatisticsViewModel
+            var viewModel = new StatisticsPageViewModel
             {
-                SpendingByCategory = spendingByCategory,
-                IncomeVsExpenses = incomeVsExpenses,
-                BalanceTrends = balanceTrends,
-                TopRecipients = topRecipients
+                SpendingByCategory = await statisticsRepoProxy.GetSpendingByCategoryAsync(),
+                IncomeVsExpenses = await statisticsRepoProxy.GetIncomeVsExpensesAsync(),
+                BalanceTrends = await statisticsRepoProxy.GetBalanceTrendsAsync(),
+                TopRecipients = await statisticsRepoProxy.GetTopRecipientsAsync(),
             };
 
             return View(viewModel);
         }
-        catch (UnauthorizedAccessException)
+        catch (Exception exception)
         {
-            return RedirectToAction("Index", "Auth");
+            TempData["Error"] = exception.Message;
+            return View(new StatisticsPageViewModel());
         }
     }
 }

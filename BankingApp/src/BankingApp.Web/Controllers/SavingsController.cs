@@ -1,32 +1,27 @@
-﻿namespace BankingApp.Web.Controllers;
+namespace BankingApp.Web.Controllers;
 
 using System.Globalization;
+using BankingApp.Contracts.Features.Investments;
 using BankingApp.Contracts.Features.Savings.Dtos;
-using BankingApp.Domain.Enums;
+using BankingApp.Contracts.Http;
 using BankingApp.Domain.Aggregates.SavingsAggregate;
+using BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
+using BankingApp.Domain.Enums;
+using BankingApp.Infrastructure.Http.Features.Savings.Services;
+using BankingApp.Web.Models.Savings;
 using Microsoft.AspNetCore.Mvc;
 
-using BankingApp.Application.Features.Savings.Services;
-using BankingApp.Contracts.Features.Investments;
-using BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
-using BankingApp.Web.Models.Savings;
-
-//[Authorize]
-public class SavingsController : WebControllerBase
+public class SavingsController(
+    ISavingsRepoProxy savingsRepoProxy,
+    ISavingsUiRulesRepoProxy savingsUiRulesRepoProxy,
+    ISavingsWorkflowRepoProxy savingsWorkflowRepoProxy,
+    ISavingsPresentationRepoProxy savingsPresentationRepoProxy) : Controller
 {
     private const string OverviewTab = "overview";
     private const string DepositTab = "deposit";
     private const string WithdrawTab = "withdraw";
     private const string AutoDepositTab = "auto";
     private const string CloseTab = "close";
-
-    private readonly ISavingsService _savingsService;
-
-    public SavingsController(ISavingsService savingsService, IWebSessionContext sessionContext)
-        : base(sessionContext)
-    {
-        _savingsService = savingsService;
-    }
 
     [HttpGet]
     public async Task<IActionResult> Index(int? accountId = null, string manageTab = OverviewTab)
@@ -36,17 +31,10 @@ public class SavingsController : WebControllerBase
             SavingsPageViewModel model = await BuildPageModelAsync(accountId, manageTab);
             return View(model);
         }
-        catch (HttpRequestException exception) when (TryHandleUnauthorized(exception, out var result))
-        {
-            return result;
-        }
         catch (Exception exception)
         {
-            return View(new SavingsPageViewModel
-            {
-                ActiveManageTab = manageTab,
-                ErrorMessage = exception.Message,
-            });
+            TempData["Error"] = exception.Message;
+            return View(new SavingsPageViewModel { ActiveManageTab = manageTab });
         }
     }
 
@@ -56,24 +44,17 @@ public class SavingsController : WebControllerBase
     {
         try
         {
-            List<FundingSourceOption> fundingSources = await _savingsService.GetFundingSourcesAsync(CurrentUserId);
+            List<FundingSourceOption> fundingSources = await savingsRepoProxy.GetFundingSourcesAsync(CurrentUserId);
             NormalizeCreateAccountForm(createAccount, fundingSources);
             ModelState.Clear();
 
             decimal? parsedTargetAmount = null;
             if (IsGoalSavings(createAccount.SelectedSavingsType) && !string.IsNullOrWhiteSpace(createAccount.TargetAmount))
             {
-                try
-                {
-                    parsedTargetAmount = await _savingsService.ParsePositiveAmountAsync(createAccount.TargetAmount);
-                }
-                catch (InvalidOperationException)
-                {
-                    parsedTargetAmount = null;
-                }
+                parsedTargetAmount = await savingsUiRulesRepoProxy.ParsePositiveAmount(createAccount.TargetAmount);
             }
 
-            Dictionary<string, string> validation = await _savingsService.ValidateCreateAccountAsync(new ValidateCreateAccountRequest
+            Dictionary<string, string> validation = await savingsUiRulesRepoProxy.ValidateCreateAccount(new ValidateCreateAccountRequest
             {
                 SelectedSavingsType = createAccount.SelectedSavingsType,
                 AccountName = createAccount.AccountName,
@@ -89,18 +70,18 @@ public class SavingsController : WebControllerBase
 
             if (validation.Count > 0)
             {
+                TempData["Error"] = "Please correct the highlighted fields.";
                 SavingsPageViewModel invalidModel = await BuildPageModelAsync(null, OverviewTab, createAccount);
-                invalidModel.ErrorMessage = "Please correct the highlighted fields.";
                 return View("Index", invalidModel);
             }
 
-            decimal initialDeposit = await _savingsService.ParsePositiveAmountAsync(createAccount.InitialDeposit);
-            DepositFrequency? depositFrequency = string.Equals(createAccount.SelectedFrequency, "OneTime", StringComparison.OrdinalIgnoreCase) ||
-                                                 string.IsNullOrWhiteSpace(createAccount.SelectedFrequency)
+            decimal initialDeposit = await savingsUiRulesRepoProxy.ParsePositiveAmount(createAccount.InitialDeposit);
+            DepositFrequency? depositFrequency = string.Equals(createAccount.SelectedFrequency, "OneTime", StringComparison.OrdinalIgnoreCase)
+                                                 || string.IsNullOrWhiteSpace(createAccount.SelectedFrequency)
                 ? null
-                : await _savingsService.ParseDepositFrequencyAsync(createAccount.SelectedFrequency);
+                : await savingsUiRulesRepoProxy.ParseDepositFrequency(createAccount.SelectedFrequency);
 
-            await _savingsService.CreateAccountAsync(new CreateSavingsAccountDto
+            await savingsRepoProxy.CreateSavingsAccountAsync(new CreateSavingsAccountDto
             {
                 UserIdentificationNumber = CurrentUserId,
                 SavingsType = createAccount.SelectedSavingsType,
@@ -111,19 +92,15 @@ public class SavingsController : WebControllerBase
                 TargetDate = IsGoalSavings(createAccount.SelectedSavingsType) ? createAccount.TargetDate : null,
                 MaturityDate = IsFixedDeposit(createAccount.SelectedSavingsType) ? createAccount.MaturityDate : null,
                 DepositFrequency = depositFrequency,
-            });
+            }, apy: 0m);
 
-            TempData["StatusMessage"] = "Savings account opened successfully.";
+            TempData["Success"] = "Savings account opened successfully.";
             return RedirectToAction(nameof(Index));
-        }
-        catch (HttpRequestException exception) when (TryHandleUnauthorized(exception, out var result))
-        {
-            return result;
         }
         catch (Exception exception)
         {
+            TempData["Error"] = exception.Message;
             SavingsPageViewModel invalidModel = await BuildPageModelAsync(null, OverviewTab, createAccount);
-            invalidModel.ErrorMessage = exception.Message;
             return View("Index", invalidModel);
         }
     }
@@ -134,30 +111,21 @@ public class SavingsController : WebControllerBase
     {
         try
         {
-            decimal amount = await _savingsService.ParsePositiveAmountAsync(deposit.Amount);
-            List<FundingSourceOption> fundingSources = await _savingsService.GetFundingSourcesAsync(CurrentUserId);
+            decimal amount = await savingsUiRulesRepoProxy.ParsePositiveAmount(deposit.Amount);
+            List<FundingSourceOption> fundingSources = await savingsRepoProxy.GetFundingSourcesAsync(CurrentUserId);
             FundingSourceOption? selectedFundingSource = fundingSources.FirstOrDefault(source => source.Id == deposit.FundingSourceId);
             if (selectedFundingSource == null)
             {
-                TempData["ErrorMessage"] = "Select a funding source before submitting the deposit.";
+                TempData["Error"] = "Select a funding source before submitting the deposit.";
                 return RedirectToAction(nameof(Index), new { accountId = deposit.AccountId, manageTab = DepositTab });
             }
 
-            DepositResponseDto response = await _savingsService.DepositAsync(
-                deposit.AccountId,
-                amount,
-                selectedFundingSource.DisplayName,
-                CurrentUserId);
-
-            TempData["StatusMessage"] = $"Deposit successful. New balance: {response.NewBalance:C2}.";
-        }
-        catch (HttpRequestException exception) when (TryHandleUnauthorized(exception, out var result))
-        {
-            return result;
+            DepositResponseDto response = await savingsRepoProxy.DepositAsync(deposit.AccountId, amount, selectedFundingSource.DisplayName);
+            TempData["Success"] = $"Deposit successful. New balance: {response.NewBalance:C2}.";
         }
         catch (Exception exception)
         {
-            TempData["ErrorMessage"] = exception.Message;
+            TempData["Error"] = exception.Message;
         }
 
         return RedirectToAction(nameof(Index), new { accountId = deposit.AccountId, manageTab = DepositTab });
@@ -169,32 +137,23 @@ public class SavingsController : WebControllerBase
     {
         try
         {
-            decimal amount = await _savingsService.ParsePositiveAmountAsync(withdraw.Amount);
-            List<FundingSourceOption> fundingSources = await _savingsService.GetFundingSourcesAsync(CurrentUserId);
+            decimal amount = await savingsUiRulesRepoProxy.ParsePositiveAmount(withdraw.Amount);
+            List<FundingSourceOption> fundingSources = await savingsRepoProxy.GetFundingSourcesAsync(CurrentUserId);
             FundingSourceOption? destination = fundingSources.FirstOrDefault(source => source.Id == withdraw.DestinationId);
-            ValidationResponse validation = await _savingsService.ValidateWithdrawRequestAsync(amount, destination);
+            ValidationResponse validation = await savingsWorkflowRepoProxy.ValidateWithdrawRequest(amount, destination);
             if (!validation.IsValid)
             {
-                TempData["ErrorMessage"] = validation.ErrorMessage;
+                TempData["Error"] = validation.ErrorMessage;
                 return RedirectToAction(nameof(Index), new { accountId = withdraw.AccountId, manageTab = WithdrawTab });
             }
 
-            WithdrawResponseDto response = await _savingsService.WithdrawAsync(
-                withdraw.AccountId,
-                amount,
-                destination!.DisplayName,
-                CurrentUserId);
-
-            string resultMessage = await _savingsService.BuildWithdrawResultMessageAsync(response);
-            TempData[response.Success ? "StatusMessage" : "ErrorMessage"] = resultMessage;
-        }
-        catch (HttpRequestException exception) when (TryHandleUnauthorized(exception, out var result))
-        {
-            return result;
+            WithdrawResponseDto response = await savingsRepoProxy.WithdrawAsync(withdraw.AccountId, amount, destination!.DisplayName, earlyWithdrawalPenalty: 0m);
+            string resultMessage = await savingsWorkflowRepoProxy.BuildWithdrawResultMessage(response);
+            TempData[response.Success ? "Success" : "Error"] = resultMessage;
         }
         catch (Exception exception)
         {
-            TempData["ErrorMessage"] = exception.Message;
+            TempData["Error"] = exception.Message;
         }
 
         return RedirectToAction(nameof(Index), new { accountId = withdraw.AccountId, manageTab = WithdrawTab });
@@ -206,38 +165,26 @@ public class SavingsController : WebControllerBase
     {
         try
         {
-            decimal amount = await _savingsService.ParsePositiveAmountAsync(autoDeposit.Amount);
-            DepositFrequency frequency = await _savingsService.ParseDepositFrequencyAsync(autoDeposit.Frequency);
-            List<SavingsAccount> accounts = await _savingsService.GetAccountsAsync(CurrentUserId, true);
-            SavingsAccount? selectedAccount = accounts.FirstOrDefault(account => account.IdentificationNumber == autoDeposit.AccountId);
-            if (selectedAccount == null)
-            {
-                TempData["ErrorMessage"] = "The selected account could not be found.";
-                return RedirectToAction(nameof(Index), new { accountId = autoDeposit.AccountId, manageTab = AutoDepositTab });
-            }
+            decimal amount = await savingsUiRulesRepoProxy.ParsePositiveAmount(autoDeposit.Amount);
+            DepositFrequency frequency = await savingsUiRulesRepoProxy.ParseDepositFrequency(autoDeposit.Frequency);
+            AutoDeposit? existingAutoDeposit = await savingsRepoProxy.GetAutoDepositAsync(autoDeposit.AccountId);
+            await savingsRepoProxy.SaveAutoDepositAsync(AutoDeposit.Reconstitute(
+                existingAutoDeposit?.Id ?? 0,
+                autoDeposit.AccountId,
+                amount,
+                frequency,
+                autoDeposit.StartDate ?? DateTime.Today.AddDays(1),
+                autoDeposit.IsActive,
+                sourceAccountId: null,
+                dayOfMonth: null,
+                dayOfWeek: null,
+                updatedAt: null));
 
-            AutoDeposit? existingAutoDeposit = await _savingsService.GetAutoDepositAsync(autoDeposit.AccountId);
-            await _savingsService.SaveAutoDepositAsync(new AutoDeposit
-            {
-                Id = existingAutoDeposit?.Id ?? 0,
-                SavingsAccountId = autoDeposit.AccountId,
-                SavingsAccount = selectedAccount,
-                Amount = amount,
-                Frequency = frequency,
-                NextRunDate = autoDeposit.StartDate ?? DateTime.Today.AddDays(1),
-                IsActive = autoDeposit.IsActive,
-                SourceAccountId = selectedAccount.FundingAccount?.Id,
-            });
-
-            TempData["StatusMessage"] = "Auto deposit saved successfully.";
-        }
-        catch (HttpRequestException exception) when (TryHandleUnauthorized(exception, out var result))
-        {
-            return result;
+            TempData["Success"] = "Auto deposit saved successfully.";
         }
         catch (Exception exception)
         {
-            TempData["ErrorMessage"] = exception.Message;
+            TempData["Error"] = exception.Message;
         }
 
         return RedirectToAction(nameof(Index), new { accountId = autoDeposit.AccountId, manageTab = AutoDepositTab });
@@ -249,33 +196,27 @@ public class SavingsController : WebControllerBase
     {
         try
         {
-            ValidationResponse validation = await _savingsService.ValidateCloseConfirmationAsync(
-                closeAccount.Confirmed,
-                closeAccount.DestinationAccountId);
-
+            ValidationResponse validation = await savingsWorkflowRepoProxy.ValidateCloseConfirmation(closeAccount.Confirmed, closeAccount.DestinationAccountId);
             if (!validation.IsValid)
             {
-                TempData["ErrorMessage"] = validation.ErrorMessage;
+                TempData["Error"] = validation.ErrorMessage;
                 return RedirectToAction(nameof(Index), new { accountId = closeAccount.AccountId, manageTab = CloseTab });
             }
 
-            ClosureResultDto response = await _savingsService.CloseAccountAsync(
+            ClosureResultDto response = await savingsRepoProxy.CloseSavingsAccountAsync(
                 closeAccount.AccountId,
                 closeAccount.DestinationAccountId,
-                CurrentUserId);
+                transferAmount: 0m,
+                earlyClosurePenalty: 0m);
 
-            TempData[response.Success ? "StatusMessage" : "ErrorMessage"] =
+            TempData[response.Success ? "Success" : "Error"] =
                 response.Success
                     ? $"Account closed successfully. Transferred {response.TransferredAmount:C2}."
                     : response.Message;
         }
-        catch (HttpRequestException exception) when (TryHandleUnauthorized(exception, out var result))
-        {
-            return result;
-        }
         catch (Exception exception)
         {
-            TempData["ErrorMessage"] = exception.Message;
+            TempData["Error"] = exception.Message;
         }
 
         return RedirectToAction(nameof(Index), new { accountId = closeAccount.AccountId, manageTab = CloseTab });
@@ -286,19 +227,15 @@ public class SavingsController : WebControllerBase
     {
         try
         {
-            List<SavingsAccount> accounts = await _savingsService.GetAccountsAsync(CurrentUserId, true);
-            SavingsAccount? selectedAccount = accounts.FirstOrDefault(account => account.IdentificationNumber == accountId);
+            SavingsAccount? selectedAccount = (await savingsRepoProxy.GetSavingsAccountsByUserIdAsync(CurrentUserId, true))
+                .FirstOrDefault(account => account.Id == accountId);
             if (selectedAccount == null)
             {
                 return Json(new { preview = string.Empty });
             }
 
-            string preview = await _savingsService.GetDepositPreviewAsync(amountText, selectedAccount);
+            string preview = await savingsUiRulesRepoProxy.GetDepositPreview(amountText, selectedAccount);
             return Json(new { preview });
-        }
-        catch (HttpRequestException)
-        {
-            return Unauthorized();
         }
         catch (Exception)
         {
@@ -311,8 +248,8 @@ public class SavingsController : WebControllerBase
     {
         try
         {
-            List<SavingsAccount> accounts = await _savingsService.GetAccountsAsync(CurrentUserId, true);
-            SavingsAccount? selectedAccount = accounts.FirstOrDefault(account => account.IdentificationNumber == accountId);
+            SavingsAccount? selectedAccount = (await savingsRepoProxy.GetSavingsAccountsByUserIdAsync(CurrentUserId, true))
+                .FirstOrDefault(account => account.Id == accountId);
             if (selectedAccount == null)
             {
                 return Json(new SavingsWithdrawPreviewViewModel());
@@ -321,24 +258,22 @@ public class SavingsController : WebControllerBase
             SavingsWithdrawPreviewViewModel preview = await BuildWithdrawPreviewAsync(selectedAccount, amountText);
             return Json(preview);
         }
-        catch (HttpRequestException)
-        {
-            return Unauthorized();
-        }
         catch (Exception)
         {
             return Json(new SavingsWithdrawPreviewViewModel());
         }
     }
 
+    private int CurrentUserId => int.TryParse(User.FindFirst(AuthClaimTypes.UserId)?.Value, out int userId) ? userId : 0;
+
     private async Task<SavingsPageViewModel> BuildPageModelAsync(
         int? accountId,
         string manageTab,
         SavingsCreateAccountFormModel? createAccount = null)
     {
-        List<SavingsAccount> accounts = await _savingsService.GetAccountsAsync(CurrentUserId);
-        List<FundingSourceOption> fundingSources = await _savingsService.GetFundingSourcesAsync(CurrentUserId);
-        SavingsAccount? selectedAccount = accounts.FirstOrDefault(account => account.IdentificationNumber == (accountId ?? accounts.FirstOrDefault()?.IdentificationNumber));
+        List<SavingsAccount> accounts = await savingsRepoProxy.GetSavingsAccountsByUserIdAsync(CurrentUserId);
+        List<FundingSourceOption> fundingSources = await savingsRepoProxy.GetFundingSourcesAsync(CurrentUserId);
+        SavingsAccount? selectedAccount = accounts.FirstOrDefault(account => account.Id == (accountId ?? accounts.FirstOrDefault()?.Id));
 
         var model = new SavingsPageViewModel
         {
@@ -346,16 +281,14 @@ public class SavingsController : WebControllerBase
             FundingSources = fundingSources,
             SelectedAccount = selectedAccount,
             ActiveManageTab = manageTab,
-            StatusMessage = TempData["StatusMessage"] as string,
-            ErrorMessage = TempData["ErrorMessage"] as string,
             CreateAccount = createAccount ?? new SavingsCreateAccountFormModel
             {
                 FundingSourceId = fundingSources.FirstOrDefault()?.Id,
                 SelectedFrequency = "OneTime",
             },
-            TotalSavedAmount = await _savingsService.GetTotalSavedAmountAsync(accounts),
-            NumberOfAccountsText = await _savingsService.GetNumberOfAccountsTextAsync(accounts.Count),
-            BestInterestRate = await _savingsService.GetBestInterestRateAsync(accounts),
+            TotalSavedAmount = await savingsPresentationRepoProxy.GetTotalSavedAmount(accounts),
+            NumberOfAccountsText = await savingsPresentationRepoProxy.GetNumberOfAccountsText(accounts.Count),
+            BestInterestRate = await savingsPresentationRepoProxy.GetBestInterestRate(accounts),
         };
 
         if (selectedAccount == null)
@@ -365,30 +298,27 @@ public class SavingsController : WebControllerBase
 
         model.Deposit = new SavingsDepositFormModel
         {
-            AccountId = selectedAccount.IdentificationNumber,
+            AccountId = selectedAccount.Id,
             FundingSourceId = fundingSources.FirstOrDefault()?.Id,
         };
 
         model.Withdraw = new SavingsWithdrawFormModel
         {
-            AccountId = selectedAccount.IdentificationNumber,
+            AccountId = selectedAccount.Id,
             DestinationId = fundingSources.FirstOrDefault()?.Id,
         };
 
-        model.CloseDestinationAccounts = await _savingsService.GetValidTransferDestinationsAsync(
-            selectedAccount.IdentificationNumber,
-            CurrentUserId);
-
+        model.CloseDestinationAccounts = await savingsRepoProxy.GetValidTransferDestinationsAsync(selectedAccount.Id, CurrentUserId);
         model.CloseAccount = new SavingsCloseAccountFormModel
         {
-            AccountId = selectedAccount.IdentificationNumber,
-            DestinationAccountId = model.CloseDestinationAccounts.FirstOrDefault()?.IdentificationNumber ?? 0,
+            AccountId = selectedAccount.Id,
+            DestinationAccountId = model.CloseDestinationAccounts.FirstOrDefault()?.Id ?? 0,
         };
 
-        AutoDeposit? existingAutoDeposit = await _savingsService.GetAutoDepositAsync(selectedAccount.IdentificationNumber);
+        AutoDeposit? existingAutoDeposit = await savingsRepoProxy.GetAutoDepositAsync(selectedAccount.Id);
         model.AutoDeposit = new SavingsAutoDepositFormModel
         {
-            AccountId = selectedAccount.IdentificationNumber,
+            AccountId = selectedAccount.Id,
             Amount = existingAutoDeposit?.Amount.ToString("0.##", CultureInfo.InvariantCulture) ?? string.Empty,
             Frequency = existingAutoDeposit?.Frequency.ToString() ?? "Monthly",
             StartDate = existingAutoDeposit?.NextRunDate ?? DateTime.Today.AddDays(1),
@@ -403,7 +333,7 @@ public class SavingsController : WebControllerBase
     {
         var preview = new SavingsWithdrawPreviewViewModel
         {
-            HasEarlyRisk = await _savingsService.HasRiskEarlyWithdrawal(selectedAccount),
+            HasEarlyRisk = await savingsPresentationRepoProxy.CheckClosePenaltyRisk(selectedAccount),
         };
 
         if (!preview.HasEarlyRisk)
@@ -417,9 +347,9 @@ public class SavingsController : WebControllerBase
 
         try
         {
-            decimal amount = await _savingsService.ParsePositiveAmountAsync(amountText);
-            decimal penalty = await _savingsService.ComputeWithdrawalPenalty(amount);
-            decimal netAmount = await _savingsService.GetWithdrawNetAmountAsync(amount, penalty);
+            decimal amount = await savingsUiRulesRepoProxy.ParsePositiveAmount(amountText);
+            decimal penalty = amount * 0.02m;
+            decimal netAmount = await savingsUiRulesRepoProxy.GetWithdrawNetAmount(amount, penalty);
             preview.HasPenalty = penalty > 0m;
             preview.PenaltyBreakdown = $"Penalty: {penalty:C2}";
             preview.NetAmountText = $"Net amount received: {netAmount:C2}";
@@ -432,7 +362,7 @@ public class SavingsController : WebControllerBase
         return preview;
     }
 
-    private void AddCreateAccountErrors(System.Collections.Generic.Dictionary<string, string> errors)
+    private void AddCreateAccountErrors(Dictionary<string, string> errors)
     {
         foreach ((string key, string value) in errors)
         {

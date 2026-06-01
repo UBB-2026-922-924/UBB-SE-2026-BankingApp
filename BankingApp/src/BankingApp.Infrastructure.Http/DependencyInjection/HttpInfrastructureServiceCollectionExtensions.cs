@@ -47,7 +47,12 @@ public static class HttpInfrastructureServiceCollectionExtensions
         services.Add(ServiceDescriptor.Describe(typeof(IProfileService), typeof(ProfileService), lifetime));
         services.Add(ServiceDescriptor.Describe(typeof(IInvestmentsRepoProxy), typeof(InvestmentsRepoProxy), lifetime));
         services.Add(ServiceDescriptor.Describe(typeof(ISavingsRepoProxy), typeof(SavingsRepoProxy), lifetime));
+        services.Add(ServiceDescriptor.Describe(typeof(ISavingsWorkflowRepoProxy), typeof(SavingsWorkflowRepoProxy), lifetime));
+        services.Add(ServiceDescriptor.Describe(typeof(ISavingsUiRulesRepoProxy), typeof(SavingsUiRulesRepoProxy), lifetime));
+        services.Add(ServiceDescriptor.Describe(typeof(ISavingsPresentationRepoProxy), typeof(SavingsPresentationRepoProxy), lifetime));
         services.Add(ServiceDescriptor.Describe(typeof(ILoansRepoProxy), typeof(LoansRepoProxy), lifetime));
+        services.Add(ServiceDescriptor.Describe(typeof(ILoanDialogStateRepoProxy), typeof(LoanDialogStateRepoProxy), lifetime));
+        services.Add(ServiceDescriptor.Describe(typeof(ILoanApplicationPresentationRepoProxy), typeof(LoanApplicationPresentationRepoProxy), lifetime));
         services.Add(ServiceDescriptor.Describe(typeof(IStatisticsRepoProxy), typeof(StatisticsRepoProxy), lifetime));
 
         return services;
