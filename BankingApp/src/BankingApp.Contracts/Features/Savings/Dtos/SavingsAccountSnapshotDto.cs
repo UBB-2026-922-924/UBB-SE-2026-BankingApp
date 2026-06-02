@@ -18,10 +18,10 @@ public class SavingsAccountSnapshotDto
     {
         return new SavingsAccountSnapshotDto
         {
-            IdentificationNumber = account.IdentificationNumber,
+            IdentificationNumber = account.Id,
             Balance = account.Balance,
             AnnualPercentageYield = account.AnnualPercentageYield,
-            SavingsType = account.SavingsType,
+            SavingsType = account.SavingsType.ToString(),
             MaturityDate = account.MaturityDate,
         };
     }

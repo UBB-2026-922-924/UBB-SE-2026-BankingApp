@@ -1,67 +1,44 @@
 namespace BankingApp.Infrastructure.Http.Features.Chat.Services;
 
-using BankingApp.Contracts.Features.Chat.Dtos;
-using BankingApp.Contracts.Http;
-using Domain.Aggregates.ChatAggregate;
-using Domain.Aggregates.ChatAggregate.Entities;
+using Contracts.Features.Chat.Dtos;
+using Contracts.Http;
 using Shared.Http;
 
 public class ChatRepoProxy(ApiService apiService) : IChatRepoProxy
 {
-    public Task<List<ChatSession>?> GetSessionsAsync()
+    public Task<List<ChatSessionDto>> GetSessionsAsync()
     {
-        return apiService.GetAsync<List<ChatSession>>(ApiEndpoints.Chat.SessionsFull);
+        return apiService.GetAsync<List<ChatSessionDto>>(ApiEndpoints.Chat.Base);
     }
 
-    public Task<ChatSession?> GetSessionAsync(int sessionId)
+    public Task<ChatSessionDto> GetSessionAsync(int sessionId)
     {
-        return apiService.GetAsync<ChatSession>(ApiEndpoints.Chat.SessionByIdFull(sessionId));
+        return apiService.GetAsync<ChatSessionDto>(ApiEndpoints.Chat.SessionByIdFull(sessionId));
     }
 
-    public Task<CreateChatSessionResponse?> CreateSessionAsync(string issueCategory)
+    public Task<ChatSessionDto> CreateSessionAsync(string subject)
     {
-        return apiService.PostAsync<object, CreateChatSessionResponse>(
-            ApiEndpoints.Chat.SessionsFull,
-            new { issueCategory });
+        return apiService.PostAsync<CreateChatSessionRequest, ChatSessionDto>(
+            ApiEndpoints.Chat.Base,
+            new CreateChatSessionRequest { Subject = subject });
     }
 
-    public Task<List<ChatMessage>?> GetMessagesAsync(int sessionId)
+    public Task<ChatMessageDto> CreateMessageAsync(int sessionId, string content)
     {
-        return apiService.GetAsync<List<ChatMessage>>(ApiEndpoints.Chat.SessionMessagesFull(sessionId));
-    }
-
-    public Task<CreateChatMessageResponse?> CreateMessageAsync(int sessionId, string senderType, string content)
-    {
-        return apiService.PostAsync<object, CreateChatMessageResponse>(
+        return apiService.PostAsync<CreateChatMessageRequest, ChatMessageDto>(
             ApiEndpoints.Chat.SessionMessagesFull(sessionId),
-            new { senderType, content });
+            new CreateChatMessageRequest { Content = content });
     }
 
-    public Task<CreateChatAttachmentResponse?> CreateAttachmentAsync(int messageId, CreateChatAttachmentRequest request)
+    public Task CloseSessionAsync(int sessionId)
     {
-        return apiService.PostAsync<CreateChatAttachmentRequest, CreateChatAttachmentResponse>(
-            ApiEndpoints.Chat.MessageAttachmentsFull(messageId),
-            request);
+        return apiService.PutAsync<object>(ApiEndpoints.Chat.SessionByIdFull(sessionId), new { });
     }
 
-    public Task<OperationResponse?> UpdateSessionStatusAsync(int sessionId, string status)
+    public Task SaveFeedbackAsync(int sessionId, int rating, string? feedback)
     {
-        return apiService.PutAsync<object, OperationResponse>(
-            ApiEndpoints.Chat.SessionStatusFull(sessionId),
-            new { status });
-    }
-
-    public Task<OperationResponse?> SaveFeedbackAsync(int sessionId, int rating, string feedback)
-    {
-        return apiService.PostAsync<object, OperationResponse>(
+        return apiService.PostAsync(
             ApiEndpoints.Chat.SessionFeedbackFull(sessionId),
-            new { rating, feedback });
-    }
-
-    public Task<OperationResponse?> EmailTranscriptAsync(int sessionId, string email)
-    {
-        return apiService.PostAsync<object, OperationResponse>(
-            ApiEndpoints.Chat.SessionTranscriptEmailFull(sessionId),
-            new { email });
+            new SaveChatFeedbackRequest { Rating = rating, Feedback = feedback });
     }
 }

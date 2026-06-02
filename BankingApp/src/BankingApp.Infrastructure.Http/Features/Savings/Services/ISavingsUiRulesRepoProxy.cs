@@ -6,15 +6,15 @@ using Domain.Aggregates.SavingsAggregate;
 
 public interface ISavingsUiRulesRepoProxy
 {
-    Task<decimal> ParsePositiveAmount(string text);
+    public Task<decimal> ParsePositiveAmount(string text);
 
-    Task<string> GetDepositPreview(string depositAmountText, SavingsAccount selectedAccount);
+    public Task<string> GetDepositPreview(string depositAmountText, SavingsAccount selectedAccount);
 
-    Task<decimal> GetWithdrawNetAmount(decimal requestedAmount, decimal penalty);
+    public Task<decimal> GetWithdrawNetAmount(decimal requestedAmount, decimal penalty);
 
-    Task<DepositFrequency> ParseDepositFrequency(string frequencyText);
+    public Task<DepositFrequency> ParseDepositFrequency(string frequencyText);
 
-    Task<int> GetTotalPages(int totalCount, int pageSize);
+    public Task<int> GetTotalPages(int totalCount, int pageSize);
 
-    Task<Dictionary<string, string>> ValidateCreateAccount(ValidateCreateAccountRequest request);
+    public Task<Dictionary<string, string>> ValidateCreateAccount(ValidateCreateAccountRequest request);
 }

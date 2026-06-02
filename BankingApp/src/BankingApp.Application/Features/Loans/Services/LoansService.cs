@@ -12,12 +12,8 @@ using Domain.Common.Errors;
 using Domain.Enums;
 using Domain.Repositories;
 using ErrorOr;
-using Shared.Persistence;
 
-public sealed class LoansService(
-    ILoanRepository loanRepository,
-    IUnitOfWork unitOfWork)
-    : ILoansService
+public sealed class LoansService(ILoanRepository loanRepository) : ILoansService
 {
     private const int MaxActiveLoans = 5;
     private const decimal TotalDebtLimit = 200000m;
@@ -25,8 +21,6 @@ public sealed class LoansService(
     private const decimal MortgageLoanRate = 4.5m;
     private const decimal StudentLoanRate = 3.0m;
     private const decimal AutoLoanRate = 6.5m;
-
-    private readonly LoanApplicationValidator _validator = new();
 
     public async Task<ErrorOr<IReadOnlyCollection<Loan>>> GetLoansByUserAsync(int userId, CancellationToken cancellationToken = default)
     {
@@ -47,7 +41,7 @@ public sealed class LoansService(
 
     public async Task<ErrorOr<LoanApplicationResult>> SubmitApplicationAsync(LoanApplicationRequest request, CancellationToken cancellationToken = default)
     {
-        ErrorOr<Success> validation = _validator.Validate(request);
+        ErrorOr<Success> validation = LoanApplicationValidator.Validate(request);
         if (validation.IsError)
         {
             return new LoanApplicationResult
@@ -97,7 +91,7 @@ public sealed class LoansService(
 
     public ErrorOr<LoanEstimate> GetEstimate(LoanApplicationRequest request)
     {
-        ErrorOr<Success> validation = _validator.Validate(request);
+        ErrorOr<Success> validation = LoanApplicationValidator.Validate(request);
         if (validation.IsError)
         {
             return validation.FirstError;

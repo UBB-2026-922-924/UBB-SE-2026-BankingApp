@@ -82,16 +82,16 @@
             </Grid>
 
             <InfoBar Grid.Row="1"
-                     IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
+                     IsOpen="{Binding HasError, Mode=OneWay}"
                      Severity="Error"
-                     Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                     Message="{Binding ErrorMessage, Mode=OneWay}"
                      IsClosable="True" />
 
             <Border Grid.Row="2"
                     Background="White"
                     CornerRadius="16"
                     Padding="40"
-                    Visibility="{x:Bind ViewModel.HasBeneficiaries, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                    Visibility="{Binding HasBeneficiaries, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                 <StackPanel Spacing="12" HorizontalAlignment="Center">
                     <FontIcon Glyph="&#xE716;" FontSize="42" Foreground="#758195" HorizontalAlignment="Center" />
                     <TextBlock Text="You have no saved beneficiaries yet."
@@ -114,13 +114,13 @@
 
             <StackPanel Grid.Row="2"
                         Spacing="16"
-                        Visibility="{x:Bind ViewModel.HasBeneficiaries, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                <ListView ItemsSource="{x:Bind ViewModel.Beneficiaries, Mode=OneWay}"
+                        Visibility="{Binding HasBeneficiaries, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ListView ItemsSource="{Binding Beneficiaries, Mode=OneWay}"
                           SelectionMode="None"
                           Background="Transparent"
                           BorderThickness="0">
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="dtos:BeneficiaryDto">
+                        <DataTemplate>
                             <Border Margin="0,0,0,12"
                                     Padding="18"
                                     Background="White"
@@ -135,14 +135,14 @@
                                         </Grid.ColumnDefinitions>
 
                                         <StackPanel Spacing="6">
-                                            <TextBlock Text="{x:Bind Name}"
+                                            <TextBlock Text="{Binding Name}"
                                                        FontSize="18"
                                                        Foreground="{StaticResource BeneficiaryTextBrush}"
                                                        FontWeight="SemiBold" />
-                                            <TextBlock Text="{x:Bind Iban}"
+                                            <TextBlock Text="{Binding Iban}"
                                                        FontFamily="Consolas"
                                                        Foreground="{StaticResource BeneficiaryMutedTextBrush}" />
-                                            <TextBlock Text="{x:Bind BankName}"
+                                            <TextBlock Text="{Binding BankName}"
                                                        Foreground="{StaticResource BeneficiaryMutedTextBrush}" />
                                         </StackPanel>
 
@@ -153,17 +153,17 @@
                                             <Button Content="Use"
                                                     Style="{StaticResource BeneficiaryPrimaryButtonStyle}"
                                                     Click="Use_Click"
-                                                    Tag="{x:Bind}"
+                                                    Tag="{Binding}"
                                                     Padding="16,8" />
                                             <Button Content="Edit"
                                                     Style="{StaticResource BeneficiarySuccessButtonStyle}"
                                                     Click="Edit_Click"
-                                                    Tag="{x:Bind}"
+                                                    Tag="{Binding}"
                                                     Padding="16,8" />
                                             <Button Content="Delete"
                                                     Style="{StaticResource BeneficiaryDangerButtonStyle}"
                                                     Click="Delete_Click"
-                                                    Tag="{x:Bind}"
+                                                    Tag="{Binding}"
                                                     Padding="16,8" />
                                         </StackPanel>
                                     </Grid>
@@ -188,7 +188,7 @@
                                         <Border Grid.Column="1" Padding="12" Background="#F8FAFC" CornerRadius="12">
                                             <StackPanel Spacing="4">
                                                 <TextBlock Text="Transfers" Foreground="{StaticResource BeneficiaryMutedTextBrush}" />
-                                                <TextBlock Text="{x:Bind TransferCount}"
+                                                <TextBlock Text="{Binding TransferCount}"
                                                            FontSize="16"
                                                            Foreground="{StaticResource BeneficiaryTextBrush}"
                                                            FontWeight="SemiBold" />
@@ -216,9 +216,9 @@
                     Background="White"
                     CornerRadius="16"
                     Padding="20"
-                    Visibility="{x:Bind ViewModel.IsFormVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    Visibility="{Binding IsFormVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel Spacing="14">
-                    <TextBlock Text="{x:Bind ViewModel.FormTitle, Mode=OneWay}"
+                    <TextBlock Text="{Binding FormTitle, Mode=OneWay}"
                                FontWeight="SemiBold"
                                FontSize="20"
                                Foreground="{StaticResource BeneficiaryTextBrush}" />
@@ -229,7 +229,7 @@
                                    FontWeight="SemiBold" />
                         <TextBox PlaceholderText="e.g. John Doe"
                              Style="{StaticResource BeneficiaryTextBoxStyle}"
-                             Text="{x:Bind ViewModel.BeneficiaryName, Mode=TwoWay}" />
+                             Text="{Binding BeneficiaryName, Mode=TwoWay}" />
                     </StackPanel>
 
                     <StackPanel Spacing="6">
@@ -238,7 +238,7 @@
                                    FontWeight="SemiBold" />
                         <TextBox PlaceholderText="e.g. RO49AAAA1B31007593840000"
                              Style="{StaticResource BeneficiaryTextBoxStyle}"
-                             Text="{x:Bind ViewModel.BeneficiaryIban, Mode=TwoWay}" />
+                             Text="{Binding BeneficiaryIban, Mode=TwoWay}" />
                     </StackPanel>
 
                     <StackPanel Spacing="6">
@@ -247,7 +247,7 @@
                                    FontWeight="SemiBold" />
                         <TextBox PlaceholderText="e.g. ING Bank Romania"
                              Style="{StaticResource BeneficiaryTextBoxStyle}"
-                             Text="{x:Bind ViewModel.BeneficiaryBankName, Mode=TwoWay}" />
+                             Text="{Binding BeneficiaryBankName, Mode=TwoWay}" />
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
@@ -255,7 +255,7 @@
                                 Style="{StaticResource BeneficiaryButtonStyle}"
                                 Click="CancelAdd_Click"
                                 Padding="16,8" />
-                        <Button Content="{x:Bind ViewModel.SaveButtonText, Mode=OneWay}"
+                        <Button Content="{Binding SaveButtonText, Mode=OneWay}"
                                 Style="{StaticResource BeneficiaryPrimaryButtonStyle}"
                                 Click="Save_Click"
                                 Padding="16,8" />
@@ -265,3 +265,4 @@
         </Grid>
     </ScrollViewer>
 </Page>
+

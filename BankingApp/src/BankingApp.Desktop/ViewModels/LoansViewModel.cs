@@ -1,4 +1,4 @@
-﻿// <copyright file="LoansViewModel.cs" company="Dev Core">
+// <copyright file="LoansViewModel.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
@@ -22,6 +22,9 @@ using Infrastructure.Http.Features.Loans.Services;
 using ErrorOr;
 using Shared.Enums;
 
+/// <summary>
+///     Coordinates loan account display, applications, payments, and amortization schedules.
+/// </summary>
 public partial class LoansViewModel : ObservableObject
 {
     private const string CustomAmountDisplayFormat = "0.##";
@@ -35,83 +38,113 @@ public partial class LoansViewModel : ObservableObject
     private readonly ILoansRepoProxy _loansRepoProxy;
     private readonly PdfExporter _pdfExporter;
 
+    /// <summary>Gets or sets the amortization rows for the selected loan.</summary>
     [ObservableProperty]
-    private ObservableCollection<AmortizationRow> _amortizationRows = new ObservableCollection<AmortizationRow>();
+    public partial ObservableCollection<AmortizationRow> AmortizationRows { get; set; } = new ObservableCollection<AmortizationRow>();
 
+    /// <summary>Gets or sets the loan application result message.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ApplicationWasApproved))]
-    private string _applicationResult = string.Empty;
+    public partial string ApplicationResult { get; set; } = string.Empty;
 
+    /// <summary>Gets or sets a value indicating whether the application was approved.</summary>
     [ObservableProperty]
-    private bool _applicationWasApproved;
+    public partial bool ApplicationWasApproved { get; set; }
 
+    /// <summary>Gets or sets the current loan estimate.</summary>
     [ObservableProperty]
-    private LoanEstimate _currentEstimate;
+    public partial LoanEstimate? CurrentEstimate { get; set; }
 
+    /// <summary>Gets or sets the custom payment amount.</summary>
     [ObservableProperty]
-    private double? _customAmount;
+    public partial double? CustomAmount { get; set; }
 
+    /// <summary>Gets or sets the desired loan amount.</summary>
     [ObservableProperty]
-    private double _desiredAmount;
+    public partial double DesiredAmount { get; set; }
 
+    /// <summary>Gets or sets the dialog action text.</summary>
     [ObservableProperty]
-    private string _dialogActionText = "Continue";
+    public partial string DialogActionText { get; set; } = "Continue";
 
+    /// <summary>Gets or sets the dialog title.</summary>
     [ObservableProperty]
-    private string _dialogTitle = "Apply for Loan";
+    public partial string DialogTitle { get; set; } = "Apply for Loan";
 
+    /// <summary>Gets or sets the current error message.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasError))]
-    private string _errorMessage = string.Empty;
+    public partial string ErrorMessage { get; set; } = string.Empty;
 
+    /// <summary>Gets or sets a value indicating whether the estimate is visible.</summary>
     [ObservableProperty]
-    private bool _isEstimateVisible;
+    public partial bool IsEstimateVisible { get; set; }
 
+    /// <summary>Gets or sets a value indicating whether the form is visible.</summary>
     [ObservableProperty]
-    private bool _isFormVisible = true;
+    public partial bool IsFormVisible { get; set; } = true;
 
+    /// <summary>Gets or sets a value indicating whether loan data is loading.</summary>
     [ObservableProperty]
-    private bool _isLoading;
+    public partial bool IsLoading { get; set; }
 
+    /// <summary>Gets or sets a value indicating whether the review stage is visible.</summary>
     [ObservableProperty]
-    private bool _isReviewVisible;
+    public partial bool IsReviewVisible { get; set; }
 
+    /// <summary>Gets or sets the loaded loans.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FilteredLoans))]
-    private ObservableCollection<LoanViewModel> _loans = new ObservableCollection<LoanViewModel>();
+    public partial ObservableCollection<LoanViewModel> Loans { get; set; } = new ObservableCollection<LoanViewModel>();
 
+    /// <summary>Gets or sets the payment preview balance.</summary>
     [ObservableProperty]
-    private decimal _paymentPreviewBalance;
+    public partial decimal PaymentPreviewBalance { get; set; }
 
+    /// <summary>Gets or sets the payment preview remaining months.</summary>
     [ObservableProperty]
-    private int _paymentPreviewRemainingMonths;
+    public partial int PaymentPreviewRemainingMonths { get; set; }
 
+    /// <summary>Gets or sets the preferred term in months.</summary>
     [ObservableProperty]
-    private int _preferredTermMonths;
+    public partial int PreferredTermMonths { get; set; }
 
+    /// <summary>Gets or sets the loan purpose.</summary>
     [ObservableProperty]
-    private string _purpose = string.Empty;
+    public partial string Purpose { get; set; } = string.Empty;
 
+    /// <summary>Gets or sets the selected loan.</summary>
     [ObservableProperty]
-    private LoanViewModel _selectedLoan;
+    public partial LoanViewModel? SelectedLoan { get; set; }
 
+    /// <summary>Gets or sets the selected loan type.</summary>
     [ObservableProperty]
-    private LoanType _selectedLoanType;
+    public partial LoanType SelectedLoanType { get; set; }
 
+    /// <summary>Gets or sets the selected loan status filter.</summary>
     [NotifyPropertyChangedFor(nameof(FilteredLoans))]
     [ObservableProperty]
-    private LoanStatus? _statusFilter;
+    public partial LoanStatus? StatusFilter { get; set; }
 
+    /// <summary>Gets or sets the selected loan type filter.</summary>
     [NotifyPropertyChangedFor(nameof(FilteredLoans))]
     [ObservableProperty]
-    private LoanType? _typeFilter;
+    public partial LoanType? TypeFilter { get; set; }
 
+    /// <summary>Gets or sets the current user id.</summary>
     [ObservableProperty]
-    private User _currentUser;
+    public partial int CurrentUserId { get; set; }
 
+    /// <summary>Gets or sets the current loans state.</summary>
     [ObservableProperty]
-    private LoansState _state = LoansState.Idle;
+    public partial LoansState State { get; set; } = LoansState.Idle;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="LoansViewModel" /> class.
+    /// </summary>
+    /// <param name="loansRepoProxy">The loans HTTP proxy.</param>
+    /// <param name="loanDialogStateRepoProxy">The loan dialog state proxy.</param>
+    /// <param name="loanApplicationPresentationRepoProxy">The loan presentation proxy.</param>
     public LoansViewModel(
         ILoansRepoProxy loansRepoProxy,
         ILoanDialogStateRepoProxy loanDialogStateRepoProxy,
@@ -123,25 +156,34 @@ public partial class LoansViewModel : ObservableObject
         _pdfExporter = new PdfExporter();
     }
 
+    /// <summary>Gets the available loan types.</summary>
     public IEnumerable<LoanType> LoanTypes => Enum.GetValues<LoanType>();
 
+    /// <summary>Gets a value indicating whether an error message is present.</summary>
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
+    /// <summary>Gets the loans after the selected filters are applied.</summary>
     public IEnumerable<LoanViewModel> FilteredLoans =>
-        _loans.Where(loan =>
-            (_statusFilter == null || loan.Loan.LoanStatus == _statusFilter) &&
-            (_typeFilter == null || loan.Loan.LoanType == _typeFilter));
+        Loans.Where(loan =>
+            (StatusFilter == null || loan.Loan.LoanStatus == StatusFilter) &&
+            (TypeFilter == null || loan.Loan.LoanType == TypeFilter));
 
+    /// <summary>Creates a display view model for a loan.</summary>
+    /// <param name="loan">The source loan.</param>
+    /// <returns>The display view model.</returns>
     public LoanViewModel CreateLoanViewModel(Loan loan)
     {
         return new LoanViewModel(loan, GetRepaymentProgress(loan));
     }
 
+    /// <summary>Selects a loan for downstream workflows.</summary>
+    /// <param name="loan">The selected loan.</param>
     public void SelectLoan(Loan loan)
     {
         SelectedLoan = CreateLoanViewModel(loan);
     }
 
+    /// <summary>Loads loans for the current user.</summary>
     [RelayCommand]
     public async Task LoadLoansAsync()
     {
@@ -150,7 +192,7 @@ public partial class LoansViewModel : ObservableObject
         State = LoansState.Loading;
         try
         {
-            List<Loan> result = await _loansRepoProxy.GetLoansByUserAsync(CurrentUser.Id);
+            List<Loan> result = await _loansRepoProxy.GetLoansByUserAsync(CurrentUserId);
             var loanViewModels = new List<LoanViewModel>();
             foreach (Loan loan in result)
             {
@@ -171,6 +213,7 @@ public partial class LoansViewModel : ObservableObject
         }
     }
 
+    /// <summary>Submits the current loan application.</summary>
     [RelayCommand]
     public async Task ApplyForLoanAsync()
     {
@@ -180,7 +223,7 @@ public partial class LoansViewModel : ObservableObject
         {
             var request = new LoanApplicationRequest
             {
-                UserId = CurrentUser.Id,
+                UserId = CurrentUserId,
                 LoanType = SelectedLoanType,
                 DesiredAmount = (decimal)DesiredAmount,
                 PreferredTermMonths = PreferredTermMonths,
@@ -210,6 +253,7 @@ public partial class LoansViewModel : ObservableObject
         }
     }
 
+    /// <summary>Computes a live estimate for the current application form.</summary>
     [RelayCommand]
     public async Task ComputeLiveEstimate()
     {
@@ -218,7 +262,7 @@ public partial class LoansViewModel : ObservableObject
         {
             var request = new LoanApplicationRequest
             {
-                UserId = CurrentUser.Id,
+                UserId = CurrentUserId,
                 LoanType = SelectedLoanType,
                 DesiredAmount = (decimal)DesiredAmount,
                 PreferredTermMonths = PreferredTermMonths,
@@ -232,8 +276,15 @@ public partial class LoansViewModel : ObservableObject
         }
     }
 
+    /// <summary>Pays an installment for the selected loan.</summary>
     public async Task PayInstallmentAsync()
     {
+        if (SelectedLoan is null)
+        {
+            ErrorMessage = "No loan selected.";
+            return;
+        }
+
         IsLoading = true;
         ErrorMessage = string.Empty;
         try
@@ -270,6 +321,9 @@ public partial class LoansViewModel : ObservableObject
         }
     }
 
+    /// <summary>Updates the payment preview for the selected loan.</summary>
+    /// <param name="isStandardPayment">Whether the standard monthly payment is selected.</param>
+    /// <param name="customAmountText">The custom payment amount text.</param>
     public void UpdatePaymentPreview(bool isStandardPayment, string customAmountText = "")
     {
         if (SelectedLoan == null)
@@ -290,12 +344,15 @@ public partial class LoansViewModel : ObservableObject
         PaymentPreviewRemainingMonths = months;
     }
 
+    /// <summary>Selects the standard payment amount.</summary>
     public void SelectStandardPayment()
     {
         CustomAmount = null;
         UpdatePaymentPreview(true);
     }
 
+    /// <summary>Selects and normalizes the custom payment amount.</summary>
+    /// <returns>The normalized custom payment text.</returns>
     public string SelectCustomPayment()
     {
         if (SelectedLoan == null)
@@ -316,6 +373,8 @@ public partial class LoansViewModel : ObservableObject
         return currentText;
     }
 
+    /// <summary>Updates the selected custom payment amount.</summary>
+    /// <param name="customAmountText">The custom payment amount text.</param>
     public void UpdateCustomPayment(string customAmountText)
     {
         decimal? parsedAmount = ParseCustomPaymentAmount(customAmountText);
@@ -323,6 +382,7 @@ public partial class LoansViewModel : ObservableObject
         UpdatePaymentPreview(false, customAmountText);
     }
 
+    /// <summary>Loads the amortization schedule for the selected loan.</summary>
     public async Task LoadAmortizationAsync()
     {
         if (SelectedLoan == null)
@@ -347,13 +407,20 @@ public partial class LoansViewModel : ObservableObject
         }
     }
 
+    /// <summary>Downloads the amortization schedule as a PDF.</summary>
     [RelayCommand]
     public async Task DownloadSchedulePdfAsync()
     {
+        if (SelectedLoan is null)
+        {
+            ErrorMessage = "No loan selected.";
+            return;
+        }
+
         try
         {
             List<AmortizationRow> rows = await _loansRepoProxy.GetAmortizationAsync(SelectedLoan.Loan.Id);
-            var pdfBytes = _pdfExporter.ExportAmortization(rows);
+            byte[] pdfBytes = _pdfExporter.ExportAmortization(rows);
             string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
             string fileName = $"amortization_schedule_{SelectedLoan.Loan.Id}.pdf";
             string filePath = Path.Combine(desktopPath, fileName);
@@ -373,6 +440,7 @@ public partial class LoansViewModel : ObservableObject
         }
     }
 
+    /// <summary>Switches the application dialog to the review stage.</summary>
     public void SwitchToReviewStage()
     {
         IsFormVisible = false;
@@ -381,6 +449,7 @@ public partial class LoansViewModel : ObservableObject
         DialogActionText = "Submit";
     }
 
+    /// <summary>Resets the application dialog state.</summary>
     public void ResetDialogState()
     {
         IsFormVisible = true;

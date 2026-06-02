@@ -16,6 +16,7 @@ using Features.Beneficiaries.Services;
 using Features.Billers.Services;
 using Features.BillPayments.Services;
 using Features.Cards.Services;
+using Features.Chat.Services;
 using Features.Forex.Services;
 using Features.Investments.Services;
 using Features.Loans.Services;
@@ -54,6 +55,7 @@ public static class HttpInfrastructureServiceCollectionExtensions
         services.Add(ServiceDescriptor.Describe(typeof(ILoanDialogStateRepoProxy), typeof(LoanDialogStateRepoProxy), lifetime));
         services.Add(ServiceDescriptor.Describe(typeof(ILoanApplicationPresentationRepoProxy), typeof(LoanApplicationPresentationRepoProxy), lifetime));
         services.Add(ServiceDescriptor.Describe(typeof(IStatisticsRepoProxy), typeof(StatisticsRepoProxy), lifetime));
+        services.Add(ServiceDescriptor.Describe(typeof(IChatRepoProxy), typeof(ChatRepoProxy), lifetime));
 
         return services;
     }

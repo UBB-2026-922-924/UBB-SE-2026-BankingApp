@@ -9,6 +9,7 @@ using System.Windows.Input;
 /// </summary>
 public partial class AsyncRelayCommand : ICommand
 {
+    private readonly Func<bool>? _canExecute;
     private readonly Func<object?, Task> _executeAsyncAction;
     private bool _isExecutionInProgress;
 
@@ -21,13 +22,22 @@ public partial class AsyncRelayCommand : ICommand
         _executeAsyncAction = executeAsyncAction;
     }
 
+    /// <summary>
+    ///     Initializes a new instance with an asynchronous action and availability predicate.
+    /// </summary>
+    public AsyncRelayCommand(Func<Task> executeAsyncAction, Func<bool> canExecute)
+    {
+        _executeAsyncAction = _ => executeAsyncAction();
+        _canExecute = canExecute;
+    }
+
     /// <inheritdoc />
     public event EventHandler? CanExecuteChanged;
 
     /// <inheritdoc />
     public bool CanExecute(object? parameter)
     {
-        return !_isExecutionInProgress;
+        return !_isExecutionInProgress && (_canExecute?.Invoke() ?? true);
     }
 
     /// <inheritdoc />
@@ -60,7 +70,7 @@ public partial class AsyncRelayCommand : ICommand
     /// <summary>
     ///     Raises the <see cref="CanExecuteChanged" /> event so the UI re-evaluates command availability.
     /// </summary>
-    private void RaiseCanExecuteChanged()
+    public void RaiseCanExecuteChanged()
     {
         CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }

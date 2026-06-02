@@ -11,25 +11,25 @@ using Domain.Aggregates.LoanAggregate.Entities;
 /// </summary>
 public interface ILoansRepoProxy
 {
-    Task<List<Loan>> GetAllLoansAsync();
+    public Task<List<Loan>> GetAllLoansAsync();
 
-    Task<Loan> GetLoanByIdAsync(int id);
+    public Task<Loan> GetLoanByIdAsync(int id);
 
-    Task<List<Loan>> GetLoansByUserAsync(int userId);
+    public Task<List<Loan>> GetLoansByUserAsync(int userId);
 
-    Task<List<Loan>> GetLoansByStatusAsync(LoanStatus loanStatus);
+    public Task<List<Loan>> GetLoansByStatusAsync(LoanStatus loanStatus);
 
-    Task<List<Loan>> GetLoansByTypeAsync(LoanType loanType);
+    public Task<List<Loan>> GetLoansByTypeAsync(LoanType loanType);
 
-    Task<int> CreateLoanApplicationAsync(LoanApplicationRequest request);
+    public Task<int> CreateLoanApplicationAsync(LoanApplicationRequest request);
 
-    Task UpdateLoanApplicationStatusAsync(int applicationId, LoanApplicationStatus status, string? reason);
+    public Task UpdateLoanApplicationStatusAsync(int applicationId, LoanApplicationStatus status, string? reason);
 
-    Task<int> CreateLoanAsync(Loan loan);
+    public Task<int> CreateLoanAsync(Loan loan);
 
-    Task UpdateLoanAfterPaymentAsync(int loanId, decimal newBalance, int newRemainingMonths, LoanStatus newStatus);
+    public Task UpdateLoanAfterPaymentAsync(int loanId, decimal newBalance, int newRemainingMonths, LoanStatus newStatus);
 
-    Task<List<AmortizationRow>> GetAmortizationAsync(int loanId);
+    public Task<List<AmortizationRow>> GetAmortizationAsync(int loanId);
 
-    Task SaveAmortizationAsync(int loanId, List<AmortizationRow> rows);
+    public Task SaveAmortizationAsync(int loanId, List<AmortizationRow> rows);
 }

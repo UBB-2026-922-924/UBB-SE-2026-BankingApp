@@ -4,10 +4,17 @@ using ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
+/// <summary>
+///     Displays the crypto trading workflow.
+/// </summary>
 public sealed partial class CryptoTradingView : Page
 {
-    public CryptoTradingViewModel ViewModel { get; }
+    internal CryptoTradingViewModel ViewModel { get; }
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="CryptoTradingView" /> class.
+    /// </summary>
+    /// <param name="viewModel">The crypto trading view model.</param>
     public CryptoTradingView(CryptoTradingViewModel viewModel)
     {
         InitializeComponent();

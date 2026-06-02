@@ -1,32 +1,33 @@
-﻿namespace BankingApp.Desktop.Views;
+namespace BankingApp.Desktop.Views;
 
-using Domain.Aggregates.ChatAggregate;
+using Contracts.Features.Chat.Dtos;
+using Infrastructure.Http.Features.Chat.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Application.Features.Chat.Services;
 
+/// <summary>
+///     Displays support chat sessions and starts new chats.
+/// </summary>
 public sealed partial class ChatRoutingView : Page
 {
-    private readonly IChatService _chatService;
+    private readonly IChatRepoProxy _chatService;
 
+    /// <summary>
+    ///     Initializes a new instance of the chat routing view.
+    /// </summary>
     public ChatRoutingView()
     {
         InitializeComponent();
-        _chatService = App.ChatService;
+        _chatService = ((App)Application.Current).Services.GetRequiredService<IChatRepoProxy>();
         Loaded += ChatRoutingView_Loaded;
     }
 
     private async void ChatRoutingView_Loaded(object sender, RoutedEventArgs e)
     {
-        List<ChatSession>? sessions = await _chatService.GetSessionsAsync();
-        List<ChatSession> safeSessions = sessions ?? new List<ChatSession>();
-        foreach (ChatSession session in safeSessions)
-        {
-            session.LastUpdatedAt = session.StartedAt;
-        }
-
-        WaitTimeText.Text = $"Estimated wait time: {Math.Max(1, safeSessions.Count + 1)} minute(s)";
-        SessionsList.ItemsSource = safeSessions;
+        List<ChatSessionDto> sessions = await _chatService.GetSessionsAsync();
+        WaitTimeText.Text = $"Estimated wait time: {Math.Max(1, sessions.Count + 1)} minute(s)";
+        SessionsList.ItemsSource = sessions;
     }
 
     private async void StartNewChat_Click(object sender, RoutedEventArgs e)
@@ -34,13 +35,13 @@ public sealed partial class ChatRoutingView : Page
         try
         {
             string issueCategory = IssueCategoryComboBox.SelectedItem?.ToString() ?? "General";
-            CreateChatSessionResponse? response = await _chatService.CreateSessionAsync(issueCategory);
-            if (response == null || !response.Success || response.SessionId <= 0)
+            ChatSessionDto response = await _chatService.CreateSessionAsync(issueCategory);
+            if (response.Id <= 0)
             {
                 return;
             }
 
-            Frame?.Navigate(typeof(ChatView), response.SessionId);
+            Frame?.Navigate(typeof(ChatView), response.Id);
         }
         catch (Exception ex)
         {
@@ -57,7 +58,7 @@ public sealed partial class ChatRoutingView : Page
 
     private void SessionsList_ItemClick(object sender, ItemClickEventArgs e)
     {
-        if (e.ClickedItem is ChatSession session)
+        if (e.ClickedItem is ChatSessionDto session)
         {
             Frame?.Navigate(typeof(ChatView), session.Id);
         }

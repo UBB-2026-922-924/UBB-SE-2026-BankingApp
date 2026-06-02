@@ -4,11 +4,11 @@ using BankingApp.Contracts.Features.Statistics.Dtos;
 
 public interface IStatisticsRepoProxy
 {
-    Task<SpendingByCategoryResponse?> GetSpendingByCategoryAsync();
+    public Task<SpendingByCategoryResponse> GetSpendingByCategoryAsync();
 
-    Task<IncomeVsExpensesResponse?> GetIncomeVsExpensesAsync();
+    public Task<IncomeVsExpensesResponse> GetIncomeVsExpensesAsync();
 
-    Task<BalanceTrendsResponse?> GetBalanceTrendsAsync();
+    public Task<BalanceTrendsResponse> GetBalanceTrendsAsync();
 
-    Task<TopRecipientsResponse?> GetTopRecipientsAsync();
+    public Task<TopRecipientsResponse> GetTopRecipientsAsync();
 }

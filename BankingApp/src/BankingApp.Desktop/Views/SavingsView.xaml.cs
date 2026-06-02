@@ -7,9 +7,11 @@ using ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Domain.Aggregates.SavingsAggregate;
-using Domain.Aggregates.UserAggregate;
 using Session;
 
+/// <summary>
+///     Displays savings account workflows.
+/// </summary>
 public sealed partial class SavingsView
 {
     private const int FirstItemIndex = 0;
@@ -18,8 +20,12 @@ public sealed partial class SavingsView
     private const string OneTimeFrequencyTag = "OneTime";
     private readonly IAuthenticationSession _authenticationSession;
 
-    public SavingsViewModel? ViewModel => DataContext as SavingsViewModel;
+    internal SavingsViewModel ViewModel => (DataContext as SavingsViewModel)!;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="SavingsView" /> class.
+    /// </summary>
+    /// <param name="authenticationSession">The current authentication session.</param>
     public SavingsView(IAuthenticationSession authenticationSession)
     {
         _authenticationSession = authenticationSession;
@@ -35,8 +41,8 @@ public sealed partial class SavingsView
         {
             try
             {
-                int userId = _authenticationSession.CurrentUserId ?? throw new Exception("Current user id is null.");
-                ViewModel.CurrentUser = new User { Id = userId };
+                int userId = _authenticationSession.CurrentUserId ?? throw new InvalidOperationException("Current user id is null.");
+                ViewModel.CurrentUserId = userId;
 
                 await ViewModel.LoadAccountsAsync();
             }
@@ -53,8 +59,8 @@ public sealed partial class SavingsView
     }
 
     private async void OnTabSelectionChanged(
-        NavigationView sender,
-        NavigationViewSelectionChangedEventArgs args)
+        Microsoft.UI.Xaml.Controls.NavigationView sender,
+        Microsoft.UI.Xaml.Controls.NavigationViewSelectionChangedEventArgs args)
     {
         if (args.SelectedItem is not NavigationViewItem tab)
         {
@@ -290,7 +296,7 @@ public sealed partial class SavingsView
             return;
         }
 
-        await ViewModel.LoadAutoDepositAsync(ViewModel.SelectedAccount.IdentificationNumber);
+        await ViewModel.LoadAutoDepositAsync(ViewModel.SelectedAccount.Id);
 
         AutoDepositTitle.Text = ViewModel.ExistingLabel + " Auto Deposit";
         AutoDepositAmountTextBox.Text = ViewModel.AutoDepositAmountText;
@@ -471,7 +477,7 @@ public sealed partial class SavingsView
     {
         if (CloseDestComboBox.SelectedItem is SavingsAccount savingsAccount)
         {
-            ViewModel.SelectedCloseDestinationId = savingsAccount.IdentificationNumber;
+            ViewModel.SelectedCloseDestinationId = savingsAccount.Id;
         }
     }
 

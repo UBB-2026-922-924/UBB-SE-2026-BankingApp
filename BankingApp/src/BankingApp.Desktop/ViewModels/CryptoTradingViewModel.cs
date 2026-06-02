@@ -9,39 +9,57 @@ using Navigation;
 using Session;
 using Shared.Enums;
 
+/// <summary>
+///     Coordinates the crypto trading workflow.
+/// </summary>
 public partial class CryptoTradingViewModel : ObservableObject
 {
     private readonly IAuthenticationSession _authenticationSession;
     private readonly IInvestmentsRepoProxy _investmentsRepoProxy;
     private readonly IAppNavigationService _navigationService;
 
+    /// <summary>Gets or sets the selected asset ticker.</summary>
     [ObservableProperty]
-    private string _selectedTicker = "BTC";
+    public partial string SelectedTicker { get; set; } = "BTC";
 
+    /// <summary>Gets or sets the selected trade action.</summary>
     [ObservableProperty]
-    private string _actionType = "BUY";
+    public partial string ActionType { get; set; } = "BUY";
 
+    /// <summary>Gets or sets the entered quantity text.</summary>
     [ObservableProperty]
-    private string _quantityText = "0";
+    public partial string QuantityText { get; set; } = "0";
 
+    /// <summary>Gets or sets the current portfolio balance.</summary>
     [ObservableProperty]
-    private decimal _currentBalance;
+    public partial decimal CurrentBalance { get; set; }
 
+    /// <summary>Gets or sets the status message displayed to the user.</summary>
     [ObservableProperty]
-    private string _statusMessage = string.Empty;
+    public partial string StatusMessage { get; set; } = string.Empty;
 
+    /// <summary>Gets or sets the estimated trade fee.</summary>
     [ObservableProperty]
-    private decimal _estimatedFee;
+    public partial decimal EstimatedFee { get; set; }
 
+    /// <summary>Gets or sets the estimated total trade amount.</summary>
     [ObservableProperty]
-    private decimal _totalAmount;
+    public partial decimal TotalAmount { get; set; }
 
+    /// <summary>Gets or sets a value indicating whether a trade is processing.</summary>
     [ObservableProperty]
-    private bool _isProcessing;
+    public partial bool IsProcessing { get; set; }
 
+    /// <summary>Gets or sets the current investments state.</summary>
     [ObservableProperty]
-    private InvestmentsState _state = InvestmentsState.Idle;
+    public partial InvestmentsState State { get; set; } = InvestmentsState.Idle;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="CryptoTradingViewModel" /> class.
+    /// </summary>
+    /// <param name="authenticationSession">The current authentication session.</param>
+    /// <param name="investmentsRepoProxy">The investments HTTP proxy.</param>
+    /// <param name="navigationService">The application navigation service.</param>
     public CryptoTradingViewModel(
         IAuthenticationSession authenticationSession,
         IInvestmentsRepoProxy investmentsRepoProxy,
@@ -53,6 +71,7 @@ public partial class CryptoTradingViewModel : ObservableObject
         _ = LoadBalance();
     }
 
+    /// <summary>Navigates back to the investments view.</summary>
     public void NavigateBackToInvestments()
     {
         _navigationService.NavigateToContent<Views.InvestmentsView>();
@@ -62,6 +81,7 @@ public partial class CryptoTradingViewModel : ObservableObject
 
     partial void OnQuantityTextChanged(string value) => CalculateLiveTotals();
 
+    /// <summary>Executes the selected trade.</summary>
     [RelayCommand]
     public async Task ExecuteTradeAsync()
     {

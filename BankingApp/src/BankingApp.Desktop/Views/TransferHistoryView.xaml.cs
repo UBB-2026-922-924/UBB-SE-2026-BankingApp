@@ -18,6 +18,7 @@ public sealed partial class TransferHistoryView
     {
         InitializeComponent();
         ViewModel = viewModel;
+        DataContext = ViewModel;
         Loaded += OnPageLoaded;
     }
 

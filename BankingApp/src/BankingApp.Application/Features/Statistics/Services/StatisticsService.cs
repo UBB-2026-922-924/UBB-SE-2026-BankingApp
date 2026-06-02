@@ -1,5 +1,6 @@
 namespace BankingApp.Application.Features.Statistics.Services;
 
+using System.Globalization;
 using Contracts.Features.Statistics.Dtos;
 using Domain.Aggregates.AccountAggregate.Entities;
 using Domain.Enums;
@@ -24,7 +25,7 @@ public sealed class StatisticsService(
 
         decimal totalSpending = spendingTransactions.Sum(transaction => transaction.Amount.Amount);
         var categories = spendingTransactions
-            .GroupBy(transaction => transaction.CategoryId?.ToString() ?? "Uncategorized")
+            .GroupBy(transaction => transaction.CategoryId?.ToString(CultureInfo.InvariantCulture) ?? "Uncategorized")
             .Select(group => new CategorySpendingPointDto
             {
                 CategoryName = group.Key,

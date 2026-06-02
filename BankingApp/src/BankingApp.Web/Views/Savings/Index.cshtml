@@ -194,7 +194,7 @@
                                 </article>
                                 <article class="info-card">
                                     <span>Funding source</span>
-                                    <strong>@(selectedAccount.FundingAccount?.AccountName ?? "Not linked")</strong>
+                                    <strong>@(selectedAccount.FundingAccountId?.ToString() ?? "Not linked")</strong>
                                     <p>Default source for opening and future movements.</p>
                                 </article>
                                 <article class="info-card">
@@ -305,7 +305,7 @@
                                 @Html.AntiForgeryToken()
                                 <input asp-for="CloseAccount.AccountId" type="hidden" />
 
-                                @if (string.Equals(selectedAccount.SavingsType, "FixedDeposit", StringComparison.OrdinalIgnoreCase) && selectedAccount.MaturityDate.HasValue && selectedAccount.MaturityDate.Value > DateTime.UtcNow)
+                                @if (string.Equals(selectedAccount.SavingsType.ToString(), "FixedDeposit", StringComparison.OrdinalIgnoreCase) && selectedAccount.MaturityDate.HasValue && selectedAccount.MaturityDate.Value > DateTime.UtcNow)
                                 {
                                     <div class="alert alert-danger mb-0">
                                         This fixed deposit has not reached maturity yet. Closing it may apply an early penalty.

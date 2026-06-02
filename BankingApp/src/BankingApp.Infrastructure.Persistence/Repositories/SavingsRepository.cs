@@ -178,14 +178,24 @@ public sealed class SavingsRepository(AppDbContext dbContext) : ISavingsReposito
 
     public async Task<IReadOnlyCollection<(int Id, string DisplayName)>> GetFundingSourcesAsync(int userId, CancellationToken cancellationToken)
     {
-        return await dbContext.Accounts
+        var accounts = await dbContext.Accounts
             .AsNoTracking()
-            .Where(a => a.UserId == userId && a.Status != ClosedStatus)
+            .Where(a => a.UserId == userId && a.Status != AccountStatus.Closed)
             .OrderBy(a => a.Id)
+            .Select(a => new
+            {
+                a.Id,
+                a.AccountName,
+                a.AccountType,
+                Iban = a.Iban.Value,
+            })
+            .ToListAsync(cancellationToken);
+
+        return accounts
             .Select(a => ValueTuple.Create(
                 a.Id,
-                (a.AccountName ?? a.AccountType) + " •" + a.Iban.Value.Substring(a.Iban.Value.Length - 4)))
-            .ToListAsync(cancellationToken);
+                string.Concat(a.AccountName ?? a.AccountType.ToString(), " •", a.Iban.AsSpan(a.Iban.Length - 4))))
+            .ToList();
     }
 
     public async Task<(IReadOnlyCollection<SavingsTransaction> Items, int TotalCount)> GetTransactionsPagedAsync(

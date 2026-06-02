@@ -1,22 +1,23 @@
 namespace BankingApp.Desktop.Shared.Converters;
 
 using System;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 
 /// <summary>
-///     Checks whether a filter value matches a converter parameter.
+///     Converts nullable values to visible/collapsed state.
 /// </summary>
-public sealed partial class FilterMatchToBooleanConverter : IValueConverter
+public sealed partial class NullToVisibilityConverter : IValueConverter
 {
     /// <inheritdoc />
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        return string.Equals(value?.ToString(), parameter?.ToString(), StringComparison.OrdinalIgnoreCase);
+        return value is null ? Visibility.Collapsed : Visibility.Visible;
     }
 
     /// <inheritdoc />
     public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
-        return value is true ? parameter?.ToString() ?? string.Empty : string.Empty;
+        throw new NotSupportedException();
     }
 }

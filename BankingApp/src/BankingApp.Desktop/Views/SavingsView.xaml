@@ -6,7 +6,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:BankingApp.Models.Features.Savings"
     xmlns:utils="using:BankingApp.Desktop.Shared.Converters"
     mc:Ignorable="d">
 
@@ -120,7 +119,7 @@
                 <ScrollViewer Visibility="{Binding ShowAccountsList, Converter={StaticResource BoolToVisibility}}">
                     <ItemsControl ItemsSource="{Binding SavingsAccounts}" Margin="0,8,0,0">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="models:SavingsAccount">
+                            <DataTemplate>
                                 <Border Margin="0,0,0,12" Padding="20" CornerRadius="8"
                                         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
@@ -138,14 +137,14 @@
                                         </Grid.RowDefinitions>
 
                                         <TextBlock Grid.Row="0" Grid.Column="0"
-                                                   Text="{x:Bind AccountName}"
+                                                   Text="{Binding AccountName}"
                                                    FontSize="16" FontWeight="SemiBold" />
 
                                         <Border Grid.Row="0" Grid.Column="1"
                                                 CornerRadius="12" Padding="10,4"
                                                 VerticalAlignment="Top"
-                                                Background="{x:Bind DisplayStatus, Converter={StaticResource StatusToBrush}}">
-                                            <TextBlock Text="{x:Bind DisplayStatus}"
+                                                Background="{Binding DisplayStatus, Converter={StaticResource StatusToBrush}}">
+                                            <TextBlock Text="{Binding DisplayStatus}"
                                                        FontSize="12" FontWeight="SemiBold" Foreground="White" />
                                         </Border>
 
@@ -161,25 +160,25 @@
 
                                             <TextBlock Grid.Row="0" Grid.Column="0" FontSize="13"
                                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}">
-                                                <Run Text="Type: " /><Run Text="{x:Bind SavingsType}" />
+                                                <Run Text="Type: " /><Run Text="{Binding SavingsType}" />
                                             </TextBlock>
                                             <TextBlock Grid.Row="0" Grid.Column="1" FontSize="13"
                                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}">
-                                                <Run Text="APY: " /><Run Text="{x:Bind AnnualPercentageYield}" />
+                                                <Run Text="APY: " /><Run Text="{Binding AnnualPercentageYield}" />
                                             </TextBlock>
                                             <TextBlock Grid.Row="1" Grid.ColumnSpan="2" FontSize="13"
                                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}">
                                                 <Run Text="Est. monthly: $" />
-                                                <Run Text="{x:Bind MonthlyInterestProjection}" />
+                                                <Run Text="{Binding MonthlyInterestProjection}" />
                                             </TextBlock>
                                         </Grid>
 
                                         <TextBlock Grid.Row="2" Grid.ColumnSpan="2"
-                                                   Text="{x:Bind FormattedBalance}"
+                                                   Text="{Binding FormattedBalance}"
                                                    FontSize="24" FontWeight="Bold" Margin="0,8,0,0" />
 
                                         <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Margin="0,10,0,0"
-                                                    Visibility="{x:Bind TargetAmount, Converter={StaticResource NullToVisibility}}">
+                                                    Visibility="{Binding TargetAmount, Converter={StaticResource NullToVisibility}}">
                                             <Grid Margin="0,0,0,4">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*" />
@@ -189,11 +188,11 @@
                                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
                                                 <TextBlock Grid.Column="1" FontSize="12"
                                                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}">
-                                                    <Run Text="{x:Bind ProgressPercent, Mode=OneWay}" />
+                                                    <Run Text="{Binding ProgressPercent, Mode=OneWay}" />
                                                     <Run Text="%" />
                                                 </TextBlock>
                                             </Grid>
-                                            <ProgressBar Value="{x:Bind ProgressPercent, Mode=OneWay}"
+                                            <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}"
                                                          Minimum="0" Maximum="100" Height="6" CornerRadius="3" />
                                         </StackPanel>
                                     </Grid>

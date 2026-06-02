@@ -136,12 +136,12 @@
 
                     <ItemsControl x:Name="CardsList">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="local:CardDetailsDto">
+                            <DataTemplate>
                                 <Border Margin="0,0,0,16"
                                         CornerRadius="16"
                                         Background="White"
                                         BorderThickness="0"
-                                        Opacity="{x:Bind DisplayOpacity}">
+                                        Opacity="{Binding DisplayOpacity}">
                                     <Border.Shadow>
                                         <ThemeShadow />
                                     </Border.Shadow>
@@ -167,7 +167,7 @@
                                                     <TextBlock Text="BankingApp"
                                                                FontSize="16" FontWeight="Bold"
                                                                Foreground="White" />
-                                                    <TextBlock Text="{x:Bind BrandDisplay}"
+                                                    <TextBlock Text="{Binding BrandDisplay}"
                                                                FontSize="13" FontWeight="SemiBold"
                                                                Foreground="White" Opacity="0.9"
                                                                HorizontalAlignment="Right"
@@ -177,7 +177,7 @@
                                                 <!-- Card number row with reveal toggle -->
                                                 <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="4">
                                                     <TextBlock x:Name="CardNumberDisplay"
-                                                               Text="{x:Bind CardNumber}"
+                                                               Text="{Binding CardNumber}"
                                                                FontSize="18" FontWeight="SemiBold"
                                                                Foreground="White"
                                                                FontFamily="Consolas"
@@ -185,7 +185,7 @@
                                                     <StackPanel Orientation="Horizontal" Spacing="10">
                                                         <Button x:Name="ToggleCardNumberBtn"
                                                                 Content="Show card number"
-                                                                Tag="{x:Bind}"
+                                                                Tag="{Binding}"
                                                                 Click="ToggleCardNumber_Click"
                                                                 Background="Transparent"
                                                                 Foreground="White" Opacity="0.75"
@@ -193,7 +193,7 @@
                                                                 Padding="0" FontSize="11" />
                                                         <Button x:Name="ToggleCvvBtn"
                                                                 Content="Show security code"
-                                                                Tag="{x:Bind}"
+                                                                Tag="{Binding}"
                                                                 Click="ToggleCvv_Click"
                                                                 Background="Transparent"
                                                                 Foreground="White" Opacity="0.75"
@@ -210,7 +210,7 @@
 
                                                 <!-- Cardholder + expiry -->
                                                 <Grid Grid.Row="2">
-                                                    <TextBlock Text="{x:Bind CardholderName}"
+                                                    <TextBlock Text="{Binding CardholderName}"
                                                                FontSize="13" Foreground="White"
                                                                Opacity="0.9" />
                                                     <StackPanel HorizontalAlignment="Right"
@@ -218,7 +218,7 @@
                                                         <TextBlock Text="EXPIRES"
                                                                    FontSize="9" Foreground="White"
                                                                    Opacity="0.7" />
-                                                        <TextBlock Text="{x:Bind ExpiryDisplay}"
+                                                        <TextBlock Text="{Binding ExpiryDisplay}"
                                                                    FontSize="13" FontWeight="SemiBold"
                                                                    Foreground="White" />
                                                     </StackPanel>
@@ -237,10 +237,10 @@
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel Grid.Column="0" Spacing="2">
                                                     <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                                        <TextBlock Text="{x:Bind AccountIban}"
+                                                        <TextBlock Text="{Binding AccountIban}"
                                                                    FontSize="13" Foreground="#667085"
                                                                    VerticalAlignment="Center" />
-                                                        <Button Tag="{x:Bind AccountIban}"
+                                                        <Button Tag="{Binding AccountIban}"
                                                                 Click="CopyIban_Click"
                                                                 Background="Transparent"
                                                                 BorderThickness="0"
@@ -251,14 +251,14 @@
                                                                       FontSize="12" Foreground="#94A3B8" />
                                                         </Button>
                                                     </StackPanel>
-                                                    <TextBlock Text="{x:Bind CardType}"
+                                                    <TextBlock Text="{Binding CardType}"
                                                                FontSize="12" Foreground="#94A3B8" />
                                                 </StackPanel>
                                                 <Border Grid.Column="1"
                                                         CornerRadius="20"
                                                         Padding="12,5"
                                                         Background="#EFF4FF">
-                                                    <TextBlock Text="{x:Bind Status}"
+                                                    <TextBlock Text="{Binding Status}"
                                                                FontSize="12" FontWeight="SemiBold"
                                                                Foreground="#2563EB" />
                                                 </Border>
@@ -266,7 +266,7 @@
 
                                             <!-- Account balance -->
                                             <StackPanel Orientation="Horizontal" Spacing="6">
-                                                <TextBlock Text="{x:Bind BalanceDisplay}"
+                                                <TextBlock Text="{Binding BalanceDisplay}"
                                                            FontSize="15" FontWeight="SemiBold"
                                                            Foreground="#1A1A2E" />
                                                 <TextBlock Text="account balance"
@@ -301,8 +301,8 @@
                                             <StackPanel Orientation="Horizontal" Spacing="10">
                                                 <Button Content="Freeze"
                                                         Click="FreezeButton_Click"
-                                                        Tag="{x:Bind}"
-                                                        IsEnabled="{x:Bind CanFreeze}"
+                                                        Tag="{Binding}"
+                                                        IsEnabled="{Binding CanFreeze}"
                                                         Background="#EFF4FF"
                                                         Foreground="#2563EB"
                                                         BorderThickness="0"
@@ -311,8 +311,8 @@
                                                         FontSize="13" />
                                                 <Button Content="Unfreeze"
                                                         Click="UnfreezeButton_Click"
-                                                        Tag="{x:Bind}"
-                                                        IsEnabled="{x:Bind CanUnfreeze}"
+                                                        Tag="{Binding}"
+                                                        IsEnabled="{Binding CanUnfreeze}"
                                                         Background="#ECFDF5"
                                                         Foreground="#059669"
                                                         BorderThickness="0"
@@ -321,8 +321,8 @@
                                                         FontSize="13" />
                                                 <Button Content="Cancel Card"
                                                         Click="CancelButton_Click"
-                                                        Tag="{x:Bind}"
-                                                        IsEnabled="{x:Bind CanCancel}"
+                                                        Tag="{Binding}"
+                                                        IsEnabled="{Binding CanCancel}"
                                                         Background="#FEF2F2"
                                                         Foreground="#DC2626"
                                                         BorderThickness="0"
@@ -355,3 +355,4 @@
     </Grid>
 
 </Page>
+

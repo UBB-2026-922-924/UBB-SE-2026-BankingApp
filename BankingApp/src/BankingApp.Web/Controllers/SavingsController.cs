@@ -387,7 +387,7 @@ public class SavingsController(
 
     private static void NormalizeCreateAccountForm(
         SavingsCreateAccountFormModel createAccount,
-        IReadOnlyList<FundingSourceOption> fundingSources)
+        List<FundingSourceOption> fundingSources)
     {
         createAccount.SelectedSavingsType = createAccount.SelectedSavingsType?.Trim() ?? string.Empty;
         createAccount.AccountName = createAccount.AccountName?.Trim() ?? string.Empty;

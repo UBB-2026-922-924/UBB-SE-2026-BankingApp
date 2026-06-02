@@ -4,8 +4,15 @@ using ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
+/// <summary>
+///     Displays investment portfolio holdings.
+/// </summary>
 public sealed partial class InvestmentsView : Page
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="InvestmentsView" /> class.
+    /// </summary>
+    /// <param name="viewModel">The investments view model.</param>
     public InvestmentsView(InvestmentsViewModel viewModel)
     {
         InitializeComponent();
@@ -17,7 +24,7 @@ public sealed partial class InvestmentsView : Page
         Unloaded += OnPageUnloaded;
     }
 
-    public InvestmentsViewModel ViewModel { get; }
+    internal InvestmentsViewModel ViewModel { get; }
 
     private void OnPageLoaded(object sender, RoutedEventArgs e)
     {

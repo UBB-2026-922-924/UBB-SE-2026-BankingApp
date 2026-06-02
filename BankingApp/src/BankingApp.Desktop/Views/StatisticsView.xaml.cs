@@ -4,8 +4,15 @@ using ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
+/// <summary>
+///     Displays spending and balance statistics.
+/// </summary>
 public sealed partial class StatisticsView
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="StatisticsView" /> class.
+    /// </summary>
+    /// <param name="viewModel">The statistics view model.</param>
     public StatisticsView(StatisticsViewModel viewModel)
     {
         InitializeComponent();
@@ -15,7 +22,7 @@ public sealed partial class StatisticsView
         Unloaded += StatisticsView_Unloaded;
     }
 
-    public StatisticsViewModel ViewModel { get; }
+    internal StatisticsViewModel ViewModel { get; }
 
     private async void StatisticsView_Loaded(object sender, RoutedEventArgs e)
     {

@@ -30,12 +30,7 @@ public static class AmortizationCalculator
         monthlyInstallment = Math.Round(monthlyInstallment, CurrencyPrecisionDigits);
         decimal totalRepayable = Math.Round(monthlyInstallment * termMonths, CurrencyPrecisionDigits);
 
-        return new LoanEstimate
-        {
-            IndicativeRate = annualRate,
-            MonthlyInstallment = monthlyInstallment,
-            TotalRepayable = totalRepayable,
-        };
+        return new LoanEstimate(annualRate, monthlyInstallment, totalRepayable);
     }
 
     public static decimal ComputeRepaymentProgress(decimal principal, decimal outstandingBalance)

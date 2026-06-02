@@ -6,17 +6,17 @@ using BankingApp.Contracts.Features.Investments;
 
 public interface ISavingsWorkflowRepoProxy
 {
-    Task<FundingSourceOption> GetDefaultFundingSource(IEnumerable<FundingSourceOption> fundingSources);
+    public Task<FundingSourceOption> GetDefaultFundingSource(IEnumerable<FundingSourceOption> fundingSources);
 
-    Task<int> GetDefaultCloseDestinationId(IEnumerable<SavingsAccount> destinationAccounts);
+    public Task<int> GetDefaultCloseDestinationId(IEnumerable<SavingsAccount> destinationAccounts);
 
-    Task<ValidationResponse> ValidateWithdrawRequest(decimal amount, FundingSourceOption? destination);
+    public Task<ValidationResponse> ValidateWithdrawRequest(decimal amount, FundingSourceOption? destination);
 
-    Task<string> BuildWithdrawResultMessage(WithdrawResponseDto response);
+    public Task<string> BuildWithdrawResultMessage(WithdrawResponseDto response);
 
-    Task<ValidationResponse> ValidateCloseConfirmation(bool userConfirmed, int destinationId);
+    public Task<ValidationResponse> ValidateCloseConfirmation(bool userConfirmed, int destinationId);
 
-    Task<bool> CanMoveToNextPage(int currentPage, int totalPages);
+    public Task<bool> CanMoveToNextPage(int currentPage, int totalPages);
 
-    Task<bool> CanMoveToPreviousPage(int currentPage);
+    public Task<bool> CanMoveToPreviousPage(int currentPage);
 }

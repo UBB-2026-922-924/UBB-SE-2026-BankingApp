@@ -1,4 +1,4 @@
-﻿namespace BankingApp.Desktop.ViewModels;
+namespace BankingApp.Desktop.ViewModels;
 
 using System;
 using System.Collections.Generic;
@@ -17,6 +17,9 @@ using Domain.Aggregates.SavingsAggregate.Entities;
 using Infrastructure.Http.Features.Savings.Services;
 using Shared.Enums;
 
+/// <summary>
+///     Coordinates savings account display and account workflows.
+/// </summary>
 public partial class SavingsViewModel : ObservableObject, IDisposable
 {
     private const int InitialPage = 1;
@@ -31,144 +34,154 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
     private readonly ISavingsWorkflowRepoProxy _savingsWorkflowRepoProxy;
 
     [ObservableProperty]
-    private string _accountName = string.Empty;
+    public partial string AccountName { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _autoDepositAmountText = string.Empty;
+    public partial string AutoDepositAmountText { get; set; } = string.Empty;
     [ObservableProperty]
-    private string _autoDepositFrequency = string.Empty;
+    public partial string AutoDepositFrequency { get; set; } = string.Empty;
     [ObservableProperty]
-    private bool _autoDepositIsActive = true;
+    public partial bool AutoDepositIsActive { get; set; } = true;
     [ObservableProperty]
-    private string _autoDepositSaveMessage = string.Empty;
+    public partial string AutoDepositSaveMessage { get; set; } = string.Empty;
     [ObservableProperty]
-    private DateTimeOffset? _autoDepositStartDate = DateTimeOffset.Now.AddDays(InitialAutoDepositDelayDays);
+    public partial DateTimeOffset? AutoDepositStartDate { get; set; } = DateTimeOffset.Now.AddDays(InitialAutoDepositDelayDays);
     [ObservableProperty]
-    private string _bestInterestRate = string.Empty;
+    public partial string BestInterestRate { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<SavingsAccount> _closeDestinationAccounts = new ObservableCollection<SavingsAccount>();
+    public partial ObservableCollection<SavingsAccount> CloseDestinationAccounts { get; set; } = new ObservableCollection<SavingsAccount>();
 
     [ObservableProperty]
-    private string _closeResultMessage = string.Empty;
+    public partial string CloseResultMessage { get; set; } = string.Empty;
     [ObservableProperty]
-    private bool _closeSuccess;
+    public partial bool CloseSuccess { get; set; }
 
     private bool _closeUserConfirmed;
 
     private AutoDeposit? _currentAutoDeposit;
 
     [ObservableProperty]
-    private int _currentPage = InitialPage;
+    public partial int CurrentPage { get; set; } = InitialPage;
 
     [ObservableProperty]
-    private string _depositAmountText = string.Empty;
+    public partial string DepositAmountText { get; set; } = string.Empty;
 
     private CancellationTokenSource? _depositCancelationTokenSource;
 
     [ObservableProperty]
-    private string _depositSource = string.Empty;
+    public partial string DepositSource { get; set; } = string.Empty;
     [ObservableProperty]
-    private string _depositSuccessMessage = string.Empty;
+    public partial string DepositSuccessMessage { get; set; } = string.Empty;
     [ObservableProperty]
-    private ObservableCollection<FundingSourceOption> _fundingSources = new ObservableCollection<FundingSourceOption>();
+    public partial ObservableCollection<FundingSourceOption> FundingSources { get; set; } = new ObservableCollection<FundingSourceOption>();
     [ObservableProperty]
-    private bool _hasExistingAutoDeposit;
+    public partial bool HasExistingAutoDeposit { get; set; }
     [ObservableProperty]
-    private string _initialDepositText = string.Empty;
+    public partial string InitialDepositText { get; set; } = string.Empty;
     [ObservableProperty]
-    private string _numberOfAccountsText = string.Empty;
+    public partial string NumberOfAccountsText { get; set; } = string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmpty))]
     [NotifyPropertyChangedFor(nameof(ShowAccountsList))]
-    private ObservableCollection<SavingsAccount> _savingsAccounts = new ObservableCollection<SavingsAccount>();
+    public partial ObservableCollection<SavingsAccount> SavingsAccounts { get; set; } = new ObservableCollection<SavingsAccount>();
 
     [ObservableProperty]
-    private SavingsAccount? _selectedAccount;
+    public partial SavingsAccount? SelectedAccount { get; set; }
 
     private int _selectedCloseDestinationId;
 
-    [ObservableProperty] private string _selectedFilter = "All";
+    [ObservableProperty]
+    public partial string SelectedFilter { get; set; } = "All";
 
-    [ObservableProperty] private string _selectedFrequency = string.Empty;
-    [ObservableProperty] private FundingSourceOption? _selectedFundingSource;
+    [ObservableProperty]
+    public partial string SelectedFrequency { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial FundingSourceOption? SelectedFundingSource { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsGoalSavings))]
     [NotifyPropertyChangedFor(nameof(IsFixedDeposit))]
-    private string _selectedSavingsType = string.Empty;
+    public partial string SelectedSavingsType { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool _showCreateConfirmation;
+    public partial bool ShowCreateConfirmation { get; set; }
     [ObservableProperty]
-    private bool _showDepositSuccess;
+    public partial bool ShowDepositSuccess { get; set; }
     [ObservableProperty]
-    private decimal? _targetAmount;
+    public partial decimal? TargetAmount { get; set; }
     [ObservableProperty]
-    private DateTimeOffset? _targetDate;
+    public partial DateTimeOffset? TargetDate { get; set; }
 
     [ObservableProperty]
-    private int _totalPages;
+    public partial int TotalPages { get; set; }
 
     [ObservableProperty]
-    private string _totalSavedAmount = string.Empty;
+    public partial string TotalSavedAmount { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<SavingsTransaction> _transactions = new ObservableCollection<SavingsTransaction>();
+    public partial ObservableCollection<SavingsTransaction> Transactions { get; set; } = new ObservableCollection<SavingsTransaction>();
 
     [ObservableProperty]
-    private string _withdrawAmountText = string.Empty;
+    public partial string WithdrawAmountText { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private FundingSourceOption? _withdrawDestination;
+    public partial FundingSourceOption? WithdrawDestination { get; set; }
     [ObservableProperty]
-    private string _withdrawResultMessage = string.Empty;
+    public partial string WithdrawResultMessage { get; set; } = string.Empty;
     [ObservableProperty]
-    private bool _withdrawSuccess;
+    public partial bool WithdrawSuccess { get; set; }
     [ObservableProperty]
-    private bool _isLoading;
+    public partial bool IsLoading { get; set; }
     [ObservableProperty]
-    private User _currentUser;
+    public partial int CurrentUserId { get; set; }
     [ObservableProperty]
-    private string _errorMessage;
+    public partial string ErrorMessage { get; set; } = string.Empty;
     [ObservableProperty]
-    private bool _hasError;
+    public partial bool HasError { get; set; }
 
     [ObservableProperty]
-    private string _livePreview = string.Empty;
+    public partial string LivePreview { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool _withdrawHasEarlyRisk;
+    public partial bool WithdrawHasEarlyRisk { get; set; }
 
     [ObservableProperty]
-    private bool _withdrawHasPenalty;
+    public partial bool WithdrawHasPenalty { get; set; }
 
     [ObservableProperty]
-    private decimal _withdrawEstimatedPenalty;
+    public partial decimal WithdrawEstimatedPenalty { get; set; }
 
     [ObservableProperty]
-    private decimal _withdrawNetAmount;
+    public partial decimal WithdrawNetAmount { get; set; }
 
     [ObservableProperty]
-    private string _withdrawPenaltyBreakdownText = string.Empty;
+    public partial string WithdrawPenaltyBreakdownText { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _withdrawNetAmountText = string.Empty;
+    public partial string WithdrawNetAmountText { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _withdrawPenaltySummary = string.Empty;
+    public partial string WithdrawPenaltySummary { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool _closeHasPenalty;
+    public partial bool CloseHasPenalty { get; set; }
 
     [ObservableProperty]
-    private SavingsState _state = SavingsState.Idle;
+    public partial SavingsState State { get; set; } = SavingsState.Idle;
 
     private string _pendingTargetAmountText = string.Empty;
 
     private bool _isBusy;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="SavingsViewModel" /> class.
+    /// </summary>
+    /// <param name="savingsRepoProxy">The savings HTTP proxy.</param>
+    /// <param name="savingsWorkflowRepoProxy">The savings workflow proxy.</param>
+    /// <param name="savingsUiRulesRepoProxy">The savings UI rules proxy.</param>
+    /// <param name="savingsPresentationRepoProxy">The savings presentation proxy.</param>
     public SavingsViewModel(
         ISavingsRepoProxy savingsRepoProxy,
         ISavingsWorkflowRepoProxy savingsWorkflowRepoProxy,
@@ -181,20 +194,28 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         this._savingsPresentationRepoProxy = savingsPresentationRepoProxy ?? throw new ArgumentNullException(nameof(savingsPresentationRepoProxy));
     }
 
+    /// <summary>Gets a value indicating whether no savings accounts are loaded.</summary>
     public bool IsEmpty => !SavingsAccounts.Any();
 
+    /// <summary>Gets a value indicating whether the account list should be shown.</summary>
     public bool ShowAccountsList => SavingsAccounts.Any();
 
+    /// <summary>Gets a value indicating whether the selected account type is goal savings.</summary>
     public bool IsGoalSavings => SelectedSavingsType == "GoalSavings";
 
+    /// <summary>Gets a value indicating whether the selected account type is fixed deposit.</summary>
     public bool IsFixedDeposit => SelectedSavingsType == "FixedDeposit";
 
+    /// <summary>Gets validation errors keyed by form field.</summary>
     public Dictionary<string, string> FieldErrors { get; } = new Dictionary<string, string>();
 
+    /// <summary>Gets the auto deposit setup label.</summary>
     public string ExistingLabel => HasExistingAutoDeposit ? "Modify" : "Set Up";
 
+    /// <summary>Gets or sets the fixed deposit maturity date.</summary>
     public DateTimeOffset? MaturityDate { get; set; }
 
+    /// <summary>Gets or sets the selected close destination account id.</summary>
     public int SelectedCloseDestinationId
     {
         get => _selectedCloseDestinationId;
@@ -205,6 +226,7 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Gets or sets a value indicating whether the user confirmed account closure.</summary>
     public bool CloseUserConfirmed
     {
         get => _closeUserConfirmed;
@@ -375,11 +397,12 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Loads funding sources for the current user.</summary>
     public async Task LoadFundingSourcesAsync()
     {
         try
         {
-            List<FundingSourceOption> fundingSourcesList = await _savingsRepoProxy.GetFundingSourcesAsync(CurrentUser.Id);
+            List<FundingSourceOption> fundingSourcesList = await _savingsRepoProxy.GetFundingSourcesAsync(CurrentUserId);
             FundingSources.Clear();
             foreach (FundingSourceOption fundingSource in fundingSourcesList)
             {
@@ -394,6 +417,15 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Copies create-account form values into the view model before submission.</summary>
+    /// <param name="selectedSavingsType">The selected savings account type.</param>
+    /// <param name="selectedFrequency">The selected deposit frequency.</param>
+    /// <param name="accountName">The account name.</param>
+    /// <param name="initialDepositText">The initial deposit text.</param>
+    /// <param name="fundingSource">The selected funding source.</param>
+    /// <param name="targetAmountText">The target amount text.</param>
+    /// <param name="targetDate">The optional target date.</param>
+    /// <param name="maturityDate">The optional maturity date.</param>
     public void PrepareCreateAccountSubmission(
         string selectedSavingsType,
         string selectedFrequency,
@@ -458,7 +490,7 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
 
         OnPropertyChanged(nameof(FieldErrors));
 
-        return !FieldErrors.Any();
+        return FieldErrors.Count == 0;
     }
 
     private async Task ExecuteCreateAccountAsync()
@@ -470,7 +502,7 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
 
             var createSavingsAccountDto = new CreateSavingsAccountDto
             {
-                UserIdentificationNumber = CurrentUser.Id,
+                UserIdentificationNumber = CurrentUserId,
                 SavingsType = SelectedSavingsType,
                 AccountName = AccountName.Trim(),
                 InitialDeposit = deposit,
@@ -502,6 +534,7 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Creates a savings account from the current form values.</summary>
     [RelayCommand]
     public async Task CreateAccountAsync()
     {
@@ -543,6 +576,7 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         FieldErrors.Clear();
     }
 
+    /// <summary>Deposits funds into the selected savings account.</summary>
     [RelayCommand]
     public async Task DepositAsync()
     {
@@ -581,7 +615,7 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
             try
             {
                 DepositResponseDto depositResponseDto = await _savingsRepoProxy.DepositAsync(
-                    SelectedAccount.IdentificationNumber,
+                    SelectedAccount.Id,
                     amount,
                     DepositSource);
 
@@ -605,11 +639,13 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Cancels the in-flight deposit operation.</summary>
     public void CancelDeposit()
     {
         _depositCancelationTokenSource?.Cancel();
     }
 
+    /// <summary>Loads savings accounts for the current user.</summary>
     [RelayCommand]
     public async Task LoadAccountsAsync()
     {
@@ -618,7 +654,7 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         try
         {
             State = SavingsState.Loading;
-            List<SavingsAccount> accountsList = await _savingsRepoProxy.GetSavingsAccountsByUserIdAsync(CurrentUser.Id);
+            List<SavingsAccount> accountsList = await _savingsRepoProxy.GetSavingsAccountsByUserIdAsync(CurrentUserId);
             SavingsAccounts.Clear();
             foreach (SavingsAccount account in accountsList)
             {
@@ -647,6 +683,8 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Closes the specified savings account.</summary>
+    /// <param name="account">The account to close.</param>
     [RelayCommand]
     public async Task CloseAccountAsync(SavingsAccount account)
     {
@@ -655,7 +693,7 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         try
         {
             ClosureResultDto closureResultDto = await _savingsRepoProxy.CloseSavingsAccountAsync(
-                account.IdentificationNumber,
+                account.Id,
                 SelectedCloseDestinationId,
                 0m,
                 0m);
@@ -678,14 +716,15 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Loads accounts that can receive funds from the account being closed.</summary>
     public async Task LoadCloseDestinationAccountsAsync()
     {
         CloseUserConfirmed = false;
         CloseResultMessage = string.Empty;
         CloseSuccess = false;
         List<SavingsAccount> openAccountsList = await _savingsRepoProxy.GetValidTransferDestinationsAsync(
-            SelectedAccount!.IdentificationNumber,
-            CurrentUser.Id);
+            SelectedAccount!.Id,
+            CurrentUserId);
         CloseDestinationAccounts.Clear();
         foreach (SavingsAccount account in openAccountsList)
         {
@@ -697,6 +736,8 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(CloseHasPenalty));
     }
 
+    /// <summary>Confirms and executes account closure.</summary>
+    /// <returns>True when the account was closed successfully.</returns>
     public async Task<bool> ConfirmCloseAsync()
     {
         ValidationResponse closeValidation = await _savingsWorkflowRepoProxy.ValidateCloseConfirmation(
@@ -712,7 +753,7 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         try
         {
             ClosureResultDto result = await _savingsRepoProxy.CloseSavingsAccountAsync(
-                SelectedAccount!.IdentificationNumber,
+                SelectedAccount!.Id,
                 SelectedCloseDestinationId,
                 0m,
                 0m);
@@ -764,9 +805,9 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         try
         {
             WithdrawResponseDto response = await _savingsRepoProxy.WithdrawAsync(
-                SelectedAccount!.IdentificationNumber,
+                SelectedAccount!.Id,
                 amount,
-                WithdrawDestination.DisplayName,
+                WithdrawDestination!.DisplayName,
                 0m);
             WithdrawSuccess = response.Success;
             WithdrawResultMessage = await _savingsWorkflowRepoProxy.BuildWithdrawResultMessage(response);
@@ -788,6 +829,8 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Confirms and executes a withdrawal from the selected account.</summary>
+    /// <returns>True when the withdrawal completed successfully.</returns>
     public async Task<bool> ConfirmWithdrawAsync()
     {
         if (_isBusy)
@@ -814,6 +857,8 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Loads auto deposit settings for an account.</summary>
+    /// <param name="accountId">The account id.</param>
     public async Task LoadAutoDepositAsync(int accountId)
     {
         AutoDepositSaveMessage = string.Empty;
@@ -836,6 +881,7 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Saves auto deposit settings for the selected account.</summary>
     public async Task SaveAutoDepositAsync()
     {
         ErrorMessage = string.Empty;
@@ -869,40 +915,43 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var autoDeposit = new AutoDeposit
-        {
-            Id = _currentAutoDeposit?.Id ?? default,
-            SavingsAccountId = SelectedAccount!.IdentificationNumber,
-            Amount = amount,
-            Frequency = frequency,
-            NextRunDate = AutoDepositStartDate?.DateTime ?? DateTime.Now.AddDays(InitialAutoDepositDelayDays),
-            IsActive = AutoDepositIsActive,
-            SourceAccountId = SelectedAccount.FundingAccount?.Id,
-        };
+        var autoDeposit = AutoDeposit.Reconstitute(
+            _currentAutoDeposit?.Id ?? 0,
+            SelectedAccount!.Id,
+            amount,
+            frequency,
+            AutoDepositStartDate?.DateTime ?? DateTime.Now.AddDays(InitialAutoDepositDelayDays),
+            AutoDepositIsActive,
+            SelectedAccount.FundingAccountId,
+            dayOfMonth: null,
+            dayOfWeek: null,
+            updatedAt: null);
 
         await _savingsRepoProxy.SaveAutoDepositAsync(autoDeposit);
         AutoDepositSaveMessage = "Auto deposit saved successfully.";
-        await LoadAutoDepositAsync(SelectedAccount.IdentificationNumber);
+        await LoadAutoDepositAsync(SelectedAccount.Id);
     }
 
+    /// <summary>Loads savings transactions for an account.</summary>
+    /// <param name="accountId">The account id.</param>
     public async Task LoadTransactionsAsync(int accountId)
     {
         try
         {
             GetTransactionsResponse result = await _savingsRepoProxy.GetTransactionsAsync(
                 accountId,
-                _selectedFilter,
-                _currentPage,
+                SelectedFilter,
+                CurrentPage,
                 DefaultTransactionPageSize);
 
-            _transactions.Clear();
+            Transactions.Clear();
 
             foreach (SavingsTransaction transaction in result.Items)
             {
-                _transactions.Add(transaction);
+                Transactions.Add(transaction);
             }
 
-            _totalPages = await _savingsUiRulesRepoProxy.GetTotalPages(result.TotalCount, DefaultTransactionPageSize);
+            TotalPages = await _savingsUiRulesRepoProxy.GetTotalPages(result.TotalCount, DefaultTransactionPageSize);
         }
         catch (Exception exception) when (
         exception is InvalidOperationException
@@ -912,38 +961,46 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Moves to the next transactions page.</summary>
+    /// <param name="accountId">The account id.</param>
     public async Task NextPage(int accountId)
     {
-        if (!await _savingsWorkflowRepoProxy.CanMoveToNextPage(_currentPage, _totalPages))
+        if (!await _savingsWorkflowRepoProxy.CanMoveToNextPage(CurrentPage, TotalPages))
         {
             return;
         }
 
-        _currentPage++;
+        CurrentPage++;
         await LoadTransactionsAsync(accountId);
     }
 
+    /// <summary>Moves to the previous transactions page.</summary>
+    /// <param name="accountId">The account id.</param>
     public async Task PreviousPage(int accountId)
     {
-        if (!await _savingsWorkflowRepoProxy.CanMoveToPreviousPage(_currentPage))
+        if (!await _savingsWorkflowRepoProxy.CanMoveToPreviousPage(CurrentPage))
         {
             return;
         }
 
-        _currentPage--;
+        CurrentPage--;
         await LoadTransactionsAsync(accountId);
     }
 
+    /// <summary>Changes the transactions filter.</summary>
+    /// <param name="accountId">The account id.</param>
+    /// <param name="filter">The filter value.</param>
     public async Task ChangeFilter(int accountId, string filter)
     {
-        _selectedFilter = filter;
-        _currentPage = InitialPage;
+        SelectedFilter = filter;
+        CurrentPage = InitialPage;
         await LoadTransactionsAsync(accountId);
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
-        _transactions.Clear();
+        Transactions.Clear();
 
         SavingsAccounts.Clear();
         CloseDestinationAccounts.Clear();
@@ -951,5 +1008,6 @@ public partial class SavingsViewModel : ObservableObject, IDisposable
 
         _depositCancelationTokenSource?.Cancel();
         _depositCancelationTokenSource?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

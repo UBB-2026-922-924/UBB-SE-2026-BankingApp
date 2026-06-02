@@ -8,8 +8,13 @@
     x:Class="BankingApp.Desktop.Views.TransferHistoryView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:BankingApp.Desktop.Shared.Converters"
     xmlns:vm="using:BankingApp.Desktop.ViewModels"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Page.Resources>
 
     <Grid Padding="32">
         <Grid.RowDefinitions>
@@ -31,14 +36,14 @@
 
         <!-- Error InfoBar -->
         <InfoBar Grid.Row="1"
-                 IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
+                 IsOpen="{Binding HasError, Mode=OneWay}"
                  Severity="Error"
-                 Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                 Message="{Binding ErrorMessage, Mode=OneWay}"
                  Margin="0,0,0,12" />
 
         <!-- Loading indicator -->
         <ProgressRing Grid.Row="2"
-                      IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                      IsActive="{Binding IsLoading, Mode=OneWay}"
                       HorizontalAlignment="Center"
                       Margin="0,8,0,16" />
 
@@ -46,7 +51,7 @@
         <StackPanel Grid.Row="3"
                     HorizontalAlignment="Center" VerticalAlignment="Center"
                     Spacing="12"
-                    Visibility="{x:Bind ViewModel.HasNoTransfers, Mode=OneWay}">
+                    Visibility="{Binding HasNoTransfers, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
             <FontIcon Glyph="&#xE81C;" FontSize="48" Foreground="#BDBDBD" />
             <TextBlock Text="No transfers yet"
                        FontSize="18" FontWeight="SemiBold"
@@ -59,8 +64,8 @@
 
         <!-- Transfer list -->
         <ListView Grid.Row="3"
-                  ItemsSource="{x:Bind ViewModel.Transfers, Mode=OneWay}"
-                  Visibility="{x:Bind ViewModel.ShowTransferList, Mode=OneWay}"
+                  ItemsSource="{Binding Transfers, Mode=OneWay}"
+                  Visibility="{Binding ShowTransferList, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                   SelectionMode="None">
             <ListView.HeaderTemplate>
                 <DataTemplate>
@@ -91,7 +96,7 @@
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="vm:TransferHistoryDisplayItem">
+                <DataTemplate>
                     <Border Padding="16,12" Margin="0,3"
                             Background="White"
                             BorderBrush="#E8ECF0" BorderThickness="0,0,0,1">
@@ -106,18 +111,18 @@
                                 <ColumnDefinition Width="100" />
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0" Text="{x:Bind DateDisplay}" Foreground="#555" VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="1" Text="{x:Bind RecipientName}" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Grid.Column="2" Text="{x:Bind RecipientIban}" FontFamily="Consolas" Foreground="#666" VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="3" Text="{x:Bind ReferenceDisplay}" Foreground="#999" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Grid.Column="4" Text="{x:Bind Amount}" FontWeight="SemiBold" Foreground="#C62828" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="0" Text="{Binding DateDisplay}" Foreground="#555" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="{Binding RecipientName}" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Grid.Column="2" Text="{Binding RecipientIban}" FontFamily="Consolas" Foreground="#666" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="3" Text="{Binding ReferenceDisplay}" Foreground="#999" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Grid.Column="4" Text="{Binding Amount}" FontWeight="SemiBold" Foreground="#C62828" HorizontalAlignment="Right" VerticalAlignment="Center" />
                             
                             <Border Grid.Column="5" Background="#F0F0F0" CornerRadius="4" Padding="6,2" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="{x:Bind Currency}" Foreground="#333" FontSize="12" />
+                                <TextBlock Text="{Binding Currency}" Foreground="#333" FontSize="12" />
                             </Border>
 
                             <Border Grid.Column="6" Background="#E0E0E0" CornerRadius="4" Padding="6,2" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="{x:Bind StatusDisplay}" Foreground="#333" FontSize="12" />
+                                <TextBlock Text="{Binding StatusDisplay}" Foreground="#333" FontSize="12" />
                             </Border>
                         </Grid>
                     </Border>
@@ -126,3 +131,4 @@
         </ListView>
     </Grid>
 </Page>
+

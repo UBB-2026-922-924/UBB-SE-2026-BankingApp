@@ -4,8 +4,12 @@ using System;
 using System.Globalization;
 using Microsoft.UI.Xaml.Data;
 
+/// <summary>
+///     Formats date values as month and year labels.
+/// </summary>
 public sealed partial class DateToMonthYearConverter : IValueConverter
 {
+    /// <inheritdoc />
     public object Convert(object value, Type targetType, object parameter, string language)
     {
         return value switch
@@ -16,6 +20,7 @@ public sealed partial class DateToMonthYearConverter : IValueConverter
         };
     }
 
+    /// <inheritdoc />
     public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
         throw new NotSupportedException();

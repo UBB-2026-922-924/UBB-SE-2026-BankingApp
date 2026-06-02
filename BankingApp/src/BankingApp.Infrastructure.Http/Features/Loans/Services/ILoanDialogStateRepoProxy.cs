@@ -2,5 +2,5 @@
 
 public interface ILoanDialogStateRepoProxy
 {
-    Task<bool> GetShouldComputeEstimate(double desiredAmount, int preferredTermMonths, string purpose);
+    public Task<bool> GetShouldComputeEstimate(double desiredAmount, int preferredTermMonths, string purpose);
 }

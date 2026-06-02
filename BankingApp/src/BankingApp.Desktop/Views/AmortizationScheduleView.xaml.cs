@@ -1,6 +1,8 @@
 ﻿namespace BankingApp.Desktop.Views;
 
 using System;
+using System.Globalization;
+using System.Text;
 using ViewModels;
 using Domain.Aggregates.LoanAggregate;
 using Domain.Aggregates.LoanAggregate.Entities;
@@ -9,6 +11,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 
+/// <summary>
+///     Displays a loan amortization schedule.
+/// </summary>
 public sealed partial class AmortizationScheduleView : Page
 {
     private const string LoanHeaderFormat = "{0} · {1} months · {2:0.##}%";
@@ -23,9 +28,14 @@ public sealed partial class AmortizationScheduleView : Page
             CurrentRowHighlightRed,
             CurrentRowHighlightGreen,
             CurrentRowHighlightBlue));
+    private static readonly CompositeFormat _loanHeaderFormat = CompositeFormat.Parse(LoanHeaderFormat);
 
     private Loan? _loan;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="AmortizationScheduleView" /> class.
+    /// </summary>
+    /// <param name="loansViewModel">The loans view model shared with the loans view.</param>
     public AmortizationScheduleView(LoansViewModel loansViewModel)
     {
         InitializeComponent();
@@ -39,7 +49,7 @@ public sealed partial class AmortizationScheduleView : Page
 
     private LoansViewModel ViewModel { get; }
 
-    public async void LoadLoan(Loan loan)
+    internal async void LoadLoan(Loan loan)
     {
         this._loan = loan;
         PopulateStaticLabels(loan);
@@ -51,11 +61,11 @@ public sealed partial class AmortizationScheduleView : Page
     private void PopulateStaticLabels(Loan loan)
     {
         LoanSubHeaderText.Text =
-            string.Format(LoanHeaderFormat, loan.LoanType, loan.TermInMonths, loan.InterestRate);
+            string.Format(CultureInfo.InvariantCulture, _loanHeaderFormat, loan.LoanType, loan.TermInMonths, loan.InterestRate);
 
-        TotalInstallmentsText.Text = loan.TermInMonths.ToString();
-        PaidInstallmentsText.Text = (loan.TermInMonths - loan.RemainingMonths).ToString();
-        RemainingInstallmentsText.Text = loan.RemainingMonths.ToString();
+        TotalInstallmentsText.Text = loan.TermInMonths.ToString(CultureInfo.InvariantCulture);
+        PaidInstallmentsText.Text = (loan.TermInMonths - loan.RemainingMonths).ToString(CultureInfo.InvariantCulture);
+        RemainingInstallmentsText.Text = loan.RemainingMonths.ToString(CultureInfo.InvariantCulture);
     }
 
     private void OnRowContainerContentChanging(

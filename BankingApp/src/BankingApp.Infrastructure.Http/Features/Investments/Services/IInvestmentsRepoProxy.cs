@@ -4,6 +4,6 @@ using System.Threading.Tasks;
 
 public interface IInvestmentsRepoProxy
 {
-    Task<TResponse?> GetAsync<TResponse>(string endpoint);
-    Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data);
+    public Task<TResponse?> GetAsync<TResponse>(string endpoint);
+    public Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data);
 }

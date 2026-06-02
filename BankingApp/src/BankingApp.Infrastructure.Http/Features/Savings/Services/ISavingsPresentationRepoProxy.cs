@@ -4,11 +4,11 @@ using Domain.Aggregates.SavingsAggregate;
 
 public interface ISavingsPresentationRepoProxy
 {
-    Task<string> GetTotalSavedAmount(IEnumerable<SavingsAccount> accounts);
+    public Task<string> GetTotalSavedAmount(IEnumerable<SavingsAccount> accounts);
 
-    Task<string> GetNumberOfAccountsText(int accountCount);
+    public Task<string> GetNumberOfAccountsText(int accountCount);
 
-    Task<string> GetBestInterestRate(IEnumerable<SavingsAccount> accounts);
+    public Task<string> GetBestInterestRate(IEnumerable<SavingsAccount> accounts);
 
-    Task<bool> CheckClosePenaltyRisk(SavingsAccount selectedAccount);
+    public Task<bool> CheckClosePenaltyRisk(SavingsAccount selectedAccount);
 }

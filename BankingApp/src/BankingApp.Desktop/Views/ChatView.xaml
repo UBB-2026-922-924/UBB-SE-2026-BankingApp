@@ -3,7 +3,6 @@
     x:Class="BankingApp.Desktop.Views.ChatView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:chat="using:BankingApp.Models.Features.Chat"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Padding="24" RowSpacing="12">
@@ -35,12 +34,12 @@
 
         <ListView x:Name="MessagesList" Grid.Row="2">
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="chat:ChatMessage">
+                <DataTemplate>
                     <Border Margin="0,6" Padding="10" CornerRadius="6" Background="#2D7DFF">
                         <StackPanel Spacing="3">
-                            <TextBlock Text="{x:Bind SenderType}" FontWeight="SemiBold" Foreground="White"/>
-                            <TextBlock Text="{x:Bind Content}" TextWrapping="WrapWholeWords" Foreground="White"/>
-                            <TextBlock Text="{x:Bind DisplaySentAt}" FontSize="11" Foreground="#EAF2FF"/>
+                            <TextBlock Text="{Binding Sender}" FontWeight="SemiBold" Foreground="White"/>
+                            <TextBlock Text="{Binding Content}" TextWrapping="WrapWholeWords" Foreground="White"/>
+                            <TextBlock Text="{Binding SentAt}" FontSize="11" Foreground="#EAF2FF"/>
                         </StackPanel>
                     </Border>
                 </DataTemplate>

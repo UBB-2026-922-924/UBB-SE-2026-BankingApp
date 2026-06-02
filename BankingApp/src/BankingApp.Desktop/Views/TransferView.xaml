@@ -44,10 +44,10 @@
             </Grid>
 
             <InfoBar
-                IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
+                IsOpen="{Binding HasError, Mode=OneWay}"
                 Severity="Error"
                 Title="Transfer error"
-                Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" />
+                Message="{Binding ErrorMessage, Mode=OneWay}" />
 
             <Border BorderBrush="{StaticResource TransferBorderBrush}"
                     BorderThickness="1"
@@ -55,7 +55,7 @@
                     CornerRadius="12"
                     Padding="24"
                     HorizontalAlignment="Stretch"
-                    Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay, Converter={StaticResource StepToVisibility}, ConverterParameter=1}">
+                    Visibility="{Binding CurrentStep, Mode=OneWay, Converter={StaticResource StepToVisibility}, ConverterParameter=1}">
                 <StackPanel Spacing="20">
                     <StackPanel Spacing="4">
                         <TextBlock Text="Step 1 of 3 - Recipient IBAN"
@@ -68,16 +68,16 @@
 
                     <TextBox Header="Recipient IBAN"
                              PlaceholderText="e.g. RO49AAAA1B31007593840000"
-                             Text="{x:Bind ViewModel.RecipientIban, Mode=TwoWay}" />
+                             Text="{Binding RecipientIban, Mode=TwoWay}" />
 
-                    <TextBlock Text="{x:Bind ViewModel.BankName, Mode=OneWay}"
+                    <TextBlock Text="{Binding BankName, Mode=OneWay}"
                                Foreground="{StaticResource TransferSuccessBrush}" />
 
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right"
                                 Spacing="10">
                         <Button Content="Validate IBAN"
-                                Command="{x:Bind ViewModel.NextStepCommand}" />
+                                Command="{Binding NextStepCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -88,7 +88,7 @@
                     CornerRadius="12"
                     Padding="24"
                     HorizontalAlignment="Stretch"
-                    Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay, Converter={StaticResource StepToVisibility}, ConverterParameter=2}">
+                    Visibility="{Binding CurrentStep, Mode=OneWay, Converter={StaticResource StepToVisibility}, ConverterParameter=2}">
                 <StackPanel Spacing="20">
                     <Border BorderBrush="{StaticResource TransferBorderBrush}"
                             BorderThickness="1"
@@ -104,7 +104,7 @@
                                 <TextBlock Text="Recipient verified"
                                            FontWeight="SemiBold"
                                            Foreground="{StaticResource TransferPrimaryTextBrush}" />
-                                <TextBlock Text="{x:Bind ViewModel.RecipientIban, Mode=OneWay}"
+                                <TextBlock Text="{Binding RecipientIban, Mode=OneWay}"
                                            FontFamily="Consolas"
                                            Foreground="{StaticResource TransferPrimaryTextBrush}"
                                            TextWrapping="Wrap" />
@@ -115,7 +115,7 @@
                                 <TextBlock Text="Bank"
                                            FontWeight="SemiBold"
                                            Foreground="{StaticResource TransferPrimaryTextBrush}" />
-                                <TextBlock Text="{x:Bind ViewModel.BankName, Mode=OneWay}"
+                                <TextBlock Text="{Binding BankName, Mode=OneWay}"
                                            Foreground="{StaticResource TransferSecondaryTextBrush}"
                                            TextWrapping="Wrap" />
                             </StackPanel>
@@ -132,25 +132,25 @@
                     </StackPanel>
 
                     <ComboBox Header="From Account"
-                              ItemsSource="{x:Bind ViewModel.Accounts}"
-                              SelectedItem="{x:Bind ViewModel.SelectedAccount, Mode=TwoWay}"
+                              ItemsSource="{Binding Accounts}"
+                              SelectedItem="{Binding SelectedAccount, Mode=TwoWay}"
                               HorizontalAlignment="Stretch">
                         <ComboBox.ItemTemplate>
-                            <DataTemplate x:DataType="transfer:TransferAccountSelectionResponse">
+                            <DataTemplate>
                                 <StackPanel Padding="4"
                                             Spacing="2">
-                                    <TextBlock Text="{x:Bind AccountName}"
+                                    <TextBlock Text="{Binding AccountName}"
                                                FontWeight="SemiBold"
                                                Foreground="{StaticResource TransferPrimaryTextBrush}" />
-                                    <TextBlock Text="{x:Bind Iban}"
+                                    <TextBlock Text="{Binding Iban}"
                                                FontFamily="Consolas"
                                                FontSize="12"
                                                Foreground="{StaticResource TransferMutedTextBrush}" />
                                     <StackPanel Orientation="Horizontal"
                                                 Spacing="8">
-                                        <TextBlock Text="{x:Bind Currency}"
+                                        <TextBlock Text="{Binding Currency}"
                                                    Foreground="{StaticResource TransferSecondaryTextBrush}" />
-                                        <TextBlock Text="{x:Bind Balance}"
+                                        <TextBlock Text="{Binding Balance}"
                                                    Foreground="{StaticResource TransferSecondaryTextBrush}" />
                                     </StackPanel>
                                 </StackPanel>
@@ -160,7 +160,7 @@
 
                     <TextBox Header="Recipient Name"
                              PlaceholderText="Full name of the recipient"
-                             Text="{x:Bind ViewModel.RecipientName, Mode=TwoWay}" />
+                             Text="{Binding RecipientName, Mode=TwoWay}" />
 
                     <Grid ColumnSpacing="16">
                         <Grid.ColumnDefinitions>
@@ -170,11 +170,11 @@
 
                         <TextBox Header="Amount"
                                  PlaceholderText="0.00"
-                                 Text="{x:Bind ViewModel.AmountText, Mode=TwoWay}" />
+                                 Text="{Binding AmountText, Mode=TwoWay}" />
 
                         <ComboBox Grid.Column="1"
                                   Header="Currency"
-                                  SelectedValue="{x:Bind ViewModel.Currency, Mode=TwoWay}"
+                                  SelectedValue="{Binding Currency, Mode=TwoWay}"
                                   SelectedValuePath="Content"
                                   HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="EUR" />
@@ -185,17 +185,17 @@
 
                     <TextBox Header="Reference (optional)"
                              PlaceholderText="e.g. Invoice #123"
-                             Text="{x:Bind ViewModel.Reference, Mode=TwoWay}" />
+                             Text="{Binding Reference, Mode=TwoWay}" />
 
-                    <InfoBar IsOpen="{x:Bind ViewModel.HasFxPreview, Mode=OneWay}"
+                    <InfoBar IsOpen="{Binding HasFxPreview, Mode=OneWay}"
                              Severity="Informational"
-                             Message="{x:Bind ViewModel.FxPreviewText, Mode=OneWay}" />
+                             Message="{Binding FxPreviewText, Mode=OneWay}" />
 
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right"
                                 Spacing="10">
                         <Button Content="Preview Transfer"
-                                Command="{x:Bind ViewModel.NextStepCommand}" />
+                                Command="{Binding NextStepCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -206,7 +206,7 @@
                     CornerRadius="12"
                     Padding="24"
                     HorizontalAlignment="Stretch"
-                    Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay, Converter={StaticResource StepToVisibility}, ConverterParameter=3}">
+                    Visibility="{Binding CurrentStep, Mode=OneWay, Converter={StaticResource StepToVisibility}, ConverterParameter=3}">
                 <StackPanel Spacing="20">
                     <StackPanel Spacing="4">
                         <TextBlock Text="Confirm Transfer"
@@ -237,9 +237,9 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="From Account" Foreground="{StaticResource TransferSecondaryTextBrush}" />
                             <StackPanel Grid.Column="1" Spacing="2">
-                                <TextBlock Text="{x:Bind ViewModel.SelectedAccountName, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource TransferPrimaryTextBrush}" />
-                                <TextBlock Text="{x:Bind ViewModel.SelectedAccountIban, Mode=OneWay}" FontFamily="Consolas" TextWrapping="Wrap" Foreground="{StaticResource TransferPrimaryTextBrush}" />
-                                <TextBlock Text="{x:Bind ViewModel.SelectedAccountBalanceText, Mode=OneWay}" Foreground="{StaticResource TransferSecondaryTextBrush}" />
+                                <TextBlock Text="{Binding SelectedAccountName, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource TransferPrimaryTextBrush}" />
+                                <TextBlock Text="{Binding SelectedAccountIban, Mode=OneWay}" FontFamily="Consolas" TextWrapping="Wrap" Foreground="{StaticResource TransferPrimaryTextBrush}" />
+                                <TextBlock Text="{Binding SelectedAccountBalanceText, Mode=OneWay}" Foreground="{StaticResource TransferSecondaryTextBrush}" />
                             </StackPanel>
                         </Grid>
 
@@ -249,7 +249,7 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Recipient" Foreground="{StaticResource TransferSecondaryTextBrush}" />
-                            <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.RecipientName, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource TransferPrimaryTextBrush}" />
+                            <TextBlock Grid.Column="1" Text="{Binding RecipientName, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource TransferPrimaryTextBrush}" />
                         </Grid>
 
                         <Grid Grid.Row="2" Background="{StaticResource TransferCardBackgroundBrush}" Padding="16">
@@ -258,7 +258,7 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Recipient IBAN" Foreground="{StaticResource TransferSecondaryTextBrush}" />
-                            <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.RecipientIban, Mode=OneWay}" FontFamily="Consolas" TextWrapping="Wrap" Foreground="{StaticResource TransferPrimaryTextBrush}" />
+                            <TextBlock Grid.Column="1" Text="{Binding RecipientIban, Mode=OneWay}" FontFamily="Consolas" TextWrapping="Wrap" Foreground="{StaticResource TransferPrimaryTextBrush}" />
                         </Grid>
 
                         <Grid Grid.Row="3" Background="{StaticResource TransferCardBackgroundBrush}" Padding="16">
@@ -267,7 +267,7 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Recipient Bank" Foreground="{StaticResource TransferSecondaryTextBrush}" />
-                            <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.BankName, Mode=OneWay}" Foreground="{StaticResource TransferPrimaryTextBrush}" />
+                            <TextBlock Grid.Column="1" Text="{Binding BankName, Mode=OneWay}" Foreground="{StaticResource TransferPrimaryTextBrush}" />
                         </Grid>
 
                         <Grid Grid.Row="4" Background="{StaticResource TransferCardBackgroundBrush}" Padding="16">
@@ -276,7 +276,7 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Amount" Foreground="{StaticResource TransferSecondaryTextBrush}" />
-                            <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.ReviewAmountText, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource TransferPrimaryTextBrush}" />
+                            <TextBlock Grid.Column="1" Text="{Binding ReviewAmountText, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource TransferPrimaryTextBrush}" />
                         </Grid>
 
                         <Grid Grid.Row="5" Background="{StaticResource TransferCardBackgroundBrush}" Padding="16">
@@ -285,7 +285,7 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Fee" Foreground="{StaticResource TransferSecondaryTextBrush}" />
-                            <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.TransferFeeText, Mode=OneWay}" Foreground="{StaticResource TransferWarningBrush}" />
+                            <TextBlock Grid.Column="1" Text="{Binding TransferFeeText, Mode=OneWay}" Foreground="{StaticResource TransferWarningBrush}" />
                         </Grid>
 
                         <Grid Grid.Row="6" Background="{StaticResource TransferCardBackgroundBrush}" Padding="16">
@@ -294,7 +294,7 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Total Debit" FontWeight="SemiBold" Foreground="{StaticResource TransferPrimaryTextBrush}" />
-                            <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.TotalDebitText, Mode=OneWay}" FontWeight="SemiBold" FontSize="18" Foreground="{StaticResource TransferPrimaryTextBrush}" />
+                            <TextBlock Grid.Column="1" Text="{Binding TotalDebitText, Mode=OneWay}" FontWeight="SemiBold" FontSize="18" Foreground="{StaticResource TransferPrimaryTextBrush}" />
                         </Grid>
 
                         <Grid Grid.Row="7" Background="{StaticResource TransferCardBackgroundBrush}" Padding="16">
@@ -303,7 +303,7 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Reference" Foreground="{StaticResource TransferSecondaryTextBrush}" />
-                            <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.ReferenceDisplay, Mode=OneWay}" TextWrapping="Wrap" Foreground="{StaticResource TransferPrimaryTextBrush}" />
+                            <TextBlock Grid.Column="1" Text="{Binding ReferenceDisplay, Mode=OneWay}" TextWrapping="Wrap" Foreground="{StaticResource TransferPrimaryTextBrush}" />
                         </Grid>
                     </Grid>
 
@@ -311,7 +311,7 @@
                                 HorizontalAlignment="Right"
                                 Spacing="10">
                         <Button Content="Confirm Transfer"
-                                Command="{x:Bind ViewModel.TransferCommand}" />
+                                Command="{Binding TransferCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -322,7 +322,7 @@
                     CornerRadius="12"
                     Padding="24"
                     HorizontalAlignment="Stretch"
-                    Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay, Converter={StaticResource StepToVisibility}, ConverterParameter=4}">
+                    Visibility="{Binding CurrentStep, Mode=OneWay, Converter={StaticResource StepToVisibility}, ConverterParameter=4}">
                 <StackPanel Spacing="20">
                     <TextBlock Text="Transfer Successful"
                                FontSize="24"
@@ -339,17 +339,17 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Text="Transaction reference" Foreground="{StaticResource TransferSecondaryTextBrush}" />
-                        <TextBlock Grid.Row="1" Text="{x:Bind ViewModel.TransactionRef, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{StaticResource TransferPrimaryTextBrush}" />
-                        <TextBlock Grid.Row="2" Text="{x:Bind ViewModel.RecipientName, Mode=OneWay}" Foreground="{StaticResource TransferPrimaryTextBrush}" />
-                        <TextBlock Grid.Row="3" Text="{x:Bind ViewModel.RecipientIban, Mode=OneWay}" FontFamily="Consolas" TextWrapping="Wrap" Foreground="{StaticResource TransferPrimaryTextBrush}" />
-                        <TextBlock Grid.Row="4" Text="{x:Bind ViewModel.TotalDebitText, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource TransferPrimaryTextBrush}" />
+                        <TextBlock Grid.Row="1" Text="{Binding TransactionRef, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{StaticResource TransferPrimaryTextBrush}" />
+                        <TextBlock Grid.Row="2" Text="{Binding RecipientName, Mode=OneWay}" Foreground="{StaticResource TransferPrimaryTextBrush}" />
+                        <TextBlock Grid.Row="3" Text="{Binding RecipientIban, Mode=OneWay}" FontFamily="Consolas" TextWrapping="Wrap" Foreground="{StaticResource TransferPrimaryTextBrush}" />
+                        <TextBlock Grid.Row="4" Text="{Binding TotalDebitText, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource TransferPrimaryTextBrush}" />
                     </Grid>
 
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right"
                                 Spacing="10">
                         <Button Content="New Transfer"
-                                Command="{x:Bind ViewModel.SendAgainCommand}" />
+                                Command="{Binding SendAgainCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -360,22 +360,23 @@
                     CornerRadius="12"
                     Padding="24"
                     HorizontalAlignment="Stretch"
-                    Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay, Converter={StaticResource StepToVisibility}, ConverterParameter=5}">
+                    Visibility="{Binding CurrentStep, Mode=OneWay, Converter={StaticResource StepToVisibility}, ConverterParameter=5}">
                 <StackPanel Spacing="16">
                     <TextBlock Text="Transfer Error"
                                FontSize="20"
                                FontWeight="SemiBold"
                                Foreground="{StaticResource TransferPrimaryTextBrush}" />
-                    <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                    <TextBlock Text="{Binding ErrorMessage, Mode=OneWay}"
                                Foreground="{StaticResource TransferSecondaryTextBrush}"
                                TextWrapping="Wrap" />
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
                         <Button Content="Start Again"
-                                Command="{x:Bind ViewModel.SendAgainCommand}" />
+                                Command="{Binding SendAgainCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>
         </StackPanel>
     </ScrollViewer>
 </Page>
+

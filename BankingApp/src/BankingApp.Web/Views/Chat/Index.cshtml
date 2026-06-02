@@ -32,13 +32,13 @@
                 <a asp-action="Details" asp-route-id="@session.Id" class="list-group-item list-group-item-action p-3 border-bottom">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="mb-1 fw-bold">@session.IssueCategory - #@session.Id</h6>
-                            <span class="badge @(session.SessionStatus == "Open" ? "bg-success" : "bg-secondary")">
-                                @session.SessionStatus
+                            <h6 class="mb-1 fw-bold">@session.Subject - #@session.Id</h6>
+                            <span class="badge @(session.Status == "Open" ? "bg-success" : "bg-secondary")">
+                                @session.Status
                             </span>
                         </div>
                         <div class="text-end text-muted small">
-                            @session.StartedAt.ToString("g")
+                            @session.CreatedAt.ToString("g")
                         </div>
                     </div>
                 </a>

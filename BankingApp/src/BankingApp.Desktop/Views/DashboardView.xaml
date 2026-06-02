@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <Page
     x:Class="BankingApp.Desktop.Views.DashboardView"
@@ -239,7 +239,7 @@
                             <!-- Transaction Rows -->
                             <ItemsControl x:Name="TransactionsList">
                                 <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="viewModels:DashboardTransactionItem">
+                                    <DataTemplate>
                                         <Grid Padding="20,14">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="2*" />
@@ -247,15 +247,15 @@
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0"
-                                                       Text="{x:Bind MerchantDisplayName}"
+                                                       Text="{Binding MerchantDisplayName}"
                                                        FontSize="13" Foreground="#1A1A2E"
                                                        FontWeight="Normal" />
                                             <TextBlock Grid.Column="1"
-                                                       Text="{x:Bind AmountDisplay}"
+                                                       Text="{Binding AmountDisplay}"
                                                        FontSize="13" Foreground="#1A1A2E"
                                                        FontWeight="SemiBold" />
                                             <TextBlock Grid.Column="2"
-                                                       Text="{x:Bind Currency}"
+                                                       Text="{Binding Currency}"
                                                        FontSize="13" Foreground="#4ECDC4" />
                                         </Grid>
                                     </DataTemplate>

@@ -4,5 +4,5 @@ using BankingApp.Contracts.Features.Loans.Dtos;
 
 public interface ILoanApplicationPresentationRepoProxy
 {
-    Task<BuildApplicationOutcomeResponse?> GetBuildApplicationOutcome(string? rejectionReason);
+    public Task<BuildApplicationOutcomeResponse> GetBuildApplicationOutcome(string? rejectionReason);
 }

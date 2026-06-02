@@ -5,20 +5,27 @@ using System.Diagnostics;
 using ViewModels;
 using Domain.Enums;
 using Dialogs;
-using Domain.Aggregates.UserAggregate;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Navigation;
 using Session;
 using PayInstallmentDialog = Dialogs.PayInstallmentDialog;
 
+/// <summary>
+///     Displays loan applications, payments, and schedules.
+/// </summary>
 public sealed partial class LoansView : UserControl
 {
     private readonly IAuthenticationSession _authenticationSession;
     private readonly IAppNavigationService _navigationService;
 
-    public LoansViewModel? ViewModel => DataContext as LoansViewModel;
+    internal LoansViewModel ViewModel => (DataContext as LoansViewModel)!;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="LoansView" /> class.
+    /// </summary>
+    /// <param name="authenticationSession">The current authentication session.</param>
+    /// <param name="navigationService">The application navigation service.</param>
     public LoansView(
         IAuthenticationSession authenticationSession,
         IAppNavigationService navigationService)
@@ -35,8 +42,8 @@ public sealed partial class LoansView : UserControl
         {
             try
             {
-                int userId = _authenticationSession.CurrentUserId ?? throw new Exception("Current user id is null.");
-                ViewModel.CurrentUser = new User { Id = userId };
+                int userId = _authenticationSession.CurrentUserId ?? throw new InvalidOperationException("Current user id is null.");
+                ViewModel.CurrentUserId = userId;
 
                 await ViewModel.LoadLoansAsync();
             }

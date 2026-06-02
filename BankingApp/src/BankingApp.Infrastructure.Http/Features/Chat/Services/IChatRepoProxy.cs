@@ -1,25 +1,18 @@
-﻿namespace BankingApp.Infrastructure.Http.Features.Chat.Services;
+namespace BankingApp.Infrastructure.Http.Features.Chat.Services;
 
-using Domain.Aggregates.ChatAggregate;
-using Domain.Aggregates.ChatAggregate.Entities;
+using Contracts.Features.Chat.Dtos;
 
 public interface IChatRepoProxy
 {
-    Task<List<ChatSession>?> GetSessionsAsync();
+    public Task<List<ChatSessionDto>> GetSessionsAsync();
 
-    Task<ChatSession?> GetSessionAsync(int sessionId);
+    public Task<ChatSessionDto> GetSessionAsync(int sessionId);
 
-    Task<CreateChatSessionResponse?> CreateSessionAsync(string issueCategory);
+    public Task<ChatSessionDto> CreateSessionAsync(string subject);
 
-    Task<List<ChatMessage>?> GetMessagesAsync(int sessionId);
+    public Task<ChatMessageDto> CreateMessageAsync(int sessionId, string content);
 
-    Task<CreateChatMessageResponse?> CreateMessageAsync(int sessionId, string senderType, string content);
+    public Task CloseSessionAsync(int sessionId);
 
-    Task<CreateChatAttachmentResponse?> CreateAttachmentAsync(int messageId, CreateChatAttachmentRequest request);
-
-    Task<OperationResponse?> UpdateSessionStatusAsync(int sessionId, string status);
-
-    Task<OperationResponse?> SaveFeedbackAsync(int sessionId, int rating, string feedback);
-
-    Task<OperationResponse?> EmailTranscriptAsync(int sessionId, string email);
+    public Task SaveFeedbackAsync(int sessionId, int rating, string? feedback);
 }

@@ -1,14 +1,22 @@
 ﻿namespace BankingApp.Desktop.Views.Dialogs;
 
 using System;
+using System.Globalization;
 using ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
+/// <summary>
+///     Dialog used to confirm a loan installment payment.
+/// </summary>
 public sealed partial class PayInstallmentDialog : ContentDialog
 {
     private readonly LoansViewModel _viewModel;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="PayInstallmentDialog" /> class.
+    /// </summary>
+    /// <param name="viewModel">The loans view model.</param>
     public PayInstallmentDialog(LoansViewModel viewModel)
     {
         InitializeComponent();
@@ -99,7 +107,7 @@ public sealed partial class PayInstallmentDialog : ContentDialog
             _viewModel.UpdateCustomPayment(CustomAmountBox?.Text ?? string.Empty);
         }
 
-        BalanceAfterPaymentText.Text = _viewModel.PaymentPreviewBalance.ToString("C2");
+        BalanceAfterPaymentText.Text = _viewModel.PaymentPreviewBalance.ToString("C2", CultureInfo.CurrentCulture);
         RemainingTermAfterPaymentText.Text = $"{_viewModel.PaymentPreviewRemainingMonths} mo";
     }
 }

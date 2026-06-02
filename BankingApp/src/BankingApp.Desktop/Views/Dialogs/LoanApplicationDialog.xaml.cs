@@ -3,10 +3,17 @@
 using ViewModels;
 using Microsoft.UI.Xaml.Controls;
 
+/// <summary>
+///     Dialog used to review and submit a loan application.
+/// </summary>
 public sealed partial class LoanApplicationDialog : ContentDialog
 {
     private readonly LoansViewModel _viewModel;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="LoanApplicationDialog" /> class.
+    /// </summary>
+    /// <param name="viewModel">The loans view model.</param>
     public LoanApplicationDialog(LoansViewModel viewModel)
     {
         InitializeComponent();

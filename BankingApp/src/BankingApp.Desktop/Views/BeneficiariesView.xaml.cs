@@ -18,6 +18,7 @@ public sealed partial class BeneficiariesView
     {
         InitializeComponent();
         ViewModel = viewModel;
+        DataContext = ViewModel;
         Loaded += OnPageLoaded;
     }
 

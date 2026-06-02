@@ -1,85 +1,80 @@
-﻿namespace BankingApp.Web.Controllers;
+namespace BankingApp.Web.Controllers;
 
-using Microsoft.AspNetCore.Mvc;
 using Application.Features.Chat.Services;
 using Contracts.Features.Chat.Dtos;
+using Contracts.Http;
 using ErrorOr;
+using Microsoft.AspNetCore.Mvc;
 using Models.Chat;
 
-public class ChatController : Controller
+public class ChatController(IChatService chatService) : Controller
 {
-
-    private readonly IChatService _chatService;
-
-    public ChatController(IChatService chatService)
-    {
-        _chatService = chatService;
-    }
-
     public async Task<IActionResult> Index()
     {
-        ErrorOr<List<ChatSessionDto>> sessions = await _chatService.GetSessionsAsync();
+        ErrorOr<List<ChatSessionDto>> sessions = await chatService.GetSessionsAsync(CurrentUserId);
         var viewModel = new ChatIndexViewModel
         {
-            Sessions = sessions ?? new()
+            Sessions = sessions.IsError ? [] : sessions.Value,
+            ErrorMessage = sessions.IsError ? sessions.FirstError.Description : null,
         };
+
         return View(viewModel);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(string issueCategory)
     {
-        ErrorOr<ChatSessionDto> response = await _chatService.CreateSessionAsync(issueCategory);
-        if (response != null && response.Success)
+        ErrorOr<ChatSessionDto> response = await chatService.CreateSessionAsync(CurrentUserId, issueCategory);
+        if (response.IsError)
         {
-            return RedirectToAction("Details", new { id = response.SessionId });
+            TempData["Error"] = response.FirstError.Description;
+            return RedirectToAction(nameof(Index));
         }
-        return RedirectToAction("Index");
+
+        return RedirectToAction(nameof(Details), new { id = response.Value.Id });
     }
 
     public async Task<IActionResult> Details(int id)
     {
-        ErrorOr<ChatSessionDto> session = await _chatService.GetSessionAsync(id);
-
-        if (session == null)
+        ErrorOr<ChatSessionDto> session = await chatService.GetSessionAsync(CurrentUserId, id);
+        if (session.IsError)
         {
             return NotFound();
         }
 
-        var messages = await _chatService.GetMessagesAsync(id);
         var viewModel = new ChatDetailsViewModel
         {
-            Session = session,
-            Messages = messages ?? new()
+            Session = session.Value,
+            Messages = session.Value.Messages,
         };
 
         return View(viewModel);
     }
 
     [HttpPost]
-
     public async Task<IActionResult> SendMessage(int sessionId, string content)
     {
-        if (!string.IsNullOrEmpty(content))
+        if (!string.IsNullOrWhiteSpace(content))
         {
-            await _chatService.CreateMessageAsync(sessionId, "User", content);
+            await chatService.PostMessageAsync(CurrentUserId, sessionId, content);
         }
-        return RedirectToAction("Details", new { id = sessionId });
+
+        return RedirectToAction(nameof(Details), new { id = sessionId });
     }
 
     [HttpPost]
-
     public async Task<IActionResult> EndSession(int id)
     {
-        await _chatService.UpdateSessionStatusAsync(id, "Closed");
+        await chatService.CloseSessionAsync(CurrentUserId, id);
         return Ok();
     }
 
     [HttpPost]
-
-    public async Task<IActionResult> SubmitFeedback(int id, int rating, string feedback)
+    public async Task<IActionResult> SubmitFeedback(int id, int rating, string? feedback)
     {
-        await _chatService.SaveFeedbackAsync(id, rating, feedback ?? string.Empty);
-        return RedirectToAction("Index");
+        await chatService.SaveFeedbackAsync(CurrentUserId, id, rating, feedback);
+        return RedirectToAction(nameof(Index));
     }
+
+    private int CurrentUserId => int.TryParse(User.FindFirst(AuthClaimTypes.UserId)?.Value, out int userId) ? userId : 0;
 }

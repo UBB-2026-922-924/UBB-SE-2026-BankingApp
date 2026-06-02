@@ -6,7 +6,7 @@ using Shared.Http;
 
 public class LoanApplicationPresentationRepoProxy(ApiService apiService) : ILoanApplicationPresentationRepoProxy
 {
-    public Task<BuildApplicationOutcomeResponse?> GetBuildApplicationOutcome(string? rejectionReason)
+    public Task<BuildApplicationOutcomeResponse> GetBuildApplicationOutcome(string? rejectionReason)
     {
         return apiService.GetAsync<BuildApplicationOutcomeResponse>(
             $"{ApiEndpoints.LoanApplicationPresentation.Base}?rejectionReason={Uri.EscapeDataString(rejectionReason ?? string.Empty)}");

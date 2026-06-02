@@ -10,14 +10,14 @@ public sealed class LoanApplicationValidator
     private const decimal MinimumDesiredAmountExclusive = 0m;
     private const int MinimumTermMonthsExclusive = 0;
 
-    public ErrorOr<Success> Validate(LoanApplicationRequest request)
+    public static ErrorOr<Success> Validate(LoanApplicationRequest request)
     {
         if (request.DesiredAmount <= MinimumDesiredAmountExclusive)
         {
             return Error.Validation("LoanApplication.InvalidAmount", "Desired amount must be greater than zero.");
         }
 
-        if (!Enum.IsDefined(typeof(LoanType), request.LoanType))
+        if (!Enum.IsDefined(request.LoanType))
         {
             return Error.Validation("LoanApplication.InvalidLoanType", "Invalid loan type.");
         }

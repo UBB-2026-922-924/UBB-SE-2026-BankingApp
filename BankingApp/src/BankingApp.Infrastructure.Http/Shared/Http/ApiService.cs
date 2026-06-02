@@ -18,10 +18,22 @@ public sealed class ApiService(IApiClient apiClient)
         return Unwrap(result);
     }
 
+    public async Task PostAsync<TRequest>(string endpoint, TRequest data)
+    {
+        ErrorOr<Success> result = await apiClient.PostAsync(NormalizeEndpoint(endpoint), data);
+        Unwrap(result);
+    }
+
     public async Task<TResponse> PutAsync<TRequest, TResponse>(string endpoint, TRequest data)
     {
         ErrorOr<TResponse> result = await apiClient.PutAsync<TRequest, TResponse>(NormalizeEndpoint(endpoint), data);
         return Unwrap(result);
+    }
+
+    public async Task PutAsync<TRequest>(string endpoint, TRequest data)
+    {
+        ErrorOr<Success> result = await apiClient.PutAsync(NormalizeEndpoint(endpoint), data);
+        Unwrap(result);
     }
 
     private static string NormalizeEndpoint(string endpoint)

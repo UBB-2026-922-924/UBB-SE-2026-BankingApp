@@ -70,27 +70,33 @@ public sealed class InvestmentRepository(AppDbContext dbContext) : IInvestmentRe
         string? ticker,
         CancellationToken cancellationToken)
     {
+        List<int> holdingIds = await dbContext.InvestmentHoldings
+            .AsNoTracking()
+            .Where(holding => holding.PortfolioId == portfolioId)
+            .Select(holding => holding.Id)
+            .ToListAsync(cancellationToken);
+
         IQueryable<InvestmentTransaction> query = dbContext.InvestmentTransactions
             .AsNoTracking()
-            .Where(t => t.Holding.PortfolioId == portfolioId);
+            .Where(transaction => holdingIds.Contains(transaction.HoldingId));
 
         if (startDate.HasValue)
         {
-            query = query.Where(t => t.ExecutedAt >= startDate.Value);
+            query = query.Where(transaction => transaction.ExecutedAt >= startDate.Value);
         }
 
         if (endDate.HasValue)
         {
-            query = query.Where(t => t.ExecutedAt <= endDate.Value);
+            query = query.Where(transaction => transaction.ExecutedAt <= endDate.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(ticker))
         {
-            query = query.Where(t => t.Ticker == ticker);
+            query = query.Where(transaction => transaction.Ticker == ticker);
         }
 
         return await query
-            .OrderByDescending(t => t.ExecutedAt)
+            .OrderByDescending(transaction => transaction.ExecutedAt)
             .ToListAsync(cancellationToken);
     }
 }
