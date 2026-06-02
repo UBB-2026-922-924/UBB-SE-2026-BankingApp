@@ -1,6 +1,6 @@
 namespace BankingApp.Web.ViewModels.Shared;
 
-using BankingApp.Contracts.Features.AccountOverview.Dtos;
+using Contracts.Features.AccountOverview.Dtos;
 
 public sealed class AccountCardViewModel
 {

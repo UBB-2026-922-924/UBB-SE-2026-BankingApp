@@ -26,7 +26,7 @@ public sealed class ExecuteTransferCommandTests
     private readonly Mock<IBeneficiaryRepository> _beneficiaryRepositoryMock = new(MockBehavior.Strict);
     private readonly Mock<IUnitOfWork> _unitOfWorkMock = new(MockBehavior.Strict);
     private readonly Mock<ISystemClock> _clockMock = new(MockBehavior.Strict);
-    private readonly Mock<BankingApp.Application.IExchangeRateService> _exchangeRateServiceMock = new();
+    private readonly Mock<IExchangeRateService> _exchangeRateServiceMock = new();
 
     [Fact]
     public async Task Handle_WhenIbanIsInvalid_ShouldReturnInvalidIbanError()

@@ -175,7 +175,7 @@
                                     </Style>
                                 </ListView.ItemContainerStyle>
                                 <ListView.ItemTemplate>
-                                    <DataTemplate x:DataType="dtos:SavedBillerDto">
+                                    <DataTemplate>
                                         <Border Padding="12,10" CornerRadius="8"
                                                 Background="#EEF3FF"
                                                 BorderBrush="#93C5FD" BorderThickness="1">
@@ -275,7 +275,7 @@
                                     </Style>
                                 </ListView.ItemContainerStyle>
                                 <ListView.ItemTemplate>
-                                    <DataTemplate x:DataType="dtos:BillerDto">
+                                    <DataTemplate>
                                         <Border Padding="14,10" CornerRadius="8"
                                                 Background="#F1F3F7"
                                                 BorderBrush="#C5CAD5" BorderThickness="1">
@@ -357,7 +357,7 @@
                             <StackPanel Spacing="4">
                                 <TextBlock Text="Amount" Style="{StaticResource InputLabel}" />
                                 <NumberBox x:Name="AmountBox"
-                                           Value="{x:Bind ViewModel.AmountAsDouble, Mode=TwoWay}"
+                                           Value="{Binding AmountAsDouble, Mode=TwoWay}"
                                            Minimum="0"
                                            SmallChange="1"
                                            SpinButtonPlacementMode="Compact"
@@ -397,7 +397,7 @@
                                         <SolidColorBrush x:Key="ComboBoxPlaceholderTextForegroundDisabled" Color="#9CA3AF" />
                                     </ComboBox.Resources>
                                     <ComboBox.ItemTemplate>
-                                        <DataTemplate x:DataType="payments:AccountDto">
+                                        <DataTemplate>
                                             <StackPanel Padding="4,2" Spacing="1">
                                                 <TextBlock Text="{Binding AccountName}"
                                                            FontWeight="SemiBold"

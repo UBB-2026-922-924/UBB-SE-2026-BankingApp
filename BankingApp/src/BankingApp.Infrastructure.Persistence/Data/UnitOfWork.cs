@@ -1,7 +1,6 @@
 namespace BankingApp.Infrastructure.Persistence.Data;
 
 using Application.Shared.Persistence;
-using Domain.Common;
 using Domain.Common.Primitives;
 
 public sealed class UnitOfWork(AppDbContext dbContext) : IUnitOfWork

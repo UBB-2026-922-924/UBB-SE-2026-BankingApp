@@ -1,4 +1,4 @@
-﻿namespace BankingApp.Desktop.ViewModels;
+namespace BankingApp.Desktop.ViewModels;
 
 /// <summary>
 ///     Represents a formatted transaction row for dashboard display.

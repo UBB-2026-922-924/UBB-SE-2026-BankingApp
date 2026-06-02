@@ -5,11 +5,9 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Contracts.Features.Cards.Dtos;
 using Contracts.Features.Cards.Services;
-using BankingApp.Domain.Enums;
+using Domain.Enums;
 using ErrorOr;
-using Logging;
 using Microsoft.Extensions.Logging;
-using Shared;
 using DesktopLogMessages = Logging.DesktopLogMessages;
 
 /// <summary>Manages card listing and lifecycle actions for the desktop client.</summary>
@@ -131,7 +129,7 @@ public partial class CardViewModel : ObservableObject
     {
         try
         {
-            ErrorOr<System.Collections.Generic.List<CardDetailsDto>> result = await _cardService.GetCardsAsync();
+            ErrorOr<List<CardDetailsDto>> result = await _cardService.GetCardsAsync();
             if (result.IsError)
             {
                 ErrorMessage = "Failed to load cards.";

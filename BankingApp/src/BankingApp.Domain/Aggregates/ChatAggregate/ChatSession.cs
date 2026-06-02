@@ -1,10 +1,10 @@
 ﻿namespace BankingApp.Domain.Aggregates.ChatAggregate;
 
 using System.Collections.Generic;
-using BankingApp.Domain.Aggregates.ChatAggregate.Entities;
-using BankingApp.Domain.Common.Errors;
-using BankingApp.Domain.Common.Primitives;
-using BankingApp.Domain.Enums;
+using Entities;
+using Common.Errors;
+using Common.Primitives;
+using Enums;
 using ErrorOr;
 
 public sealed class ChatSession : AggregateRoot<int>

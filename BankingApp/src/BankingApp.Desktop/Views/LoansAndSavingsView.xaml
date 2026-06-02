@@ -1,0 +1,19 @@
+﻿<Page
+    x:Class="BankingApp.Desktop.Views.LoansAndSavingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid>
+        <TabView IsAddTabButtonVisible="False" CanDragTabs="False">
+
+            <TabViewItem Header="Savings">
+                <ContentControl x:Name="SavingsContent" />
+            </TabViewItem>
+
+            <TabViewItem Header="Loans">
+                <ContentControl x:Name="LoansContent" />
+            </TabViewItem>
+
+        </TabView>
+    </Grid>
+</Page>

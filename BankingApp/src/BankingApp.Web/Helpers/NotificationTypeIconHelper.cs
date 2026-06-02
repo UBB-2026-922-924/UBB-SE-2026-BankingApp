@@ -1,6 +1,6 @@
 namespace BankingApp.Web.Helpers;
 
-using BankingApp.Domain.Enums;
+using Domain.Enums;
 
 /// <summary>
 ///     Provides Bootstrap icon class mappings for <see cref="NotificationType"/> values.

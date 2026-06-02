@@ -61,4 +61,13 @@ public class AppNavigationService : IAppNavigationService
         TPage page = _serviceProvider.GetRequiredService<TPage>();
         _contentFrame!.Content = page;
     }
+
+    /// <inheritdoc />
+    public void NavigateToContent<TPage>(Action<TPage> configure)
+        where TPage : class
+    {
+        TPage page = _serviceProvider.GetRequiredService<TPage>();
+        configure(page);
+        _contentFrame!.Content = page;
+    }
 }

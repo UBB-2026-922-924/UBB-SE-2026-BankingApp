@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using BankingApp.Domain.Aggregates.ChatAggregate;
+using Aggregates.ChatAggregate;
 
 /// <summary>
 ///     Persistence boundary for chat support sessions and their messages.

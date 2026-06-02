@@ -1,5 +1,6 @@
 ﻿namespace BankingApp.Desktop.Navigation;
 
+using System;
 using Microsoft.UI.Xaml.Controls;
 
 /// <summary>
@@ -36,5 +37,13 @@ public interface IAppNavigationService
     /// </summary>
     /// <typeparam name="TPage">The page type to navigate to. Must be a reference type registered in the container.</typeparam>
     public void NavigateToContent<TPage>()
+        where TPage : class;
+
+    /// <summary>
+    ///     Navigates to a content page resolved from DI and configures it before display.
+    /// </summary>
+    /// <typeparam name="TPage">The page type to navigate to. Must be registered in the container.</typeparam>
+    /// <param name="configure">Configuration callback run before assigning the page to the content frame.</param>
+    public void NavigateToContent<TPage>(Action<TPage> configure)
         where TPage : class;
 }

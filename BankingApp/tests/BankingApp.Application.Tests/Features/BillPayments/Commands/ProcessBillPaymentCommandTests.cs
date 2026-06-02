@@ -9,7 +9,6 @@ using Domain.Aggregates.BillPaymentAggregate;
 using BankingApp.Domain.Common.Errors;
 using BankingApp.Domain.ReferenceData.Billers;
 using Contracts.Features.BillPayments.Dtos;
-using Microsoft.Extensions.Logging.Abstractions;
 using NodaMoney;
 using ErrorOr;
 using Shared.Clock;

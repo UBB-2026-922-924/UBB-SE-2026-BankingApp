@@ -1,7 +1,7 @@
 namespace BankingApp.Application.DependencyInjection;
 
 using System.Reflection;
-using BankingApp.Application.Features.Chat.Services;
+using Features.Chat.Services;
 using Features.AccountOverview.Services;
 using Features.Authentication.Services;
 using Features.Beneficiaries.Services;
@@ -9,6 +9,10 @@ using Features.Billers.Services;
 using Features.BillPayments.Services;
 using Features.Cards.Services;
 using Features.Forex.Services;
+using Features.Investments.Services;
+using Features.Loans.Services;
+using Features.Savings.Services;
+using Features.Statistics.Services;
 using Features.Transfers.Services;
 using Features.UserProfile.Services;
 using FluentValidation;
@@ -37,6 +41,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserProfileService, UserProfileService>();
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddScoped<IChatService, ChatService>();
+        services.AddScoped<IInvestmentsService, InvestmentsService>();
+        services.AddScoped<ISavingsService, SavingsService>();
+        services.AddScoped<ILoansService, LoansService>();
+        services.AddScoped<IStatisticsService, StatisticsService>();
         return services;
     }
 }

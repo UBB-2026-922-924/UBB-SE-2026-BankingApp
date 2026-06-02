@@ -1,9 +1,9 @@
 namespace BankingApp.Application.Tests.Features.UserProfile.Queries;
 
-using BankingApp.Application.Common.Security;
+using Common.Security;
 using BankingApp.Application.Features.UserProfile.Services;
 using BankingApp.Contracts.Features.UserProfile.Dtos;
-using BankingApp.Domain.Aggregates.IdentityAggregate.Entities;
+using Domain.Aggregates.IdentityAggregate.Entities;
 using BankingApp.Domain.Common.Errors;
 using ErrorOr;
 using Microsoft.Extensions.Logging.Abstractions;

@@ -1,8 +1,8 @@
 namespace BankingApp.Web.Tests.Controllers;
 
-using BankingApp.Contracts.Features.Cards.Dtos;
-using BankingApp.Contracts.Features.Cards.Services;
-using BankingApp.Domain.Enums;
+using Contracts.Features.Cards.Dtos;
+using Contracts.Features.Cards.Services;
+using Domain.Enums;
 using BankingApp.Web.Controllers;
 using BankingApp.Web.Models.Cards;
 using Microsoft.AspNetCore.Http;
@@ -28,10 +28,6 @@ public sealed class CardsControllerTests : IDisposable
     }
 
     public void Dispose() => _controller.Dispose();
-
-    // -------------------------------------------------------------------------
-    // Index
-    // -------------------------------------------------------------------------
 
     [Fact]
     public async Task Index_WhenServiceReturnsCards_ShouldReturnViewWithCards()
@@ -128,10 +124,6 @@ public sealed class CardsControllerTests : IDisposable
         _cardServiceMock.VerifyAll();
     }
 
-    // -------------------------------------------------------------------------
-    // Issue (POST)
-    // -------------------------------------------------------------------------
-
     [Fact]
     public async Task Issue_WhenInvalidModel_ShouldReturnIndexViewWithIssueFormOpenWithoutCallingIssueService()
     {
@@ -206,10 +198,6 @@ public sealed class CardsControllerTests : IDisposable
         _cardServiceMock.VerifyAll();
     }
 
-    // -------------------------------------------------------------------------
-    // Freeze
-    // -------------------------------------------------------------------------
-
     [Fact]
     public async Task Freeze_WhenServiceSucceeds_ShouldSetSuccessTempDataAndRedirectToIndex()
     {
@@ -246,10 +234,6 @@ public sealed class CardsControllerTests : IDisposable
         _cardServiceMock.VerifyAll();
     }
 
-    // -------------------------------------------------------------------------
-    // Unfreeze
-    // -------------------------------------------------------------------------
-
     [Fact]
     public async Task Unfreeze_WhenServiceSucceeds_ShouldSetSuccessTempDataAndRedirectToIndex()
     {
@@ -285,10 +269,6 @@ public sealed class CardsControllerTests : IDisposable
         _controller.TempData["Error"].Should().Be("Could not unfreeze the card. Please try again.");
         _cardServiceMock.VerifyAll();
     }
-
-    // -------------------------------------------------------------------------
-    // Cancel
-    // -------------------------------------------------------------------------
 
     [Fact]
     public async Task Cancel_WhenServiceSucceeds_ShouldSetSuccessTempDataAndRedirectToIndex()

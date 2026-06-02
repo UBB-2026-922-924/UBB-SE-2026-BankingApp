@@ -1,7 +1,7 @@
 namespace BankingApp.Web.ViewModels.Profile;
 
 using System.ComponentModel.DataAnnotations;
-using BankingApp.Contracts.Features.UserProfile.Validation;
+using Contracts.Features.UserProfile.Validation;
 
 /// <summary>
 ///     View model for step two of the two-step security flow: set new password.

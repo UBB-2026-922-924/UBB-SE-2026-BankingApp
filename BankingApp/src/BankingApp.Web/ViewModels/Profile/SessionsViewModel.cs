@@ -1,6 +1,6 @@
 namespace BankingApp.Web.ViewModels.Profile;
 
-using BankingApp.Contracts.Features.UserProfile.Dtos;
+using Contracts.Features.UserProfile.Dtos;
 
 public sealed class SessionsViewModel
 {

@@ -1,8 +1,8 @@
 namespace BankingApp.Web.Controllers;
 
-using BankingApp.Contracts.Features.AccountOverview.Dtos;
-using BankingApp.Contracts.Features.AccountOverview.Services;
-using BankingApp.Web.Models.Dashboard;
+using Contracts.Features.AccountOverview.Dtos;
+using Contracts.Features.AccountOverview.Services;
+using Models.Dashboard;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

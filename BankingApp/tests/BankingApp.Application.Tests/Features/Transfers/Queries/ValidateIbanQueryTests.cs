@@ -45,7 +45,7 @@ public sealed class ValidateIbanQueryTests
             new Mock<IBeneficiaryRepository>().Object,
             new Mock<Shared.Persistence.IUnitOfWork>().Object,
             new Mock<Shared.Clock.ISystemClock>().Object,
-            new Mock<BankingApp.Application.IExchangeRateService>().Object,
+            new Mock<IExchangeRateService>().Object,
             NullLogger<TransferService>.Instance);
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace BankingApp.Domain.Aggregates.ChatAggregate.Entities;
 
-using BankingApp.Domain.Common.Primitives;
+using Common.Primitives;
 
 public sealed class ChatAttachment : Entity<int>
 {

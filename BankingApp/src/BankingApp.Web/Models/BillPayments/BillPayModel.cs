@@ -2,7 +2,7 @@ namespace BankingApp.Web.Models.BillPayments;
 
 using System.ComponentModel.DataAnnotations;
 using BankingApp.Contracts.Features.BillPayments.Dtos;
-using BankingApp.Contracts.Features.Billers.Dtos;
+using Contracts.Features.Billers.Dtos;
 
 /// <summary>
 ///     Model for the bill-payment entry form (Index).

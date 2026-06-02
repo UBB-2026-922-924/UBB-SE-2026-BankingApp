@@ -2,7 +2,6 @@ namespace BankingApp.Web.Models.Forex;
 
 using System.ComponentModel.DataAnnotations;
 using BankingApp.Contracts.Features.BillPayments.Dtos;
-using BankingApp.Contracts.Features.Forex;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 /// <summary>

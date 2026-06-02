@@ -1,6 +1,6 @@
 namespace BankingApp.Application.Tests.Features.Forex.Commands;
 
-using BankingApp.Application;
+using Application;
 using BankingApp.Application.Features.Forex.Services;
 using BankingApp.Domain.Common.Errors;
 using Contracts.Features.Forex.Dtos;

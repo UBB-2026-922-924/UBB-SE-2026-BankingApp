@@ -1,7 +1,7 @@
 namespace BankingApp.Web.Models.Cards;
 
 using System.ComponentModel.DataAnnotations;
-using BankingApp.Domain.Enums;
+using Domain.Enums;
 
 /// <summary>Form model for issuing a new card.</summary>
 public class IssueCardModel

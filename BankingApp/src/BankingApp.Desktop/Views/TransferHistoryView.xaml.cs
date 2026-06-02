@@ -1,6 +1,5 @@
 ﻿namespace BankingApp.Desktop.Views;
 
-using System;
 using ViewModels;
 using Microsoft.UI.Xaml;
 
@@ -19,6 +18,7 @@ public sealed partial class TransferHistoryView
     {
         InitializeComponent();
         ViewModel = viewModel;
+        DataContext = ViewModel;
         Loaded += OnPageLoaded;
     }
 

@@ -34,7 +34,7 @@
                     <TextBlock Text="Select currencies, enter an amount, and preview the exchange rate before confirming." Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                 </StackPanel>
                 
-                <Button Grid.Column="1" VerticalAlignment="Center" Command="{x:Bind _viewModel.ToggleHistoryCommand}">
+                <Button Grid.Column="1" VerticalAlignment="Center" Command="{Binding ToggleHistoryCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xE81C;" FontSize="16"/>
                         <TextBlock Text="Exchange History" />
@@ -55,14 +55,14 @@
                     <!-- From Section -->
                     <ComboBox x:Name="SourceAccountCombo"
                               Header="From Account"
-                              ItemsSource="{x:Bind _viewModel.Accounts, Mode=OneWay}"
+                              ItemsSource="{Binding Accounts}"
                               SelectedItem="{Binding SelectedSourceAccount, Mode=TwoWay}"
                               DisplayMemberPath="AccountName"
                               HorizontalAlignment="Stretch" />
 
                     <ComboBox x:Name="SourceCurrencyCombo"
                               Header="From Currency"
-                              ItemsSource="{x:Bind _viewModel.AvailableCurrencies, Mode=OneWay}"
+                              ItemsSource="{Binding AvailableCurrencies}"
                               SelectedItem="{Binding SourceCurrency, Mode=TwoWay}"
                               HorizontalAlignment="Stretch" />
 
@@ -78,14 +78,14 @@
                     <!-- To Section -->
                     <ComboBox x:Name="TargetAccountCombo"
                               Header="To Account"
-                              ItemsSource="{x:Bind _viewModel.Accounts, Mode=OneWay}"
+                              ItemsSource="{Binding Accounts}"
                               SelectedItem="{Binding SelectedTargetAccount, Mode=TwoWay}"
                               DisplayMemberPath="AccountName"
                               HorizontalAlignment="Stretch" />
 
                     <ComboBox x:Name="TargetCurrencyCombo"
                               Header="To Currency"
-                              ItemsSource="{x:Bind _viewModel.AvailableCurrencies, Mode=OneWay}"
+                              ItemsSource="{Binding AvailableCurrencies}"
                               SelectedItem="{Binding TargetCurrency, Mode=TwoWay}"
                               HorizontalAlignment="Stretch" />
 
@@ -93,11 +93,11 @@
 
                     <!-- Action Buttons and Preview Section -->
                     <Button Content="Preview Exchange Rate" Style="{StaticResource AccentButtonStyle}"
-                            HorizontalAlignment="Stretch" Command="{x:Bind _viewModel.LoadPreviewCommand}"
-                            Visibility="{x:Bind _viewModel.IsInitialStep, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                            HorizontalAlignment="Stretch" Command="{Binding LoadPreviewCommand}"
+                            Visibility="{Binding IsInitialStep, Converter={StaticResource BoolToVis}}" />
 
                     <!-- Preview details -->
-                    <StackPanel Spacing="8" Visibility="{x:Bind _viewModel.IsPreviewStep, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Spacing="8" Visibility="{Binding IsPreviewStep, Converter={StaticResource BoolToVis}}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -106,53 +106,53 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="Live Rate:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                <TextBlock Text="{x:Bind _viewModel.LiveRate, Mode=OneWay}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding LiveRate}" FontWeight="SemiBold" />
                             </StackPanel>
                             <StackPanel Grid.Column="1">
                                 <TextBlock Text="Commission:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                <TextBlock Text="{x:Bind _viewModel.Commission, Mode=OneWay}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Commission}" FontWeight="SemiBold" />
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="Target Amount:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                <TextBlock Text="{x:Bind _viewModel.TargetAmount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{ThemeResource SystemFillColorSuccessBrush}" />
+                                <TextBlock Text="{Binding TargetAmount}" FontWeight="SemiBold" Foreground="{ThemeResource SystemFillColorSuccessBrush}" />
                             </StackPanel>
                         </Grid>
                         
                         <Button Content="Confirm Exchange" Style="{StaticResource AccentButtonStyle}"
-                                HorizontalAlignment="Stretch" Command="{x:Bind _viewModel.ExecuteExchangeCommand}" Margin="0,8,0,0"/>
-                        <Button Content="Cancel" HorizontalAlignment="Stretch" Command="{x:Bind _viewModel.ResetCommand}"/>
+                                HorizontalAlignment="Stretch" Command="{Binding ExecuteExchangeCommand}" Margin="0,8,0,0"/>
+                        <Button Content="Cancel" HorizontalAlignment="Stretch" Command="{Binding ResetCommand}"/>
                     </StackPanel>
 
                     <!-- Success Details -->
-                    <StackPanel Spacing="8" Visibility="{x:Bind _viewModel.IsResultStep, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Spacing="8" Visibility="{Binding IsResultStep, Converter={StaticResource BoolToVis}}">
                         <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                             <FontIcon Glyph="&#xE73E;" Foreground="{ThemeResource SystemFillColorSuccessBrush}" FontSize="24"/>
                             <TextBlock Text="Exchange Successful!" FontWeight="Bold" FontSize="18" Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                             <TextBlock Text="Transaction Reference:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                            <TextBlock Text="{x:Bind _viewModel.TransactionReference, Mode=OneWay}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding TransactionReference}" FontWeight="SemiBold" />
                         </StackPanel>
                         
                         <Button Content="New Exchange" Style="{StaticResource AccentButtonStyle}"
-                                HorizontalAlignment="Stretch" Command="{x:Bind _viewModel.ResetCommand}" Margin="0,8,0,0"/>
+                                HorizontalAlignment="Stretch" Command="{Binding ResetCommand}" Margin="0,8,0,0"/>
                     </StackPanel>
 
                     <!-- Error message -->
-                    <TextBlock Text="{x:Bind _viewModel.ErrorMessage, Mode=OneWay}"
+                    <TextBlock Text="{Binding ErrorMessage}"
                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                                FontWeight="SemiBold"
                                TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 
-                    <ProgressRing IsActive="{x:Bind _viewModel.IsLoading, Mode=OneWay}" Width="24" Height="24" HorizontalAlignment="Center" />
+                    <ProgressRing IsActive="{Binding IsLoading}" Width="24" Height="24" HorizontalAlignment="Center" />
                 </StackPanel>
             </Border>
 
             <!-- Exchange History Section -->
-            <StackPanel Grid.Row="2" Visibility="{x:Bind _viewModel.IsHistoryVisible, Mode=OneWay, Converter={StaticResource BoolToVis}}" Margin="0,24,0,0">
+            <StackPanel Grid.Row="2" Visibility="{Binding IsHistoryVisible, Converter={StaticResource BoolToVis}}" Margin="0,24,0,0">
                 <TextBlock Text="Exchange History" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
                 
-                <ListView ItemsSource="{x:Bind _viewModel.TransactionHistory, Mode=OneWay}" MaxHeight="400" 
+                <ListView ItemsSource="{Binding TransactionHistory}" MaxHeight="400" 
                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8"
                           Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                     <ListView.ItemTemplate>

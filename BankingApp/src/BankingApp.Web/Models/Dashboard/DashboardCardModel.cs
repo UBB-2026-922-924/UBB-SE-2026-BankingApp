@@ -1,8 +1,8 @@
 namespace BankingApp.Web.Models.Dashboard;
 
 using System.Globalization;
-using BankingApp.Contracts.Features.AccountOverview.Dtos;
-using BankingApp.Domain.Enums;
+using Contracts.Features.AccountOverview.Dtos;
+using Domain.Enums;
 
 /// <summary>Model for a single payment card displayed on the dashboard.</summary>
 public class DashboardCardModel
@@ -77,8 +77,6 @@ public class DashboardCardModel
             $"Contactless:     {(dto.IsContactlessEnabled ? "Enabled" : "Disabled")}\n" +
             $"Online Payments: {(dto.IsOnlineEnabled ? "Enabled" : "Disabled")}";
     }
-
-    // ── Helpers ──────────────────────────────────────────────────────────────
 
     private static string MaskCardNumber(string? cardNumber)
     {

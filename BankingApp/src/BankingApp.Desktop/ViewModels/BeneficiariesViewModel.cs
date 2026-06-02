@@ -8,10 +8,8 @@ using System.Threading.Tasks;
 using Contracts.Features.Beneficiaries.Dtos;
 using Contracts.Features.Beneficiaries.Services;
 using ErrorOr;
-using Logging;
 using Microsoft.Extensions.Logging;
 using Navigation;
-using Shared;
 using State;
 using DesktopLogMessages = Logging.DesktopLogMessages;
 

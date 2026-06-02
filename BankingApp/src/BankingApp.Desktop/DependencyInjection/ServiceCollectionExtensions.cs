@@ -86,6 +86,12 @@ public static class ServiceCollectionExtensions
         services.AddTransient<TransferViewModel>();
         services.AddTransient<TransferHistoryViewModel>();
         services.AddTransient<BillPayViewModel>();
+        services.AddTransient<InvestmentsViewModel>();
+        services.AddTransient<CryptoTradingViewModel>();
+        services.AddTransient<SavingsViewModel>();
+        services.AddTransient<LoansViewModel>();
+        services.AddTransient<LoansAndSavingsViewModel>();
+        services.AddTransient<StatisticsViewModel>();
 
         services.AddTransient<CardViewModel>();
 
@@ -105,6 +111,15 @@ public static class ServiceCollectionExtensions
         services.AddTransient<TransferView>();
         services.AddTransient<TransferHistoryView>();
         services.AddTransient<CardsView>();
+        services.AddTransient<InvestmentsView>();
+        services.AddTransient<CryptoTradingView>();
+        services.AddTransient<SavingsView>();
+        services.AddTransient<LoansView>();
+        services.AddTransient<LoansAndSavingsView>();
+        services.AddTransient<StatisticsView>();
+        services.AddTransient<AmortizationScheduleView>();
+        services.AddTransient<ChatRoutingView>();
+        services.AddTransient<ChatView>();
 
         return services;
     }

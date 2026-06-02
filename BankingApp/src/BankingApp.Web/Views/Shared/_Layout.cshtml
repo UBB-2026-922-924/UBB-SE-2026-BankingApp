@@ -13,12 +13,12 @@
 <body>
 
     @{
-        string? currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-        string? currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
         bool IsActive(string controller, string? action = null)
         {
-            bool controllerMatch = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase);
+            var controllerMatch = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase);
             if (action is null) return controllerMatch;
             return controllerMatch && string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
         }
@@ -49,7 +49,7 @@
                                        asp-controller="Dashboard" asp-action="Index">
                                     <i class="bi bi-grid-1x2 me-1"></i>Dashboard
                                     @{
-                                        int notifCount = ViewData["NotificationCount"] is int n ? n : 0;
+                                        var notifCount = ViewData["NotificationCount"] is int n ? n : 0;
                                     }
                                     @if (notifCount > 0)
                                     {
@@ -95,12 +95,47 @@
                                 </a>
                             </li>
 
+                            <li class="nav-item">
+                                <a class="nav-link @(IsActive("Savings") ? "active" : string.Empty)"
+                                       asp-controller="Savings" asp-action="Index">
+                                    <i class="bi bi-piggy-bank me-1"></i>Savings
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(IsActive("Loans") ? "active" : string.Empty)"
+                                       asp-controller="Loans" asp-action="Index">
+                                    <i class="bi bi-cash-stack me-1"></i>Loans
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(IsActive("InvestmentsAndTrading") ? "active" : string.Empty)"
+                                       asp-controller="InvestmentsAndTrading" asp-action="Index">
+                                    <i class="bi bi-graph-up-arrow me-1"></i>Investments
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(IsActive("Statistics") ? "active" : string.Empty)"
+                                       asp-controller="Statistics" asp-action="Index">
+                                    <i class="bi bi-bar-chart-line me-1"></i>Statistics
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(IsActive("Chat") ? "active" : string.Empty)"
+                                       asp-controller="Chat" asp-action="Index">
+                                    <i class="bi bi-chat-dots me-1"></i>Support
+                                </a>
+                            </li>
+
                         </ul>
 
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-1">
 
                             @{
-                                string displayName = User.FindFirst("name")?.Value
+                                var displayName = User.FindFirst("name")?.Value
                                                   ?? User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
                                                   ?? User.Identity?.Name
                                                   ?? "Account";

@@ -7,9 +7,7 @@ using Contracts.Features.UserProfile.Dtos;
 using Contracts.Features.UserProfile.Services;
 using Shared.Enums;
 using ErrorOr;
-using Logging;
 using Microsoft.Extensions.Logging;
-using Shared;
 using DesktopLogMessages = Logging.DesktopLogMessages;
 
 /// <summary>Handles active-session loading and revocation for the profile area.</summary>

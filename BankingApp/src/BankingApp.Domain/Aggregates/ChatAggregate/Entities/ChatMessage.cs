@@ -1,8 +1,8 @@
 ﻿namespace BankingApp.Domain.Aggregates.ChatAggregate.Entities;
 
 using System.Collections.Generic;
-using BankingApp.Domain.Common.Primitives;
-using BankingApp.Domain.Enums;
+using Common.Primitives;
+using Enums;
 public sealed class ChatMessage : Entity<int>
 {
     private readonly List<ChatAttachment> _attachments = [];

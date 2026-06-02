@@ -1,7 +1,7 @@
 namespace BankingApp.Web.Tests.Controllers;
 
-using BankingApp.Contracts.Features.Beneficiaries.Dtos;
-using BankingApp.Contracts.Features.Beneficiaries.Services;
+using Contracts.Features.Beneficiaries.Dtos;
+using Contracts.Features.Beneficiaries.Services;
 using BankingApp.Web.Controllers;
 using BankingApp.Web.Models.Beneficiaries;
 using Microsoft.AspNetCore.Http;

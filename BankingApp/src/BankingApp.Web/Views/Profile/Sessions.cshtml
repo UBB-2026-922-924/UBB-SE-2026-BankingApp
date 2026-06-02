@@ -1,5 +1,4 @@
 @model BankingApp.Web.ViewModels.Profile.SessionsViewModel
-@using BankingApp.Contracts.Features.UserProfile.Dtos
 @{
     ViewData["Title"] = "Profile";
     ViewData["ActiveProfileTab"] = "Sessions";
@@ -41,10 +40,10 @@
                 else
                 {
                     <div class="profile-sessions-list">
-                        @foreach (SessionDto session in Model.Sessions)
+                        @foreach (var session in Model.Sessions)
                         {
-                            bool isCurrent = session.Id == Model.CurrentSessionId;
-                            string confirmMessage = isCurrent
+                            var isCurrent = session.Id == Model.CurrentSessionId;
+                            var confirmMessage = isCurrent
                                 ? "This will sign you out of this device. Continue?"
                                 : "Revoke this session?";
 

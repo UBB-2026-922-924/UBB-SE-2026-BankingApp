@@ -2,8 +2,8 @@ namespace BankingApp.Web.Tests.Controllers;
 
 using System.Globalization;
 using System.Security.Claims;
-using BankingApp.Contracts.Features.UserProfile.Dtos;
-using BankingApp.Contracts.Features.UserProfile.Services;
+using Contracts.Features.UserProfile.Dtos;
+using Contracts.Features.UserProfile.Services;
 using BankingApp.Contracts.Http;
 using BankingApp.Web.Controllers;
 using BankingApp.Web.ViewModels.Profile;
@@ -50,10 +50,6 @@ public sealed class ProfileControllerTests : IDisposable
 
     public void Dispose() => _controller.Dispose();
 
-    // ────────────────────────────────────────────────────────────────
-    //  Index
-    // ────────────────────────────────────────────────────────────────
-
     [Fact]
     public void Index_ShouldRedirectToPersonalInfo()
     {
@@ -66,10 +62,6 @@ public sealed class ProfileControllerTests : IDisposable
         _profileServiceMock.VerifyNoOtherCalls();
         _aspNetAuthenticationMock.VerifyNoOtherCalls();
     }
-
-    // ────────────────────────────────────────────────────────────────
-    //  PersonalInfo
-    // ────────────────────────────────────────────────────────────────
 
     [Fact]
     public async Task PersonalInfo_WhenGet_ShouldMapAllFieldsIncludingAddressAndSetIsUnlockedToFalseIfNoTempData()
@@ -283,10 +275,6 @@ public sealed class ProfileControllerTests : IDisposable
         redirect.ActionName.Should().Be(nameof(ProfileController.PersonalInfo));
         _controller.TempData.Should().NotContainKey("Profile_VerifiedPassword");
     }
-
-    // ────────────────────────────────────────────────────────────────
-    //  Security — Two-Step Flow
-    // ────────────────────────────────────────────────────────────────
 
     [Fact]
     public async Task Security_WhenGet_ShouldReturnVerifyPasswordView()
@@ -506,10 +494,6 @@ public sealed class ProfileControllerTests : IDisposable
         _aspNetAuthenticationMock.VerifyNoOtherCalls();
     }
 
-    // ────────────────────────────────────────────────────────────────
-    //  Notifications
-    // ────────────────────────────────────────────────────────────────
-
     [Fact]
     public async Task Notifications_WhenGet_ShouldReturnViewWithPreferences()
     {
@@ -612,10 +596,6 @@ public sealed class ProfileControllerTests : IDisposable
         _profileServiceMock.VerifyAll();
         _aspNetAuthenticationMock.VerifyNoOtherCalls();
     }
-
-    // ────────────────────────────────────────────────────────────────
-    //  Sessions
-    // ────────────────────────────────────────────────────────────────
 
     [Fact]
     public async Task Sessions_WhenGet_ShouldCallServiceAndReturnViewWithSessionsAndCurrentSessionIdMarked()
