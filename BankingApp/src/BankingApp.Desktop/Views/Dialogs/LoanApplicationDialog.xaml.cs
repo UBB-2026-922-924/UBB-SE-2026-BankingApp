@@ -16,7 +16,7 @@
 
         private async void OnSubmitClicked(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            var deferral = args.GetDeferral();
+            ContentDialogButtonClickDeferral? deferral = args.GetDeferral();
             if (!this.viewModel.IsReviewVisible)
             {
                 args.Cancel = true;

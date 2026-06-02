@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankingApp.Api.Controllers
 {
+    using Contracts.Features.Investments;
+    using Domain.Aggregates.SavingsAggregate.Entities;
+
     [ApiController]
     [Route("api/[controller]")]
     public class SavingsController : ControllerBase
@@ -25,7 +28,7 @@ namespace BankingApp.Api.Controllers
         {
             try
             {
-                var newSavingsAccount = await _savingsRepository.CreateSavingsAccountAsync(account, apy);
+                SavingsAccount newSavingsAccount = await _savingsRepository.CreateSavingsAccountAsync(account, apy);
                 return Ok(newSavingsAccount);
             }
             catch (InvalidOperationException ex)
@@ -43,7 +46,7 @@ namespace BankingApp.Api.Controllers
         {
             try
             {
-                var accounts = await _savingsRepository.GetSavingsAccountsByUserIdAsync(userId, includesClosed);
+                IReadOnlyCollection<SavingsAccount> accounts = await _savingsRepository.GetSavingsAccountsByUserIdAsync(userId, includesClosed);
                 return Ok(accounts);
             }
             catch (ArgumentException ex)
@@ -57,7 +60,7 @@ namespace BankingApp.Api.Controllers
         {
             try
             {
-                var response = await _savingsRepository.DepositAsync(accountId, amount, source);
+                (decimal NewBalance, int TransactionId, DateTime Timestamp) response = await _savingsRepository.DepositAsync(accountId, amount, source);
                 return Ok(response);
             }
             catch (ArgumentException ex)
@@ -79,7 +82,7 @@ namespace BankingApp.Api.Controllers
         {
             try
             {
-                var response = await _savingsRepository.WithdrawAsync(accountId, amount, destinationLabel, earlyWithdrawalPenalty);
+                (decimal AmountWithdrawn, decimal PenaltyApplied, decimal NewBalance, DateTime ProcessedAt) response = await _savingsRepository.WithdrawAsync(accountId, amount, destinationLabel, earlyWithdrawalPenalty);
                 return Ok(response);
             }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
@@ -97,7 +100,7 @@ namespace BankingApp.Api.Controllers
         {
             try
             {
-                var response = await _savingsRepository.CloseSavingsAccountAsync(accountId, destinationAccountId, transferAmount, earlyClosurePenalty);
+                (decimal TransferredAmount, decimal PenaltyApplied, DateTime ClosedAt) response = await _savingsRepository.CloseSavingsAccountAsync(accountId, destinationAccountId, transferAmount, earlyClosurePenalty);
                 return Ok(response);
             }
             catch (InvalidOperationException ex)
@@ -109,7 +112,7 @@ namespace BankingApp.Api.Controllers
         [HttpGet("{accountId}/auto-deposit")]
         public async Task<ActionResult<AutoDeposit>> GetAutoDepositAsync(int accountId)
         {
-            var autoDeposit = await _savingsRepository.GetAutoDepositAsync(accountId);
+            AutoDeposit? autoDeposit = await _savingsRepository.GetAutoDepositAsync(accountId);
             if (autoDeposit == null)
             {
                 return NotFound("Auto-deposit not found.");
@@ -128,7 +131,7 @@ namespace BankingApp.Api.Controllers
         [HttpGet("user/{userId}/funding-sources")]
         public async Task<ActionResult<List<FundingSourceOption>>> GetFundingSourcesAsync(int userId)
         {
-            var sources = await _savingsRepository.GetFundingSourcesAsync(userId);
+            IReadOnlyCollection<(int Id, string DisplayName)> sources = await _savingsRepository.GetFundingSourcesAsync(userId);
             return Ok(sources);
         }
 
@@ -137,7 +140,7 @@ namespace BankingApp.Api.Controllers
         {
             try
             {
-                var result = await _savingsRepository.GetTransactionsPagedAsync(accountId, filter, page, pageSize);
+                (IReadOnlyCollection<SavingsTransaction> Items, int TotalCount) result = await _savingsRepository.GetTransactionsPagedAsync(accountId, filter, page, pageSize);
                 return Ok(new
                 {
                     Items = result.Items,
@@ -157,7 +160,7 @@ namespace BankingApp.Api.Controllers
             int currentAccountId,
             [FromQuery] int userId)
         {
-            var accounts = await _savingsRepository.GetSavingsAccountsByUserIdAsync(userId, false);
+            IReadOnlyCollection<SavingsAccount> accounts = await _savingsRepository.GetSavingsAccountsByUserIdAsync(userId, false);
             return Ok(accounts.Where(a => a.IdentificationNumber != currentAccountId).ToList());
         }
     }

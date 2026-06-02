@@ -19,7 +19,7 @@
 
         private async void OnConfirmClicked(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            var deferral = args.GetDeferral();
+            ContentDialogButtonClickDeferral? deferral = args.GetDeferral();
             try
             {
                 await this.viewModel.PayInstallmentAsync();

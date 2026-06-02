@@ -3,6 +3,9 @@ using BankingApp.Web.ViewModels.Statistics;
 
 namespace BankingApp.Web.Controllers
 {
+    using Application.Features.Statistics.Services;
+    using Contracts.Features.Statistics.Dtos;
+
     public class StatisticsController : Controller
     {
         private readonly IStatisticsService _statisticsService;
@@ -17,10 +20,10 @@ namespace BankingApp.Web.Controllers
         {
             try
             {
-                var spendingByCategory = await _statisticsService.GetSpendingByCategoryAsync();
-                var incomeVsExpenses = await _statisticsService.GetIncomeVsExpensesAsync();
-                var balanceTrends = await _statisticsService.GetBalanceTrendsAsync();
-                var topRecipients = await _statisticsService.GetTopRecipientsAsync();
+                SpendingByCategoryResponse? spendingByCategory = await _statisticsService.GetSpendingByCategoryAsync();
+                IncomeVsExpensesResponse? incomeVsExpenses = await _statisticsService.GetIncomeVsExpensesAsync();
+                BalanceTrendsResponse? balanceTrends = await _statisticsService.GetBalanceTrendsAsync();
+                TopRecipientsResponse? topRecipients = await _statisticsService.GetTopRecipientsAsync();
 
                 var viewModel = new StatisticsViewModel
                 {

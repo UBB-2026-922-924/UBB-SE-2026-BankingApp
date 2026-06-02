@@ -5,6 +5,8 @@ using BankingApp.Domain.Aggregates.ChatAggregate;
 
 namespace BankingApp.Infrastructure.Http.Features.Chat.Services
 {
+    using Domain.Aggregates.ChatAggregate.Entities;
+
     public interface IChatRepoProxy
     {
         Task<List<ChatSession>?> GetSessionsAsync();

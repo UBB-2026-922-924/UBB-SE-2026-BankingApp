@@ -1,11 +1,6 @@
-﻿// <copyright file="LoanType.cs" company="Dev Core">
-// Copyright (c) Dev Core. All rights reserved.
-// </copyright>
+﻿namespace BankingApp.Domain.Enums;
 
-/// <summary>
-/// Defines supported loan product categories.
-/// </summary>
-namespace BankingApp.Domain.Enums;
+/// <summary>Defines supported loan product categories.</summary>
 public enum LoanType
 {
     /// <summary>Unsecured personal loan.</summary>

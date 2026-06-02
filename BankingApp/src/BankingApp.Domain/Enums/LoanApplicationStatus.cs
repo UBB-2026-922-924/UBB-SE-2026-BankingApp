@@ -1,11 +1,6 @@
-﻿// <copyright file="LoanApplicationStatus.cs" company="Dev Core">
-// Copyright (c) Dev Core. All rights reserved.
-// </copyright>
+﻿namespace BankingApp.Domain.Enums;
 
-/// <summary>
-/// Represents the review status of a loan application.
-/// </summary>
-namespace BankingApp.Domain.Enums;
+/// <summary>Represents the review status of a loan application.</summary>
 public enum LoanApplicationStatus
 {
     /// <summary>The application is awaiting review.</summary>

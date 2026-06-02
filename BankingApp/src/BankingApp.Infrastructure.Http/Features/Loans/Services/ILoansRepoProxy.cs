@@ -6,6 +6,8 @@ using BankingApp.Domain.Aggregates.LoanAggregate;
 
 namespace BankingApp.Infrastructure.Http.Features.Loans.Services
 {
+    using Domain.Aggregates.LoanAggregate.Entities;
+
     /// <summary>
     /// RepoProxy for Loans (desktop -> HTTP API).
     /// This is intentionally low-level (CRUD-ish) so business rules can live in desktop services.

@@ -1,70 +1,44 @@
-﻿using System.Collections.Generic;
+namespace BankingApp.Domain.Repositories;
+
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using BankingApp.Domain.Aggregates.LoanAggregate;
-using BankingApp.Contracts.Features.Loans.Dtos;
+using BankingApp.Domain.Aggregates.LoanAggregate.Entities;
 using BankingApp.Domain.Enums;
 
-namespace BankingApp.Domain.Repositories
+public interface ILoanRepository
 {
-    public interface ILoanRepository
-    {
-        /// <summary>Gets all loans.</summary>
-        /// <returns>The complete loan list.</returns>
-        Task<List<Loan>> GetAllLoansAsync();
+    /// <summary>Gets all loans.</summary>
+    public Task<IReadOnlyCollection<Loan>> GetAllLoansAsync(CancellationToken cancellationToken);
 
-        /// <summary>Gets a loan by identifier.</summary>
-        /// <param name="id">The loan identifier.</param>
-        /// <returns>The matching loan, if found.</returns>
-        Task<Loan> GetLoanByIdAsync(int id);
+    /// <summary>Gets a loan by identifier.</summary>
+    public Task<Loan?> GetLoanByIdAsync(int id, CancellationToken cancellationToken);
 
-        /// <summary>Gets loans for a user.</summary>
-        /// <param name="userId">The user identifier.</param>
-        /// <returns>The user's loans.</returns>
-        Task<List<Loan>> GetLoansByUserAsync(int userId);
+    /// <summary>Gets loans for a user.</summary>
+    public Task<IReadOnlyCollection<Loan>> GetLoansByUserAsync(int userId, CancellationToken cancellationToken);
 
-        /// <summary>Gets loans by status.</summary>
-        /// <param name="loanStatus">The status filter.</param>
-        /// <returns>The matching loans.</returns>
-        Task<List<Loan>> GetLoansByStatusAsync(LoanStatus loanStatus);
+    /// <summary>Gets loans by status.</summary>
+    public Task<IReadOnlyCollection<Loan>> GetLoansByStatusAsync(LoanStatus loanStatus, CancellationToken cancellationToken);
 
-        /// <summary>Gets loans by type.</summary>
-        /// <param name="loanType">The type filter.</param>
-        /// <returns>The matching loans.</returns>
-        Task<List<Loan>> GetLoansByTypeAsync(LoanType loanType);
+    /// <summary>Gets loans by type.</summary>
+    public Task<IReadOnlyCollection<Loan>> GetLoansByTypeAsync(LoanType loanType, CancellationToken cancellationToken);
 
-        /// <summary>Saves an amortization schedule for a loan.</summary>
-        /// <param name="rows">The amortization rows to persist.</param>
-        /// <returns>A task that completes when saving finishes.</returns>
-        Task SaveAmortizationAsync(List<AmortizationRow> rows);
+    /// <summary>Saves an amortization schedule for a loan.</summary>
+    public Task SaveAmortizationAsync(IReadOnlyCollection<AmortizationRow> rows, CancellationToken cancellationToken);
 
-        /// <summary>Gets the amortization schedule for a loan.</summary>
-        /// <param name="loanId">The loan identifier.</param>
-        /// <returns>The amortization rows for the loan.</returns>
-        Task<List<AmortizationRow>> GetAmortizationAsync(int loanId);
+    /// <summary>Gets the amortization schedule for a loan.</summary>
+    public Task<IReadOnlyCollection<AmortizationRow>> GetAmortizationAsync(int loanId, CancellationToken cancellationToken);
 
-        /// <summary>Creates a loan application.</summary>
-        /// <param name="request">The application payload.</param>
-        /// <returns>The created application identifier.</returns>
-        Task<int> CreateLoanApplicationAsync(LoanApplicationRequest request);
+    /// <summary>Persists a new loan application and returns its assigned identifier.</summary>
+    public Task<int> CreateLoanApplicationAsync(LoanApplication application, CancellationToken cancellationToken);
 
-        /// <summary>Updates loan application decision status.</summary>
-        /// <param name="id">The loan application identifier.</param>
-        /// <param name="loanApplicationStatus">The updated status.</param>
-        /// <param name="reason">The optional rejection reason.</param>
-        /// <returns>A task that completes when the update is applied.</returns>
-        Task UpdateLoanApplicationStatusAsync(int id, LoanApplicationStatus loanApplicationStatus, string? reason);
+    /// <summary>Updates loan application decision status.</summary>
+    public Task UpdateLoanApplicationStatusAsync(int id, LoanApplicationStatus loanApplicationStatus, string? reason, CancellationToken cancellationToken);
 
-        /// <summary>Creates a new approved loan record.</summary>
-        /// <param name="loan">The loan payload.</param>
-        /// <returns>The created loan identifier.</returns>
-        Task<int> CreateLoanAsync(Loan loan);
+    /// <summary>Creates a new approved loan record and returns its identifier.</summary>
+    public Task<int> CreateLoanAsync(Loan loan, CancellationToken cancellationToken);
 
-        /// <summary>Updates balance and status after payment.</summary>
-        /// <param name="id">The loan identifier.</param>
-        /// <param name="newBalance">The new outstanding balance.</param>
-        /// <param name="newRemainingMonths">The updated remaining months.</param>
-        /// <param name="newStatus">The updated status.</param>
-        /// <returns>A task that completes when the update is applied.</returns>
-        Task UpdateLoanAfterPaymentAsync(int id, decimal newBalance, int newRemainingMonths, LoanStatus newStatus);
-    }
+    /// <summary>Updates balance and status after payment.</summary>
+    public Task UpdateLoanAfterPaymentAsync(int id, decimal newBalance, int newRemainingMonths, LoanStatus newStatus, CancellationToken cancellationToken);
 }

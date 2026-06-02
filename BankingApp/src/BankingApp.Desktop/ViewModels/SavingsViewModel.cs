@@ -7,13 +7,16 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-            using BankingApp.Contracts.Features.Savings.Dtos;
+    using Application.Features.Savings.Services;
+    using BankingApp.Contracts.Features.Savings.Dtos;
     using BankingApp.Domain.Aggregates.InvestmentAggregate;
     using BankingApp.Domain.Aggregates.InvestmentAggregate;
     using BankingApp.Domain.Aggregates.SavingsAggregate;
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
     using BankingApp.Domain.Enums;
+    using Contracts.Features.Investments;
+    using Domain.Aggregates.SavingsAggregate.Entities;
 
     public partial class SavingsViewModel : BaseViewModel
     {
@@ -257,7 +260,7 @@
 
                 if (this.WithdrawHasEarlyRisk)
                 {
-                    var penaltyRate = await this.savingsService.GetPenaltyDecimalFor("EarlyWithdrawal");
+                    decimal penaltyRate = await this.savingsService.GetPenaltyDecimalFor("EarlyWithdrawal");
                     this.WithdrawPenaltySummary =
                         $"Early withdrawal penalty: {penaltyRate:P2} of amount. Maturity date: {this.SelectedAccount.MaturityDate:d}";
                 }
@@ -352,7 +355,7 @@
 
             try
             {
-                var penaltyRate = await this.savingsService.GetPenaltyDecimalFor("EarlyWithdrawal");
+                decimal penaltyRate = await this.savingsService.GetPenaltyDecimalFor("EarlyWithdrawal");
                 this.WithdrawEstimatedPenalty = await this.savingsService.ComputeWithdrawalPenalty(amount);
                 this.WithdrawNetAmount = await this.savingsService.GetWithdrawNetAmountAsync(amount, this.WithdrawEstimatedPenalty);
                 this.WithdrawHasPenalty = this.WithdrawEstimatedPenalty > ZeroAmount;
@@ -370,9 +373,9 @@
         {
             try
             {
-                var fundingSourcesList = await this.savingsService.GetFundingSourcesAsync(CurrentUser.Id);
+                List<FundingSourceOption> fundingSourcesList = await this.savingsService.GetFundingSourcesAsync(CurrentUser.Id);
                 this.FundingSources.Clear();
-                foreach (var fundingSource in fundingSourcesList)
+                foreach (FundingSourceOption fundingSource in fundingSourcesList)
                 {
                     this.FundingSources.Add(fundingSource);
                 }
@@ -430,7 +433,7 @@
                 }
             }
 
-            var errors = await this.savingsService.ValidateCreateAccountAsync(new ValidateCreateAccountRequest
+            Dictionary<string, string> errors = await this.savingsService.ValidateCreateAccountAsync(new ValidateCreateAccountRequest
             {
                 SelectedSavingsType = this.SelectedSavingsType,
                 AccountName = this.AccountName,
@@ -442,7 +445,7 @@
                 IsGoalSavings = this.IsGoalSavings,
             });
 
-            foreach (var error in errors)
+            foreach (KeyValuePair<string, string> error in errors)
             {
                 this.FieldErrors[error.Key] = error.Value;
             }
@@ -457,7 +460,7 @@
             this.IsLoading = true;
             try
             {
-                var deposit = await this.savingsService.ParsePositiveAmountAsync(this.InitialDepositText);
+                decimal deposit = await this.savingsService.ParsePositiveAmountAsync(this.InitialDepositText);
 
                 var createSavingsAccountDto = new CreateSavingsAccountDto
                 {
@@ -572,7 +575,7 @@
                 this.IsLoading = true;
                 try
                 {
-                    var depositResponseDto = await this.savingsService.DepositAsync(
+                    DepositResponseDto depositResponseDto = await this.savingsService.DepositAsync(
                         this.SelectedAccount.IdentificationNumber,
                         amount,
                         this.DepositSource,
@@ -611,9 +614,9 @@
             this.ErrorMessage = string.Empty;
             try
             {
-                var accountsList = await this.savingsService.GetAccountsAsync(CurrentUser.Id);
+                List<SavingsAccount> accountsList = await this.savingsService.GetAccountsAsync(CurrentUser.Id);
                 this.SavingsAccounts.Clear();
-                foreach (var account in accountsList)
+                foreach (SavingsAccount account in accountsList)
                 {
                     this.SavingsAccounts.Add(account);
                 }
@@ -645,11 +648,11 @@
             this.ErrorMessage = string.Empty;
             try
             {
-                var closureResultDto = await this.savingsService.CloseAccountAsync(
+                ClosureResultDto closureResultDto = await this.savingsService.CloseAccountAsync(
                     account.IdentificationNumber,
                     this.SelectedCloseDestinationId,
                     CurrentUser.Id);
-                var ok = closureResultDto.Success;
+                bool ok = closureResultDto.Success;
                 if (!ok)
                 {
                     this.ErrorMessage = "Failed to close account.";
@@ -673,11 +676,11 @@
             this.CloseUserConfirmed = false;
             this.CloseResultMessage = string.Empty;
             this.CloseSuccess = false;
-            var openAccountsList = await this.savingsService.GetValidTransferDestinationsAsync(
+            List<SavingsAccount> openAccountsList = await this.savingsService.GetValidTransferDestinationsAsync(
                 this.SelectedAccount!.IdentificationNumber,
                 this.CurrentUser.Id);
             this.CloseDestinationAccounts.Clear();
-            foreach (var account in openAccountsList)
+            foreach (SavingsAccount account in openAccountsList)
             {
                 this.CloseDestinationAccounts.Add(account);
             }
@@ -689,7 +692,7 @@
 
         public async Task<bool> ConfirmCloseAsync()
         {
-            var closeValidation = await this.savingsService.ValidateCloseConfirmationAsync(
+            ValidationResponse closeValidation = await this.savingsService.ValidateCloseConfirmationAsync(
                 this.CloseUserConfirmed,
                 this.SelectedCloseDestinationId);
             if (!closeValidation.IsValid)
@@ -701,7 +704,7 @@
             this.IsLoading = true;
             try
             {
-                var result = await this.savingsService.CloseAccountAsync(
+                ClosureResultDto result = await this.savingsService.CloseAccountAsync(
                     this.SelectedAccount!.IdentificationNumber,
                     this.SelectedCloseDestinationId,
                     CurrentUser.Id);
@@ -731,7 +734,7 @@
             {
                 decimal amount = await this.savingsService.ParsePositiveAmountAsync(this.WithdrawAmountText);
 
-                var validation = await this.savingsService.ValidateWithdrawRequestAsync(amount, this.WithdrawDestination);
+                ValidationResponse validation = await this.savingsService.ValidateWithdrawRequestAsync(amount, this.WithdrawDestination);
 
                 if (!validation.IsValid)
                 {
@@ -752,7 +755,7 @@
             this.IsLoading = true;
             try
             {
-                var response = await this.savingsService.WithdrawAsync(
+                WithdrawResponseDto response = await this.savingsService.WithdrawAsync(
                     this.SelectedAccount!.IdentificationNumber,
                     amount,
                     this.WithdrawDestination.DisplayName,
@@ -788,7 +791,7 @@
             {
                 this.WithdrawResultMessage = string.Empty;
 
-                var (isValid, amount) = await ValidateWithdrawInputAsync();
+                (bool isValid, decimal amount) = await ValidateWithdrawInputAsync();
 
                 if (!isValid)
                 {
@@ -878,7 +881,7 @@
         {
             try
             {
-                var result = await this.savingsService.GetTransactionsAsync(
+                GetTransactionsResponse result = await this.savingsService.GetTransactionsAsync(
                     accountId,
                     this.selectedFilter,
                     this.currentPage,
@@ -886,7 +889,7 @@
 
                 this.transactions.Clear();
 
-                foreach (var transaction in result.Items)
+                foreach (SavingsTransaction transaction in result.Items)
                 {
                     this.transactions.Add(transaction);
                 }

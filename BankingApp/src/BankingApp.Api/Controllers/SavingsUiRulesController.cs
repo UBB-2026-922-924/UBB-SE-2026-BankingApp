@@ -15,7 +15,7 @@ namespace BankingApp.Api.Controllers
         [HttpGet("parse-positive-amount")]
         public ActionResult<decimal> ParsePositiveAmount([FromQuery] string text)
         {
-            var isValid = SavingsUiRulesController.TryParsePositiveAmount(text, out var amount);
+            bool isValid = SavingsUiRulesController.TryParsePositiveAmount(text, out decimal amount);
             if (isValid)
             {
                 return Ok(amount);
@@ -27,7 +27,7 @@ namespace BankingApp.Api.Controllers
         public ActionResult<string> GetDepositPreview([FromQuery] string depositAmountText, [FromBody] SavingsAccountSnapshotDto selectedAccount)
         {
             string previewText;
-            bool isDepositTextPositiveAmount = SavingsUiRulesController.TryParsePositiveAmount(depositAmountText, out var amount);
+            bool isDepositTextPositiveAmount = SavingsUiRulesController.TryParsePositiveAmount(depositAmountText, out decimal amount);
 
             if (selectedAccount == null || !isDepositTextPositiveAmount)
             {
@@ -43,14 +43,14 @@ namespace BankingApp.Api.Controllers
         [HttpGet("withdraw-net-amount")]
         public ActionResult<decimal> GetWithdrawNetAmount([FromQuery] decimal requestedAmount, [FromQuery] decimal penalty)
         {
-            var netAmount = requestedAmount - penalty;
+            decimal netAmount = requestedAmount - penalty;
             return Ok(netAmount);
         }
 
         [HttpGet("parse-deposit-frequency")]
         public ActionResult<DepositFrequency> ParseDepositFrequency([FromQuery] string frequencyText)
         {
-            var isValid = Enum.TryParse(frequencyText, out DepositFrequency frequency);
+            bool isValid = Enum.TryParse(frequencyText, out DepositFrequency frequency);
             if (isValid)
             {
                 return Ok(frequency);
@@ -61,7 +61,7 @@ namespace BankingApp.Api.Controllers
         [HttpGet("total-pages")]
         public ActionResult<int> GetTotalPages([FromQuery] int totalCount, [FromQuery] int pageSize)
         {
-            var pages = pageSize <= NoPages
+            int pages = pageSize <= NoPages
                       ? NoPages
                       : (int)Math.Ceiling((double)totalCount / pageSize);
             return Ok(pages);

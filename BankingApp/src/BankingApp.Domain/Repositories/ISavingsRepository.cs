@@ -1,103 +1,54 @@
-﻿using System.Collections.Generic;
+namespace BankingApp.Domain.Repositories;
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using BankingApp.Models;
-using BankingApp.Contracts.Features.Savings.Dtos;
 using BankingApp.Domain.Aggregates.SavingsAggregate;
-using BankingApp.Domain.Aggregates.InvestmentAggregate;
+using BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
 
-namespace BankingApp.Domain.Repositories
+/// <summary>Defines persistence operations for savings accounts and transactions.</summary>
+public interface ISavingsRepository
 {
-    /// <summary>
-    /// Defines persistence operations for savings accounts and transactions.
-    /// </summary>
-    public interface ISavingsRepository
-    {
-        /// <summary>
-        /// Creates a new savings account.
-        /// </summary>
-        /// <param name="dataTransferObject">The create-account request payload.</param>
-        /// <param name="annualPercentageYield">The APY assigned to the new account.</param>
-        /// <returns>The created savings account.</returns>
-        Task<SavingsAccount> CreateSavingsAccountAsync(CreateSavingsAccountDto dataTransferObject, decimal annualPercentageYield);
+    /// <summary>Persists a new savings account and returns it with its assigned identifier.</summary>
+    public Task<SavingsAccount> CreateSavingsAccountAsync(SavingsAccount account, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Gets savings accounts for a user.
-        /// </summary>
-        /// <param name="userId">The user identifier.</param>
-        /// <param name="includesClosedAccounts">Whether to include closed accounts.</param>
-        /// <returns>The matching savings accounts.</returns>
-        Task<List<SavingsAccount>> GetSavingsAccountsByUserIdAsync(int userId, bool includesClosedAccounts = false);
+    /// <summary>Gets savings accounts for a user.</summary>
+    public Task<IReadOnlyCollection<SavingsAccount>> GetSavingsAccountsByUserIdAsync(int userId, bool includesClosedAccounts, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Deposits funds into a savings account.
-        /// </summary>
-        /// <param name="accountId">The account identifier.</param>
-        /// <param name="amount">The amount to deposit.</param>
-        /// <param name="source">The source label for the deposit.</param>
-        /// <returns>The deposit operation result.</returns>
-        Task<DepositResponseDto> DepositAsync(int accountId, decimal amount, string source);
+    /// <summary>Deposits funds into a savings account. Returns (newBalance, transactionId, timestamp).</summary>
+    public Task<(decimal NewBalance, int TransactionId, DateTime Timestamp)> DepositAsync(int accountId, decimal amount, string source, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Closes a savings account and transfers remaining funds.
-        /// </summary>
-        /// <param name="accountId">The source account identifier.</param>
-        /// <param name="destinationAccountId">The destination account identifier.</param>
-        /// <param name="transferAmount">The amount transferred out.</param>
-        /// <param name="earlyClosurePenalty">The applied early-closure penalty.</param>
-        /// <returns>The closure operation result.</returns>
-        Task<ClosureResultDto> CloseSavingsAccountAsync(
-            int accountId,
-            int destinationAccountId,
-            decimal transferAmount,
-            decimal earlyClosurePenalty);
+    /// <summary>Closes a savings account and transfers remaining funds. Returns (transferredAmount, penaltyApplied, closedAt).</summary>
+    public Task<(decimal TransferredAmount, decimal PenaltyApplied, DateTime ClosedAt)> CloseSavingsAccountAsync(
+        int accountId,
+        int destinationAccountId,
+        decimal transferAmount,
+        decimal earlyClosurePenalty,
+        CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Withdraws funds from a savings account.
-        /// </summary>
-        /// <param name="accountId">The source account identifier.</param>
-        /// <param name="amount">The withdrawal amount.</param>
-        /// <param name="destinationLabel">The destination label.</param>
-        /// <param name="earlyWithdrawalPenalty">The applied early-withdrawal penalty.</param>
-        /// <returns>The withdrawal operation result.</returns>
-        Task<WithdrawResponseDto> WithdrawAsync(
-            int accountId,
-            decimal amount,
-            string destinationLabel,
-            decimal earlyWithdrawalPenalty);
+    /// <summary>Withdraws funds from a savings account. Returns (amountWithdrawn, penaltyApplied, newBalance, processedAt).</summary>
+    public Task<(decimal AmountWithdrawn, decimal PenaltyApplied, decimal NewBalance, DateTime ProcessedAt)> WithdrawAsync(
+        int accountId,
+        decimal amount,
+        string destinationLabel,
+        decimal earlyWithdrawalPenalty,
+        CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Gets recurring auto-deposit settings for an account.
-        /// </summary>
-        /// <param name="accountId">The account identifier.</param>
-        /// <returns>The auto-deposit configuration, or <see langword="null"/>.</returns>
-        Task<AutoDeposit?> GetAutoDepositAsync(int accountId);
+    /// <summary>Gets recurring auto-deposit settings for an account.</summary>
+    public Task<AutoDeposit?> GetAutoDepositAsync(int accountId, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Creates or updates auto-deposit settings.
-        /// </summary>
-        /// <param name="autoDeposit">The auto-deposit payload.</param>
-        /// <returns>A task that completes when the operation is finished.</returns>
-        Task SaveAutoDepositAsync(AutoDeposit autoDeposit);
+    /// <summary>Creates or updates auto-deposit settings.</summary>
+    public Task SaveAutoDepositAsync(AutoDeposit autoDeposit, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Gets available funding sources for the user.
-        /// </summary>
-        /// <param name="userId">The user identifier.</param>
-        /// <returns>The available funding source _options.</returns>
-        Task<List<FundingSourceOption>> GetFundingSourcesAsync(int userId);
+    /// <summary>Gets available funding sources as (id, displayName) pairs.</summary>
+    public Task<IReadOnlyCollection<(int Id, string DisplayName)>> GetFundingSourcesAsync(int userId, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Gets paged transaction history and total count.
-        /// </summary>
-        /// <param name="accountId">The account identifier.</param>
-        /// <param name="typeFilter">The type filter value.</param>
-        /// <param name="page">The one-based page number.</param>
-        /// <param name="pageSize">The page size.</param>
-        /// <returns>A tuple containing page items and total row count.</returns>
-        Task<(List<SavingsTransaction> Items, int TotalCount)> GetTransactionsPagedAsync(
-            int accountId,
-            string typeFilter,
-            int page,
-            int pageSize);
-    }
+    /// <summary>Gets paged transaction history and total count.</summary>
+    public Task<(IReadOnlyCollection<SavingsTransaction> Items, int TotalCount)> GetTransactionsPagedAsync(
+        int accountId,
+        string typeFilter,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken);
 }

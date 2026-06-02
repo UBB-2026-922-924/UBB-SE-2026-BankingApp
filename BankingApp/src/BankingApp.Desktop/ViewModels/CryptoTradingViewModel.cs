@@ -7,6 +7,9 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace BankingApp.Desktop.ViewModels
 {
+    using Application.Features.Investments.Services;
+    using Domain.Aggregates.InvestmentAggregate;
+
     public partial class CryptoTradingViewModel : ObservableObject
     {
         private readonly IInvestmentsService _service;
@@ -45,7 +48,7 @@ namespace BankingApp.Desktop.ViewModels
         {
             try
             {
-                var p = await _service.GetPortfolioForCurrentUserAsync();
+                Portfolio? p = await _service.GetPortfolioForCurrentUserAsync();
                 CurrentBalance = p?.TotalValue ?? 0;
             }
             catch (Exception ex)

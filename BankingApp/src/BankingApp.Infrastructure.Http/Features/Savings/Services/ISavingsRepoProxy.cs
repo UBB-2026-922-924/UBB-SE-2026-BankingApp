@@ -6,6 +6,9 @@ using BankingApp.Domain.Aggregates.SavingsAggregate;
 
 namespace BankingApp.Infrastructure.Http.Features.Savings.Services
 {
+    using Contracts.Features.Investments;
+    using Domain.Aggregates.SavingsAggregate.Entities;
+
     /// <summary>
     /// RepoProxy for Savings (desktop -> HTTP API).
     /// Low-level persistence operations only; business rules live in desktop services.

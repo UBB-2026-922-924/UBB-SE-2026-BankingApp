@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankingApp.Web.Controllers
 {
+    using Application.Features.Investments.Services;
+    using Domain.Aggregates.InvestmentAggregate;
+
     // The global RequireSessionLoginFilter in Program.cs covers this, 
     // but inheriting or leaving it plain aligns with your team's architecture.
     public class InvestmentsAndTradingController : Controller
@@ -22,7 +25,7 @@ namespace BankingApp.Web.Controllers
         public async Task<IActionResult> Index()
         {
             // Pull the dynamic logged-in user ID via your team's WebSessionContext
-            var portfolio = await this._investmentsService.GetPortfolioForCurrentUserAsync();
+            Portfolio? portfolio = await this._investmentsService.GetPortfolioForCurrentUserAsync();
 
             if (portfolio == null)
             {
@@ -36,7 +39,7 @@ namespace BankingApp.Web.Controllers
         // GET: /InvestmentsAndTrading/Trade
         public async Task<IActionResult> Trade()
         {
-            var portfolio = await this._investmentsService.GetPortfolioForCurrentUserAsync();
+            Portfolio? portfolio = await this._investmentsService.GetPortfolioForCurrentUserAsync();
 
             // Send the available portfolio cash/value balance over to the view data container
             ViewBag.WalletBalance = portfolio?.TotalValue ?? 0m;

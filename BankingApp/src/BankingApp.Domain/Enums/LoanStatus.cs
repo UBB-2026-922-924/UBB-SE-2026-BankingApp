@@ -1,11 +1,6 @@
-﻿// <copyright file="LoanStatus.cs" company="Dev Core">
-// Copyright (c) Dev Core. All rights reserved.
-// </copyright>
+﻿namespace BankingApp.Domain.Enums;
 
-/// <summary>
-/// Represents the lifecycle state of a loan.
-/// </summary>
-namespace BankingApp.Domain.Enums;
+/// <summary>Represents the lifecycle state of a loan.</summary>
 public enum LoanStatus
 {
     /// <summary>The loan is active and being repaid.</summary>

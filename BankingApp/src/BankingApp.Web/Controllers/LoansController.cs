@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankingApp.Web.Controllers;
 
+using Application.Features.Loans.Services;
+using Domain.Aggregates.LoanAggregate.Entities;
+using Models.Loans;
+
 //[Authorize]
 public class LoansController : WebControllerBase
 {
@@ -25,7 +29,7 @@ public class LoansController : WebControllerBase
     {
         try
         {
-            var model = await BuildPageModelAsync(statusFilter, typeFilter);
+            LoansPageViewModel model = await BuildPageModelAsync(statusFilter, typeFilter);
             return View(model);
         }
         catch (HttpRequestException exception) when (TryHandleUnauthorized(exception, out var result))
@@ -54,12 +58,12 @@ public class LoansController : WebControllerBase
         {
             if (!ModelState.IsValid)
             {
-                var invalidModel = await BuildPageModelAsync(statusFilter, typeFilter, application);
+                LoansPageViewModel invalidModel = await BuildPageModelAsync(statusFilter, typeFilter, application);
                 invalidModel.ErrorMessage = "Please complete the application form.";
                 return View("Index", invalidModel);
             }
 
-            var result = await _loansService.SubmitLoanApplicationAsync(new LoanApplicationRequest
+            LoanApplicationResult result = await _loansService.SubmitLoanApplicationAsync(new LoanApplicationRequest
             {
                 UserId = CurrentUserId,
                 LoanType = application.LoanType,
@@ -68,7 +72,7 @@ public class LoansController : WebControllerBase
                 Purpose = application.Purpose.Trim(),
             });
 
-            var outcome = await _loansService.GetBuildApplicationOutcomeAsync(result.RejectionReason);
+            BuildApplicationOutcomeResponse? outcome = await _loansService.GetBuildApplicationOutcomeAsync(result.RejectionReason);
             TempData[outcome?.IsApproved == true ? "StatusMessage" : "ErrorMessage"] =
                 outcome?.Message ?? "Loan application processed.";
 
@@ -80,7 +84,7 @@ public class LoansController : WebControllerBase
         }
         catch (Exception exception)
         {
-            var invalidModel = await BuildPageModelAsync(statusFilter, typeFilter, application);
+            LoansPageViewModel invalidModel = await BuildPageModelAsync(statusFilter, typeFilter, application);
             invalidModel.ErrorMessage = exception.Message;
             return View("Index", invalidModel);
         }
@@ -132,7 +136,7 @@ public class LoansController : WebControllerBase
                 return Json(new { show = false });
             }
 
-            var estimate = _loansService.GetLoanEstimate(new LoanApplicationRequest
+            LoanEstimate estimate = _loansService.GetLoanEstimate(new LoanApplicationRequest
             {
                 UserId = CurrentUserId,
                 LoanType = loanType,
@@ -164,7 +168,7 @@ public class LoansController : WebControllerBase
     {
         try
         {
-            var loan = (await _loansService.GetLoansByUserAsync(CurrentUserId))
+            Loan? loan = (await _loansService.GetLoansByUserAsync(CurrentUserId))
                 .FirstOrDefault(item => item.Id == loanId);
 
             if (loan == null)
@@ -173,10 +177,10 @@ public class LoansController : WebControllerBase
             }
 
             decimal paymentAmount;
-            var minimumDue = Math.Min(loan.MonthlyInstallment, loan.OutstandingBalance);
+            decimal minimumDue = Math.Min(loan.MonthlyInstallment, loan.OutstandingBalance);
             if (useCustomAmount)
             {
-                var parsedAmount = _loansService.ParseCustomPaymentAmount(customAmount ?? string.Empty);
+                decimal? parsedAmount = _loansService.ParseCustomPaymentAmount(customAmount ?? string.Empty);
                 if (!parsedAmount.HasValue)
                 {
                     return Json(new LoanPaymentPreviewViewModel
@@ -207,7 +211,7 @@ public class LoansController : WebControllerBase
                 });
             }
 
-            var preview = CalculatePaymentPreview(loan, useCustomAmount ? paymentAmount : null);
+            (decimal BalanceAfterPayment, int RemainingMonths) preview = CalculatePaymentPreview(loan, useCustomAmount ? paymentAmount : null);
             return Json(new LoanPaymentPreviewViewModel
             {
                 BalanceAfterPayment = preview.BalanceAfterPayment,
@@ -225,7 +229,7 @@ public class LoansController : WebControllerBase
     {
         try
         {
-            var loan = (await _loansService.GetLoansByUserAsync(CurrentUserId))
+            Loan? loan = (await _loansService.GetLoansByUserAsync(CurrentUserId))
                 .FirstOrDefault(item => item.Id == id);
 
             if (loan == null)
@@ -234,7 +238,7 @@ public class LoansController : WebControllerBase
                 return RedirectToAction(nameof(Index));
             }
 
-            var rows = await _loansService.GetAmortizationAsync(id);
+            List<AmortizationRow> rows = await _loansService.GetAmortizationAsync(id);
             var model = new LoanSchedulePageViewModel
             {
                 Loan = new LoanCardViewModel
@@ -263,7 +267,7 @@ public class LoansController : WebControllerBase
         LoanType? typeFilter,
         LoanApplicationFormModel? application = null)
     {
-        var loans = await _loansService.GetLoansByUserAsync(CurrentUserId);
+        List<Loan> loans = await _loansService.GetLoansByUserAsync(CurrentUserId);
         var cards = loans
             .Select(loan => new LoanCardViewModel
             {
@@ -292,16 +296,16 @@ public class LoansController : WebControllerBase
         const decimal ZeroAmount = 0m;
         const int ZeroCount = 0;
 
-        var minimumDue = Math.Min(loan.MonthlyInstallment, loan.OutstandingBalance);
-        var paymentAmount = customAmount ?? minimumDue;
-        var balanceAfterPayment = Math.Max(ZeroAmount, loan.OutstandingBalance - paymentAmount);
+        decimal minimumDue = Math.Min(loan.MonthlyInstallment, loan.OutstandingBalance);
+        decimal paymentAmount = customAmount ?? minimumDue;
+        decimal balanceAfterPayment = Math.Max(ZeroAmount, loan.OutstandingBalance - paymentAmount);
 
         if (balanceAfterPayment <= ZeroAmount)
         {
             return (ZeroAmount, ZeroCount);
         }
 
-        var monthsPaid = customAmount.HasValue
+        int monthsPaid = customAmount.HasValue
             ? paymentAmount <= ZeroAmount
                 ? ZeroCount
                 : (int)Math.Floor(paymentAmount / loan.MonthlyInstallment)

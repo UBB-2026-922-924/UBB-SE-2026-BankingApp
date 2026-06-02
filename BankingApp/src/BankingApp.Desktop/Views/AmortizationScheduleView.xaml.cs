@@ -3,6 +3,7 @@
     using System;
     using BankingApp.Desktop.ViewModels;
     using BankingApp.Domain.Aggregates.LoanAggregate;
+    using Domain.Aggregates.LoanAggregate.Entities;
     using Microsoft.UI;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
@@ -71,8 +72,8 @@
                 return 0;
             }
 
-            var paidAmount = Math.Max(0m, loan.Principal - loan.OutstandingBalance);
-            var progress = paidAmount / loan.Principal;
+            decimal paidAmount = Math.Max(0m, loan.Principal - loan.OutstandingBalance);
+            decimal progress = paidAmount / loan.Principal;
             return (double)Math.Clamp(progress, 0m, 1m);
         }
 

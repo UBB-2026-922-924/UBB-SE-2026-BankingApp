@@ -8,6 +8,8 @@ using BankingApp.Domain.Aggregates.SavingsAggregate;
 
 namespace BankingApp.Infrastructure.Http.Features.Savings.Services
 {
+    using Contracts.Features.Investments;
+
     public class SavingsWorkflowRepoProxy : ISavingsWorkflowRepoProxy
     {
         private readonly ApiService _apiService;

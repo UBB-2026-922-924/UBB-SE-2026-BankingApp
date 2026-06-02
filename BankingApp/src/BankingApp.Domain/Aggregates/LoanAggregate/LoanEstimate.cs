@@ -1,79 +1,65 @@
-﻿// <copyright file="LoanEstimate.cs" company="Dev Core">
-// Copyright (c) Dev Core. All rights reserved.
-// </copyright>
+﻿namespace BankingApp.Domain.Aggregates.LoanAggregate;
 
-using System;
-
-/// <summary>
-/// Represents a preliminary quote computed for a loan request.
-/// </summary>
-namespace BankingApp.Domain.Aggregates.LoanAggregate
+public class LoanEstimate(decimal indicativeRate, decimal monthlyInstallment, decimal totalRepayable)
+    : IEquatable<LoanEstimate>
 {
-    public class LoanEstimate : IEquatable<LoanEstimate>
+    public int Id { get; set; }
+
+    public decimal IndicativeRate { get; } = indicativeRate;
+
+    /// <summary>
+    /// Gets or sets the projected monthly installment.
+    /// </summary>
+    public decimal MonthlyInstallment { get; } = monthlyInstallment;
+
+    /// <summary>
+    /// Gets or sets the estimated total amount repayable over the term.
+    /// </summary>
+    public decimal TotalRepayable { get; } = totalRepayable;
+
+    /// <summary>
+    /// Determines whether the specified object is equal to the current object.
+    /// </summary>
+    public override bool Equals(object? obj)
     {
-        public int Id { get; set; }
+        return Equals(obj as LoanEstimate);
+    }
 
-        public decimal IndicativeRate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the projected monthly installment.
-        /// </summary>
-        public decimal MonthlyInstallment { get; set; }
-
-        /// <summary>
-        /// Gets or sets the estimated total amount repayable over the term.
-        /// </summary>
-        public decimal TotalRepayable { get; set; }
-
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        public override bool Equals(object obj)
+    /// <summary>
+    /// Determines whether the specified LoanEstimate is equal to the current LoanEstimate.
+    /// </summary>
+    public bool Equals(LoanEstimate? other)
+    {
+        if (other is null)
         {
-            // Folosim pattern matching pentru a verifica tipul
-            return Equals(obj as LoanEstimate);
+            return false;
         }
 
-        /// <summary>
-        /// Determines whether the specified LoanEstimate is equal to the current LoanEstimate.
-        /// </summary>
-        public bool Equals(LoanEstimate other)
+        if (ReferenceEquals(this, other))
         {
-            if (other is null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return IndicativeRate == other.IndicativeRate &&
-                   MonthlyInstallment == other.MonthlyInstallment &&
-                   TotalRepayable == other.TotalRepayable;
+            return true;
         }
 
-        /// <summary>
-        /// Serves as the default hash function.
-        /// </summary>
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(IndicativeRate, MonthlyInstallment, TotalRepayable);
-        }
+        return IndicativeRate == other.IndicativeRate &&
+               MonthlyInstallment == other.MonthlyInstallment &&
+               TotalRepayable == other.TotalRepayable;
+    }
 
-        public static bool operator ==(LoanEstimate left, LoanEstimate right)
-        {
-            if (left is null)
-            {
-                return right is null;
-            }
-            return left.Equals(right);
-        }
+    /// <summary>
+    /// Serves as the default hash function.
+    /// </summary>
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(IndicativeRate, MonthlyInstallment, TotalRepayable);
+    }
 
-        public static bool operator !=(LoanEstimate left, LoanEstimate right)
-        {
-            return !(left == right);
-        }
+    public static bool operator ==(LoanEstimate left, LoanEstimate right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(LoanEstimate left, LoanEstimate right)
+    {
+        return !(left == right);
     }
 }

@@ -1,5 +1,5 @@
 ﻿@using System.Linq
-@model LoansPageViewModel
+@model BankingApp.Web.Models.Loans.LoansPageViewModel
 @{
     ViewData["Title"] = "Loans";
     var activeLoans = Model.Loans.Count(loan => loan.Loan.LoanStatus == BankingApp.Domain.Enums.LoanStatus.Active);

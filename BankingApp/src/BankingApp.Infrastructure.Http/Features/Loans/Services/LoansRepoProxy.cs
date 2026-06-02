@@ -8,6 +8,8 @@ using BankingApp.Domain.Aggregates.LoanAggregate;
 
 namespace BankingApp.Infrastructure.Http.Features.Loans.Services
 {
+    using Domain.Aggregates.LoanAggregate.Entities;
+
     public class LoansRepoProxy : ILoansRepoProxy
     {
         private readonly ApiService _apiService;

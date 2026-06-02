@@ -10,6 +10,7 @@
     using BankingApp.Domain.Aggregates.InvestmentAggregate;
     using BankingApp.Domain.Aggregates.SavingsAggregate;
     using BankingApp.Domain.Aggregates.InvestmentAggregate;
+    using Contracts.Features.Investments;
 
     public sealed partial class SavingsView : UserControl
     {
@@ -61,7 +62,7 @@
                 return;
             }
 
-            var tag = tab.Tag?.ToString() ?? string.Empty;
+            string tag = tab.Tag?.ToString() ?? string.Empty;
 
             this.MyAccountsPanel.Visibility = tag == "MyAccounts" ? Visibility.Visible : Visibility.Collapsed;
             this.OpenNewPanel.Visibility = tag == "OpenNew" ? Visibility.Visible : Visibility.Collapsed;
@@ -145,37 +146,37 @@
 
             await this.ViewModel.CreateAccountCommand.ExecuteAsync(null);
 
-            if (this.ViewModel.FieldErrors.TryGetValue("SavingsType", out var savingsTypeError))
+            if (this.ViewModel.FieldErrors.TryGetValue("SavingsType", out string? savingsTypeError))
             {
                 ShowError(this.TypeErrorText, savingsTypeError);
             }
 
-            if (this.ViewModel.FieldErrors.TryGetValue("AccountName", out var accountNameError))
+            if (this.ViewModel.FieldErrors.TryGetValue("AccountName", out string? accountNameError))
             {
                 ShowError(this.AccountNameError, accountNameError);
             }
 
-            if (this.ViewModel.FieldErrors.TryGetValue("InitialDeposit", out var initialDepositError))
+            if (this.ViewModel.FieldErrors.TryGetValue("InitialDeposit", out string? initialDepositError))
             {
                 ShowError(this.InitialDepositError, initialDepositError);
             }
 
-            if (this.ViewModel.FieldErrors.TryGetValue("FundingSource", out var fundingSourceError))
+            if (this.ViewModel.FieldErrors.TryGetValue("FundingSource", out string? fundingSourceError))
             {
                 ShowError(this.FundingSourceError, fundingSourceError);
             }
 
-            if (this.ViewModel.FieldErrors.TryGetValue("Frequency", out var frequencyError))
+            if (this.ViewModel.FieldErrors.TryGetValue("Frequency", out string? frequencyError))
             {
                 ShowError(this.FrequencyError, frequencyError);
             }
 
-            if (this.ViewModel.FieldErrors.TryGetValue("TargetAmount", out var targetAmountError))
+            if (this.ViewModel.FieldErrors.TryGetValue("TargetAmount", out string? targetAmountError))
             {
                 ShowError(this.TargetAmountError, targetAmountError);
             }
 
-            if (this.ViewModel.FieldErrors.TryGetValue("TargetDate", out var targetDateError))
+            if (this.ViewModel.FieldErrors.TryGetValue("TargetDate", out string? targetDateError))
             {
                 ShowError(this.TargetDateError, targetDateError);
             }
@@ -294,7 +295,7 @@
 
             // Set frequency radio
             this.AutoDepositFrequencyRadios.SelectedIndex = NoSelectionIndex;
-            for (var i = FirstItemIndex; i < this.AutoDepositFrequencyRadios.Items.Count; i++)
+            for (int i = FirstItemIndex; i < this.AutoDepositFrequencyRadios.Items.Count; i++)
             {
                 if (this.AutoDepositFrequencyRadios.Items[i] is RadioButton radioButton &&
                     radioButton.Tag?.ToString() == this.ViewModel.AutoDepositFrequency)
@@ -327,7 +328,7 @@
             this.CloseConfirmCheckBox.IsChecked = false;
             this.CloseConfirmButton.IsEnabled = false;
 
-            var hasNoDest = !this.ViewModel.CloseDestinationAccounts.Any();
+            bool hasNoDest = !this.ViewModel.CloseDestinationAccounts.Any();
             this.CloseNoDestText.Visibility = hasNoDest ? Visibility.Visible : Visibility.Collapsed;
             this.CloseDestComboBox.Visibility = hasNoDest ? Visibility.Collapsed : Visibility.Visible;
 
@@ -409,7 +410,7 @@
         private async void OnWithdrawConfirmed(object sender, RoutedEventArgs e)
         {
             this.WithdrawResultBar.IsOpen = false;
-            var success = await this.ViewModel.ConfirmWithdrawAsync();
+            bool success = await this.ViewModel.ConfirmWithdrawAsync();
 
             this.WithdrawResultBar.Severity = success ? InfoBarSeverity.Success : InfoBarSeverity.Error;
             this.WithdrawResultBar.Message = this.ViewModel.WithdrawResultMessage;
@@ -491,7 +492,7 @@
         private async void OnCloseConfirmed(object sender, RoutedEventArgs e)
         {
             this.CloseResultBar.IsOpen = false;
-            var success = await this.ViewModel.ConfirmCloseAsync();
+            bool success = await this.ViewModel.ConfirmCloseAsync();
 
             this.CloseResultBar.Severity = success ? InfoBarSeverity.Success : InfoBarSeverity.Error;
             this.CloseResultBar.Message = this.ViewModel.CloseResultMessage;

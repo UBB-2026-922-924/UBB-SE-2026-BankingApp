@@ -12,12 +12,14 @@ namespace BankingApp.Desktop.ViewModels
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-            using BankingApp.Contracts.Features.Loans.Dtos;
+    using Application.Features.Loans.Services;
+    using BankingApp.Contracts.Features.Loans.Dtos;
     using BankingApp.Domain.Aggregates.InvestmentAggregate;
     using BankingApp.Domain.Enums;
     using BankingApp.Domain.Aggregates.LoanAggregate;
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
+    using Domain.Aggregates.LoanAggregate.Entities;
 
     public partial class LoansViewModel : ObservableObject
     {
@@ -126,11 +128,11 @@ namespace BankingApp.Desktop.ViewModels
             this.ErrorMessage = string.Empty;
             try
             {
-                var result = await this.loanService.GetLoansByUserAsync(CurrentUser.Id);
+                List<Loan> result = await this.loanService.GetLoansByUserAsync(CurrentUser.Id);
                 var loanViewModels = new List<LoanViewModel>();
-                foreach (var loan in result)
+                foreach (Loan loan in result)
                 {
-                    var repaymentProgress = this.loanService.GetRepaymentProgress(loan);
+                    double repaymentProgress = this.loanService.GetRepaymentProgress(loan);
                     loanViewModels.Add(new LoanViewModel(loan, repaymentProgress));
                 }
 
@@ -162,9 +164,9 @@ namespace BankingApp.Desktop.ViewModels
                     Purpose = this.Purpose,
                 };
 
-                var applicationResult = await this.loanService.SubmitLoanApplicationAsync(request);
+                LoanApplicationResult applicationResult = await this.loanService.SubmitLoanApplicationAsync(request);
 
-                var applicationOutcome = await this.loanService.GetBuildApplicationOutcomeAsync(
+                BuildApplicationOutcomeResponse? applicationOutcome = await this.loanService.GetBuildApplicationOutcomeAsync(
                     applicationResult.RejectionReason);
                 this.ApplicationResult = applicationOutcome?.Message ?? string.Empty;
                 this.ApplicationWasApproved = applicationOutcome?.IsApproved ?? false;
@@ -212,7 +214,7 @@ namespace BankingApp.Desktop.ViewModels
             this.ErrorMessage = string.Empty;
             try
             {
-                var amount = this.CustomAmount.HasValue
+                decimal? amount = this.CustomAmount.HasValue
                     ? (decimal?)this.CustomAmount.Value
                     : null;
                 await this.loanService.PayInstallmentAsync(this.SelectedLoan.Loan.Id, amount);
@@ -246,7 +248,7 @@ namespace BankingApp.Desktop.ViewModels
                 customAmount = this.loanService.ParseCustomPaymentAmount(customAmountText);
             }
 
-            var (balance, months) = CalculatePaymentPreview(this.SelectedLoan.Loan, customAmount);
+            (decimal balance, int months) = CalculatePaymentPreview(this.SelectedLoan.Loan, customAmount);
             this.PaymentPreviewBalance = balance;
             this.PaymentPreviewRemainingMonths = months;
         }
@@ -266,20 +268,20 @@ namespace BankingApp.Desktop.ViewModels
                 return string.Empty;
             }
 
-            var normalizedCustomAmount = this.loanService.NormalizeCustomPaymentAmount(
+            decimal normalizedCustomAmount = this.loanService.NormalizeCustomPaymentAmount(
                 this.SelectedLoan.Loan,
                 this.CustomAmount.HasValue ? (decimal?)this.CustomAmount.Value : null);
 
             this.CustomAmount = (double)normalizedCustomAmount;
 
-            var currentText = normalizedCustomAmount.ToString(CustomAmountDisplayFormat, CultureInfo.CurrentCulture);
+            string currentText = normalizedCustomAmount.ToString(CustomAmountDisplayFormat, CultureInfo.CurrentCulture);
             this.UpdatePaymentPreview(false, currentText);
             return currentText;
         }
 
         public void UpdateCustomPayment(string customAmountText)
         {
-            var parsedAmount = this.loanService.ParseCustomPaymentAmount(customAmountText);
+            decimal? parsedAmount = this.loanService.ParseCustomPaymentAmount(customAmountText);
             this.CustomAmount = parsedAmount.HasValue ? (double)parsedAmount.Value : null;
             this.UpdatePaymentPreview(false, customAmountText);
         }
@@ -295,7 +297,7 @@ namespace BankingApp.Desktop.ViewModels
             this.ErrorMessage = string.Empty;
             try
             {
-                var rows = await this.loanService.GetAmortizationAsync(this.SelectedLoan.Loan.Id);
+                List<AmortizationRow> rows = await this.loanService.GetAmortizationAsync(this.SelectedLoan.Loan.Id);
                 this.AmortizationRows = new ObservableCollection<AmortizationRow>(rows);
             }
             catch (Exception exception)
@@ -313,11 +315,11 @@ namespace BankingApp.Desktop.ViewModels
         {
             try
             {
-                var rows = await this.loanService.GetAmortizationAsync(this.SelectedLoan.Loan.Id);
+                List<AmortizationRow> rows = await this.loanService.GetAmortizationAsync(this.SelectedLoan.Loan.Id);
                 var pdfBytes = this.pdfExporter.ExportAmortization(rows);
-                var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                var fileName = $"amortization_schedule_{this.SelectedLoan.Loan.Id}.pdf";
-                var filePath = Path.Combine(desktopPath, fileName);
+                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                string fileName = $"amortization_schedule_{this.SelectedLoan.Loan.Id}.pdf";
+                string filePath = Path.Combine(desktopPath, fileName);
 
                 await File.WriteAllBytesAsync(filePath, pdfBytes);
 
@@ -386,7 +388,7 @@ namespace BankingApp.Desktop.ViewModels
 
         private async Task TryComputeEstimateAsync()
         {
-            var isFullyFilled = await this.loanService.GetShouldComputeEstimateAsync(
+            bool isFullyFilled = await this.loanService.GetShouldComputeEstimateAsync(
                 this.DesiredAmount,
                 this.PreferredTermMonths,
                 this.Purpose);
@@ -407,21 +409,21 @@ namespace BankingApp.Desktop.ViewModels
             Loan loan,
             decimal? customAmount = null)
         {
-            var minimumDue = Math.Min(loan.MonthlyInstallment, loan.OutstandingBalance);
-            var paymentAmount = customAmount ?? minimumDue;
-            var balanceAfterPayment = Math.Max(ZeroAmount, loan.OutstandingBalance - paymentAmount);
+            decimal minimumDue = Math.Min(loan.MonthlyInstallment, loan.OutstandingBalance);
+            decimal paymentAmount = customAmount ?? minimumDue;
+            decimal balanceAfterPayment = Math.Max(ZeroAmount, loan.OutstandingBalance - paymentAmount);
 
             if (balanceAfterPayment <= ZeroAmount)
             {
                 return (ZeroAmount, ZeroCount);
             }
 
-            var monthsPaid = customAmount.HasValue
+            int monthsPaid = customAmount.HasValue
                 ? paymentAmount <= ZeroAmount
                     ? ZeroCount
                     : (int)Math.Floor(paymentAmount / loan.MonthlyInstallment)
                 : 1;
-            var newRemainingMonths = Math.Max(ZeroCount, loan.RemainingMonths - monthsPaid);
+            int newRemainingMonths = Math.Max(ZeroCount, loan.RemainingMonths - monthsPaid);
             return (balanceAfterPayment, newRemainingMonths);
         }
     }

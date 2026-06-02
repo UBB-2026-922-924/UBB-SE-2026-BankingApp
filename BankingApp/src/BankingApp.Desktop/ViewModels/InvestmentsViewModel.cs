@@ -14,6 +14,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace BankingApp.Desktop.ViewModels
 {
+    using Application.Features.Investments.Services;
+    using Domain.Aggregates.InvestmentAggregate.Entities;
+
     public class InvestmentsViewModel : System.ComponentModel.INotifyPropertyChanged
     {
         private readonly DispatcherQueue? dispatcherQueue;
@@ -111,7 +114,7 @@ namespace BankingApp.Desktop.ViewModels
             this.IsPortfolioLoading = true;
             try
             {
-                var portfolio = await investmentsService.GetPortfolioForCurrentUserAsync();
+                Portfolio? portfolio = await investmentsService.GetPortfolioForCurrentUserAsync();
 
                 if (portfolio != null)
                 {
@@ -150,10 +153,10 @@ namespace BankingApp.Desktop.ViewModels
         private void RefreshDisplayedHoldings()
         {
             this.DisplayedHoldings.Clear();
-            var holdings = this.UserPortfolio?.Holdings ?? Enumerable.Empty<InvestmentHolding>();
+            IEnumerable<InvestmentHolding> holdings = this.UserPortfolio?.Holdings ?? Enumerable.Empty<InvestmentHolding>();
 
             // Fixed the plural/singular logic (Filter says "Stocks", DB says "Stock")
-            var filtered = this.ActiveFilterType switch
+            IEnumerable<InvestmentHolding> filtered = this.ActiveFilterType switch
             {
                 "All" => holdings,
                 "Stocks" => holdings.Where(h => h.AssetType.Equals("Stock", StringComparison.OrdinalIgnoreCase)),
@@ -161,7 +164,7 @@ namespace BankingApp.Desktop.ViewModels
                 _ => holdings.Where(h => h.AssetType.Equals(this.ActiveFilterType, StringComparison.OrdinalIgnoreCase))
             };
 
-            foreach (var holding in filtered)
+            foreach (InvestmentHolding holding in filtered)
             {
                 this.DisplayedHoldings.Add(holding);
             }

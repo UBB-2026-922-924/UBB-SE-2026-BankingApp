@@ -6,6 +6,8 @@ using BankingApp.Domain.Aggregates.SavingsAggregate;
 
 namespace BankingApp.Web.Models.Savings;
 
+using Contracts.Features.Investments;
+
 public class SavingsPageViewModel
 {
     public List<SavingsAccount> Accounts { get; set; } = [];

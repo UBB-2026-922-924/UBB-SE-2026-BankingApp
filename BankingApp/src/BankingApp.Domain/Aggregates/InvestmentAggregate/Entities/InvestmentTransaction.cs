@@ -1,44 +1,36 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+namespace BankingApp.Domain.Aggregates.InvestmentAggregate.Entities;
 
-namespace BankingApp.Domain.Aggregates.InvestmentAggregate.Entities
+using System;
+using BankingApp.Domain.Common.Primitives;
+
+/// <summary>Represents a single trade executed against an investment holding.</summary>
+public sealed class InvestmentTransaction : Entity<int>
 {
-    /// <summary>
-    /// Represents a specific trade or transaction within an investment holding.
-    /// </summary>
-    [Table("InvestmentTransaction")]
-    public class InvestmentTransaction
+    private InvestmentTransaction()
     {
-        [Key]
-        [Column("id")]
-        public int Id { get; set; }
-
-        [Column("holdingId")]
-        public int HoldingId { get; set; }
-
-        [ForeignKey(nameof(HoldingId))] // Fixed case-sensitivity bug
-        public virtual InvestmentHolding Holding { get; set; } = null!;
-
-        [Column("ticker")]
-        public string Ticker { get; set; } = string.Empty;
-
-        [Column("actionType")]
-        public string ActionType { get; set; } = string.Empty; // BUY, SELL
-
-        [Column("quantity")]
-        public decimal Quantity { get; set; }
-
-        [Column("pricePerUnit")]
-        public decimal PricePerUnit { get; set; }
-
-        [Column("fees")]
-        public decimal Fees { get; set; }
-
-        [Column("orderType")]
-        public string OrderType { get; set; } = "Market";
-
-        [Column("executedAt")]
-        public DateTime ExecutedAt { get; set; }
     }
+
+    private InvestmentTransaction(int holdingId, string ticker, string actionType, decimal quantity, decimal pricePerUnit, decimal fees, string orderType, DateTime executedAt)
+    {
+        HoldingId = holdingId;
+        Ticker = ticker;
+        ActionType = actionType;
+        Quantity = quantity;
+        PricePerUnit = pricePerUnit;
+        Fees = fees;
+        OrderType = orderType;
+        ExecutedAt = executedAt;
+    }
+
+    public int HoldingId { get; private set; }
+    public string Ticker { get; private set; } = string.Empty;
+    public string ActionType { get; private set; } = string.Empty;
+    public decimal Quantity { get; private set; }
+    public decimal PricePerUnit { get; private set; }
+    public decimal Fees { get; private set; }
+    public string OrderType { get; private set; } = "Market";
+    public DateTime ExecutedAt { get; private set; }
+
+    public static InvestmentTransaction Create(int holdingId, string ticker, string actionType, decimal quantity, decimal pricePerUnit, decimal fees, string orderType, DateTime executedAt)
+        => new(holdingId, ticker, actionType, quantity, pricePerUnit, fees, orderType, executedAt);
 }

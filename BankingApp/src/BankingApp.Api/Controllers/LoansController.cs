@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankingApp.Api.Controllers
 {
+    using Domain.Aggregates.LoanAggregate.Entities;
+
     [ApiController]
     [Route("api/[controller]")]
     public class LoansController : ControllerBase
@@ -20,35 +22,35 @@ namespace BankingApp.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Loan>>> GetAllLoansAsync()
         {
-            var result = await _loanRepository.GetAllLoansAsync();
+            IReadOnlyCollection<Loan> result = await _loanRepository.GetAllLoansAsync();
             return Ok(result);
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Loan>> GetLoanByIdAsync([FromRoute] int id)
         {
-            var loan = await _loanRepository.GetLoanByIdAsync(id);
+            Loan? loan = await _loanRepository.GetLoanByIdAsync(id);
             return Ok(loan);
         }
 
         [HttpGet("by-user/{userId:int}")]
         public async Task<ActionResult<List<Loan>>> GetLoansByUserAsync([FromRoute] int userId)
         {
-            var result = await _loanRepository.GetLoansByUserAsync(userId);
+            IReadOnlyCollection<Loan>? result = await _loanRepository.GetLoansByUserAsync(userId);
             return Ok(result ?? new List<Loan>());
         }
 
         [HttpGet("by-status/{loanStatus}")]
         public async Task<ActionResult<List<Loan>>> GetLoansByStatusAsync([FromRoute] LoanStatus loanStatus)
         {
-            var result = await _loanRepository.GetLoansByStatusAsync(loanStatus);
+            IReadOnlyCollection<Loan> result = await _loanRepository.GetLoansByStatusAsync(loanStatus);
             return Ok(result);
         }
 
         [HttpGet("by-type/{loanType}")]
         public async Task<ActionResult<List<Loan>>> GetLoansByTypeAsync([FromRoute] LoanType loanType)
         {
-            var result = await _loanRepository.GetLoansByTypeAsync(loanType);
+            IReadOnlyCollection<Loan> result = await _loanRepository.GetLoansByTypeAsync(loanType);
             return Ok(result);
         }
 
@@ -57,7 +59,7 @@ namespace BankingApp.Api.Controllers
         {
             try
             {
-                var id = await _loanRepository.CreateLoanApplicationAsync(request);
+                int id = await _loanRepository.CreateLoanApplicationAsync(request);
                 return Ok(id);
             }
             catch (Exception ex)
@@ -88,7 +90,7 @@ namespace BankingApp.Api.Controllers
         {
             try
             {
-                var id = await _loanRepository.CreateLoanAsync(loan.ToLoan());
+                int id = await _loanRepository.CreateLoanAsync(loan.ToLoan());
                 return Ok(id);
             }
             catch (Exception ex)
@@ -118,7 +120,7 @@ namespace BankingApp.Api.Controllers
         [HttpGet("{loanId:int}/amortization-schedule")]
         public async Task<ActionResult<List<AmortizationRow>>> GetAmortizationAsync(int loanId)
         {
-            var rows = await _loanRepository.GetAmortizationAsync(loanId);
+            IReadOnlyCollection<AmortizationRow> rows = await _loanRepository.GetAmortizationAsync(loanId);
             return Ok(rows);
         }
 

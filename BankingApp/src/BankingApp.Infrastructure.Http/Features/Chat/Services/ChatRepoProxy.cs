@@ -6,6 +6,8 @@ using BankingApp.Domain.Aggregates.ChatAggregate;
 
 namespace BankingApp.Infrastructure.Http.Features.Chat.Services
 {
+    using Domain.Aggregates.ChatAggregate.Entities;
+
     public class ChatRepoProxy : IChatRepoProxy
     {
         private readonly ApiService apiService;

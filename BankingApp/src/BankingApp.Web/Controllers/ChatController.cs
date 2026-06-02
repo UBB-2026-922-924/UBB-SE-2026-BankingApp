@@ -3,6 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankingApp.Web.Controllers
 {
+    using Application.Features.Chat.Services;
+    using Contracts.Features.Chat.Dtos;
+    using ErrorOr;
+    using Models.Chat;
+
     public class ChatController : Controller
     {
 
@@ -15,7 +20,7 @@ namespace BankingApp.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var sessions = await _chatService.GetSessionsAsync();
+            ErrorOr<List<ChatSessionDto>> sessions = await _chatService.GetSessionsAsync();
             var viewModel = new ChatIndexViewModel
             {
                 Sessions = sessions ?? new()
@@ -26,7 +31,7 @@ namespace BankingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(string issueCategory)
         {
-            var response = await _chatService.CreateSessionAsync(issueCategory);
+            ErrorOr<ChatSessionDto> response = await _chatService.CreateSessionAsync(issueCategory);
             if (response != null && response.Success)
             {
                 return RedirectToAction("Details", new { id = response.SessionId });
@@ -36,7 +41,7 @@ namespace BankingApp.Web.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            var session = await _chatService.GetSessionAsync(id);
+            ErrorOr<ChatSessionDto> session = await _chatService.GetSessionAsync(id);
 
             if (session == null)
             {

@@ -4,6 +4,8 @@ using BankingApp.Contracts.Features.Statistics.Dtos;
 
 namespace BankingApp.Application.Features.Statistics.Services
 {
+    using Authentication.Services;
+
     public class StatisticsService : IStatisticsService
     {
         private readonly IStatisticsRepoProxy _repoProxy;

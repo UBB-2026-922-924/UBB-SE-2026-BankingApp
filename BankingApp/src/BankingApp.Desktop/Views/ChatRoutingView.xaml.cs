@@ -8,6 +8,8 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace BankingApp.Desktop.Views
 {
+    using Application.Features.Chat.Services;
+
     public sealed partial class ChatRoutingView : Page
     {
         private readonly IChatService chatService;

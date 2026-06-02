@@ -9,6 +9,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace BankingApp.Desktop.ViewModels
 {
+    using Application.Features.Authentication.Services;
+    using Application.Features.Statistics.Services;
+
     public class StatisticsViewModel : BaseViewModel
     {
         private readonly IStatisticsService _statisticsService;

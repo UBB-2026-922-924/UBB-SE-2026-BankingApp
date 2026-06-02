@@ -14,6 +14,8 @@ using WinRT.Interop;
 
 namespace BankingApp.Desktop.Views
 {
+    using Application.Features.Chat.Services;
+
     public sealed partial class ChatView : Page
     {
         private const int MaxAttachmentSizeBytes = 10 * 1024 * 1024;

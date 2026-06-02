@@ -6,6 +6,8 @@ using BankingApp.Domain.Aggregates.LoanAggregate;
 
 namespace BankingApp.Web.Models.Loans;
 
+using Domain.Aggregates.LoanAggregate.Entities;
+
 public class LoansPageViewModel
 {
     public List<LoanCardViewModel> Loans { get; set; } = [];

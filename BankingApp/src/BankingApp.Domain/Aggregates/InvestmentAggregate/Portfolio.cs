@@ -1,36 +1,66 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+namespace BankingApp.Domain.Aggregates.InvestmentAggregate;
+
+using System.Collections.Generic;
 using System.Linq;
+using BankingApp.Domain.Aggregates.InvestmentAggregate.Entities;
+using BankingApp.Domain.Common.Errors;
+using BankingApp.Domain.Common.Primitives;
+using ErrorOr;
 
-namespace BankingApp.Domain.Aggregates.InvestmentAggregate
+public sealed class Portfolio : AggregateRoot<int>
 {
-    [Table("Portfolio")]
-    public class Portfolio
+    private readonly List<InvestmentHolding> _holdings = [];
+
+    private Portfolio()
     {
-        [Key]
-        [Column("id")]
-        public int Id { get; set; }
+    }
 
-        [Column("userId")]
-        public int UserId { get; set; }
+    private Portfolio(int userId)
+    {
+        UserId = userId;
+    }
 
-        [ForeignKey(nameof(UserId))]
-        public virtual User User { get; set; } = null!;
+    public int UserId { get; private set; }
 
-        public virtual ICollection<InvestmentHolding> Holdings { get; set; } = new List<InvestmentHolding>();
+    public IReadOnlyCollection<InvestmentHolding> Holdings => _holdings.AsReadOnly();
 
-        // Ignored properties (Calculated on the fly, not stored in columns directly)
-        [NotMapped]
-        public decimal TotalValue => this.Holdings?.Sum(h => h.Quantity * h.CurrentPrice) ?? 0m;
+    public decimal TotalValue => _holdings.Sum(h => h.Quantity * h.CurrentPrice);
+    public decimal TotalCostBasis => _holdings.Sum(h => h.Quantity * h.AvgPurchasePrice);
+    public decimal TotalGainLoss => TotalValue - TotalCostBasis;
+    public decimal GainLossPercent => TotalCostBasis == 0 ? 0 : TotalGainLoss / TotalCostBasis;
 
-        [NotMapped]
-        public decimal TotalCostBasis => this.Holdings?.Sum(h => h.Quantity * h.AvgPurchasePrice) ?? 0m;
+    public static Portfolio Create(int userId) => new(userId);
 
-        [NotMapped]
-        public decimal TotalGainLoss => this.TotalValue - this.TotalCostBasis;
+    /// <summary>Records a buy or sell trade, updating or creating the matching holding.</summary>
+    public ErrorOr<Success> RecordTrade(
+        string ticker,
+        string assetType,
+        string actionType,
+        decimal quantity,
+        decimal pricePerUnit,
+        decimal fees,
+        decimal finalQuantity,
+        decimal finalAveragePrice)
+    {
+        if (quantity <= 0)
+        {
+            return InvestmentErrors.InvalidTradeQuantity;
+        }
 
-        [NotMapped]
-        public decimal GainLossPercent => this.TotalCostBasis == 0 ? 0 : (this.TotalGainLoss / this.TotalCostBasis);
+        InvestmentHolding? holding = _holdings.FirstOrDefault(h => h.Ticker == ticker);
+        if (holding is null)
+        {
+            holding = InvestmentHolding.Create(Id, ticker, assetType, finalQuantity, finalAveragePrice, pricePerUnit);
+            _holdings.Add(holding);
+        }
+        else
+        {
+            holding.ApplyTrade(actionType, finalQuantity, finalAveragePrice, pricePerUnit, fees);
+        }
+
+        var transaction = InvestmentTransaction.Create(holding.Id, ticker, actionType, quantity, pricePerUnit, fees, "Market", System.DateTime.UtcNow);
+        holding.AddTransaction(transaction);
+
+        return Result.Success;
     }
 }

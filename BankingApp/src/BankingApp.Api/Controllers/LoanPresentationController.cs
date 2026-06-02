@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankingApp.Api.Controllers
 {
+    using Application.Features.Loans;
+
     [ApiController]
     [Route("api/loans/repayment-progress")]
     public class LoanPresentationController : ControllerBase

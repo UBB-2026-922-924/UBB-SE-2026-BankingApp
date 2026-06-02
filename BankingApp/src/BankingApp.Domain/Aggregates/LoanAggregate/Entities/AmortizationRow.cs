@@ -1,60 +1,51 @@
-﻿// <copyright file="AmortizationRow.cs" company="Dev Core">
-// Copyright (c) Dev Core. All rights reserved.
-// </copyright>
+namespace BankingApp.Domain.Aggregates.LoanAggregate.Entities;
 
 using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using Common.Primitives;
 
-/// <summary>
-/// Represents a single row from a loan amortization schedule.
-/// </summary>
-namespace BankingApp.Domain.Aggregates.LoanAggregate.Entities
+/// <summary>Represents a single row from a loan amortization schedule.</summary>
+public sealed class AmortizationRow : Entity<int>
 {
-    public class AmortizationRow
+    private AmortizationRow()
     {
-        /// <summary>
-        /// Gets or sets the row identifier.
-        /// </summary>
-        [Key]
-
-        public int Id { get; set; }
-        public int LoanId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the associated loan.
-        /// </summary>
-        public virtual Loan Loan { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the installment sequence number.
-        /// </summary>
-        public int InstallmentNumber { get; set; }
-
-        /// <summary>
-        /// Gets or sets the due date of the installment.
-        /// </summary>
-        public DateTime DueDate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the principal component of the payment.
-        /// </summary>
-        public decimal PrincipalPortion { get; set; }
-
-        /// <summary>
-        /// Gets or sets the interest component of the payment.
-        /// </summary>
-        public decimal InterestPortion { get; set; }
-
-        /// <summary>
-        /// Gets or sets the remaining balance after this payment.
-        /// </summary>
-        public decimal RemainingBalance { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this row is the current installment.
-        /// </summary>
-        [NotMapped]
-        public bool IsCurrent { get; set; }
     }
+
+    private AmortizationRow(int loanId, int installmentNumber, DateTime dueDate, decimal principalPortion, decimal interestPortion, decimal remainingBalance)
+    {
+        LoanId = loanId;
+        InstallmentNumber = installmentNumber;
+        DueDate = dueDate;
+        PrincipalPortion = principalPortion;
+        InterestPortion = interestPortion;
+        RemainingBalance = remainingBalance;
+    }
+
+    public int LoanId { get; private set; }
+    public int InstallmentNumber { get; private set; }
+    public DateTime DueDate { get; private set; }
+    public decimal PrincipalPortion { get; private set; }
+    public decimal InterestPortion { get; private set; }
+    public decimal RemainingBalance { get; private set; }
+    public bool IsCurrent { get; private set; }
+
+    public static AmortizationRow Create(int loanId, int installmentNumber, DateTime dueDate, decimal principalPortion, decimal interestPortion, decimal remainingBalance)
+        => new(loanId, installmentNumber, dueDate, principalPortion, interestPortion, remainingBalance);
+
+    /// <summary>Rebuilds an AmortizationRow from persisted storage state (infrastructure use only).</summary>
+    public static AmortizationRow Reconstitute(int id, int loanId, int installmentNumber, DateTime dueDate, decimal principalPortion, decimal interestPortion, decimal remainingBalance, bool isCurrent)
+        => new()
+        {
+            Id = id,
+            LoanId = loanId,
+            InstallmentNumber = installmentNumber,
+            DueDate = dueDate,
+            PrincipalPortion = principalPortion,
+            InterestPortion = interestPortion,
+            RemainingBalance = remainingBalance,
+            IsCurrent = isCurrent,
+        };
+
+    public void MarkAsCurrent() => IsCurrent = true;
+
+    public void ClearCurrent() => IsCurrent = false;
 }

@@ -10,6 +10,9 @@ using BankingApp.Domain.Aggregates.SavingsAggregate;
 
 namespace BankingApp.Application.Features.Savings.Services
 {
+    using Contracts.Features.Investments;
+    using Domain.Aggregates.SavingsAggregate.Entities;
+
     public class SavingsService : ISavingsService
     {
         private const int MaxActiveAccounts = 5;
@@ -148,7 +151,7 @@ namespace BankingApp.Application.Features.Savings.Services
                 earlyClosurePenalty = closingAccount.Balance * DecimalEarlyClosurePenalty;
             }
 
-            var transferAmount = closingAccount.Balance - earlyClosurePenalty;
+            decimal transferAmount = closingAccount.Balance - earlyClosurePenalty;
 
             return await _savingsRepoProxy.CloseSavingsAccountAsync(
                 accountId,
@@ -186,7 +189,7 @@ namespace BankingApp.Application.Features.Savings.Services
                 earlyWithdrawalPenalty = amount * DecimalEarlyWithdrawalPenalty;
             }
 
-            var totalSumToWithdraw = amount + earlyWithdrawalPenalty;
+            decimal totalSumToWithdraw = amount + earlyWithdrawalPenalty;
             if (totalSumToWithdraw > destinationAccount.Balance)
             {
                 throw new InvalidOperationException("Insufficient balance after penalty.");
@@ -251,7 +254,7 @@ namespace BankingApp.Application.Features.Savings.Services
 
         public Task<decimal> ParsePositiveAmountAsync(string text)
         {
-            if (!TryParsePositiveAmount(text, out var amount))
+            if (!TryParsePositiveAmount(text, out decimal amount))
             {
                 throw new InvalidOperationException(InvalidPositiveAmountMessage);
             }

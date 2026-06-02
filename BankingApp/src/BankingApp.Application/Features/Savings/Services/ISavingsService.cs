@@ -7,6 +7,9 @@ using BankingApp.Domain.Aggregates.SavingsAggregate;
 
 namespace BankingApp.Application.Features.Savings.Services
 {
+    using Contracts.Features.Investments;
+    using Domain.Aggregates.SavingsAggregate.Entities;
+
     public interface ISavingsService
     {
         Task<SavingsAccount> CreateAccountAsync(CreateSavingsAccountDto account);

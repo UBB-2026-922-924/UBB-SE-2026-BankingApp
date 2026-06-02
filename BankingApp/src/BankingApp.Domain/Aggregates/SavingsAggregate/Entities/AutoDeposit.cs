@@ -1,65 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace BankingApp.Domain.Aggregates.SavingsAggregate.Entities;
+
+using System;
+using BankingApp.Domain.Common.Primitives;
 using BankingApp.Domain.Enums;
 
-namespace BankingApp.Domain.Aggregates.SavingsAggregate.Entities
+/// <summary>Represents an automatic recurring transfer into a savings account.</summary>
+public sealed class AutoDeposit : Entity<int>
 {
-    /// <summary>
-    /// Represents an automatic recurring transfer into a savings account.
-    /// </summary>
-    public class AutoDeposit
+    private AutoDeposit()
     {
-        /// <summary>
-        /// Gets or sets the unique auto-deposit identifier.
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the foreign key from SavingsAccount
-        /// </summary>
-        [Column("savingsAccountId")]
-        public int SavingsAccountId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the linked savings account.
-        /// </summary>
-        [ForeignKey("SavingsAccountId")]
-        public virtual SavingsAccount SavingsAccount { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the amount transferred each run.
-        /// </summary>
-        public decimal Amount { get; set; }
-
-        /// <summary>
-        /// Gets or sets how often the transfer executes.
-        /// </summary>
-        public DepositFrequency Frequency { get; set; }
-
-        /// <summary>
-        /// Gets or sets the scheduled date of the next transfer.
-        /// </summary>
-        public DateTime NextRunDate { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether scheduling is enabled.
-        /// </summary>
-        public bool IsActive { get; set; }
-
-        [Column("sourceAccountId")]
-        public int? SourceAccountId { get; set; }
-
-        [Column("dayOfMonth")]
-        public int? DayOfMonth { get; set; }
-
-        [Column("dayOfWeek")]
-        public int? DayOfWeek { get; set; }
-
-        [Column("updatedAt")]
-        public DateTime? UpdatedAt { get; set; }
     }
+
+    private AutoDeposit(int savingsAccountId, decimal amount, DepositFrequency frequency, DateTime nextRunDate, bool isActive, int? sourceAccountId, int? dayOfMonth, int? dayOfWeek)
+    {
+        SavingsAccountId = savingsAccountId;
+        Amount = amount;
+        Frequency = frequency;
+        NextRunDate = nextRunDate;
+        IsActive = isActive;
+        SourceAccountId = sourceAccountId;
+        DayOfMonth = dayOfMonth;
+        DayOfWeek = dayOfWeek;
+    }
+
+    public int SavingsAccountId { get; private set; }
+    public decimal Amount { get; private set; }
+    public DepositFrequency Frequency { get; private set; }
+    public DateTime NextRunDate { get; private set; }
+    public bool IsActive { get; private set; }
+    public int? SourceAccountId { get; private set; }
+    public int? DayOfMonth { get; private set; }
+    public int? DayOfWeek { get; private set; }
+    public DateTime? UpdatedAt { get; private set; }
+
+    public static AutoDeposit Create(int savingsAccountId, decimal amount, DepositFrequency frequency, DateTime nextRunDate, bool isActive, int? sourceAccountId = null, int? dayOfMonth = null, int? dayOfWeek = null)
+        => new(savingsAccountId, amount, frequency, nextRunDate, isActive, sourceAccountId, dayOfMonth, dayOfWeek);
+
+    /// <summary>Rebuilds an AutoDeposit from persisted storage state (infrastructure use only).</summary>
+    public static AutoDeposit Reconstitute(int id, int savingsAccountId, decimal amount, DepositFrequency frequency, DateTime nextRunDate, bool isActive, int? sourceAccountId, int? dayOfMonth, int? dayOfWeek, DateTime? updatedAt)
+        => new()
+        {
+            Id = id,
+            SavingsAccountId = savingsAccountId,
+            Amount = amount,
+            Frequency = frequency,
+            NextRunDate = nextRunDate,
+            IsActive = isActive,
+            SourceAccountId = sourceAccountId,
+            DayOfMonth = dayOfMonth,
+            DayOfWeek = dayOfWeek,
+            UpdatedAt = updatedAt,
+        };
 }

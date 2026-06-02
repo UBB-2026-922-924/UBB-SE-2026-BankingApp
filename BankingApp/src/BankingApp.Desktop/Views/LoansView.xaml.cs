@@ -2,15 +2,16 @@
 {
     using System;
     using System.Diagnostics;
-    using BankingApp.Client.View.Dialogs;
     using BankingApp.Desktop.ViewModels;
     using BankingApp.Client.Views.Dialogs;
     using BankingApp.Domain.Aggregates.InvestmentAggregate;
     using BankingApp.Domain.Enums;
+    using Dialogs;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Media;
     using Microsoft.UI.Xaml.Navigation;
+    using PayInstallmentDialog = Client.View.Dialogs.PayInstallmentDialog;
 
     public sealed partial class LoansView : UserControl
     {

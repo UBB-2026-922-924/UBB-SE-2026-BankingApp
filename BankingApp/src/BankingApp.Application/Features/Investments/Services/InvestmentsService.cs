@@ -3,7 +3,8 @@
     using System;
     using System.Diagnostics;
     using System.Threading.Tasks;
-            using BankingApp.Domain.Aggregates.InvestmentAggregate;
+    using Authentication.Services;
+    using BankingApp.Domain.Aggregates.InvestmentAggregate;
 
     public class InvestmentsService : IInvestmentsService
     {

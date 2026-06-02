@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankingApp.Api.Controllers
 {
+    using Contracts.Features.Investments;
+
     [ApiController]
     [Route("api/savings-workflow")]
     public class SavingsWorkflowController : ControllerBase
@@ -21,7 +23,7 @@ namespace BankingApp.Api.Controllers
                 return BadRequest("List of funding sources cannot be null.");
             }
 
-            var result = fundingSources.FirstOrDefault();
+            FundingSourceOption? result = fundingSources.FirstOrDefault();
 
             if (result == null)
             {
@@ -39,7 +41,7 @@ namespace BankingApp.Api.Controllers
                 return BadRequest("List of accounts cannot be null.");
             }
 
-            var destinationId = destinationAccounts.FirstOrDefault()?.IdentificationNumber ?? NoDestinationId;
+            int destinationId = destinationAccounts.FirstOrDefault()?.IdentificationNumber ?? NoDestinationId;
             return Ok(destinationId);
         }
 
@@ -79,7 +81,7 @@ namespace BankingApp.Api.Controllers
             }
             else
             {
-                var penaltyText = response.PenaltyApplied > NoPenaltyAmount
+                string penaltyText = response.PenaltyApplied > NoPenaltyAmount
                                 ? $" (penalty: ${response.PenaltyApplied:N2})"
                                 : string.Empty;
                 message = $"Withdrawn: ${response.AmountWithdrawn:N2}{penaltyText}. New balance: ${response.NewBalance:N2}";
@@ -116,14 +118,14 @@ namespace BankingApp.Api.Controllers
         [HttpGet("can-move-next")]
         public ActionResult<bool> CanMoveToNextPage([FromQuery] int currentPage, [FromQuery] int totalPages)
         {
-            var canMove = currentPage < totalPages;
+            bool canMove = currentPage < totalPages;
             return Ok(canMove);
         }
 
         [HttpGet("can-move-previous")]
         public ActionResult<bool> CanMoveToPreviousPage([FromQuery] int currentPage)
         {
-            var canMove = currentPage > FirstPage;
+            bool canMove = currentPage > FirstPage;
             return Ok(canMove);
         }
     }

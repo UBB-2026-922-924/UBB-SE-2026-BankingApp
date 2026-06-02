@@ -1,51 +1,59 @@
-﻿using System.ComponentModel.DataAnnotations;
-using BankingApp.Domain.Aggregates.InvestmentAggregate;
+namespace BankingApp.Domain.Aggregates.LoanAggregate.Entities;
+
+using BankingApp.Domain.Common.Errors;
+using BankingApp.Domain.Common.Primitives;
 using BankingApp.Domain.Enums;
+using ErrorOr;
 
-namespace BankingApp.Domain.Aggregates.LoanAggregate.Entities
+public sealed class LoanApplication : Entity<int>
 {
-    public class LoanApplication
+    private LoanApplication()
     {
-        /// <summary>
-        /// Gets or sets the unique application identifier.
-        /// </summary>
-        [Key]
-        public int Id { get; set; }
-        public int UserId { get; set; }
+    }
 
-        /// <summary>
-        /// Gets or sets the applicant user.
-        /// </summary>
-        public virtual User User { get; set; } = null!;
+    private LoanApplication(int userId, LoanType loanType, decimal desiredAmount, int preferredTermMonths, string purpose)
+    {
+        UserId = userId;
+        LoanType = loanType;
+        DesiredAmount = desiredAmount;
+        PreferredTermMonths = preferredTermMonths;
+        Purpose = purpose;
+        ApplicationStatus = LoanApplicationStatus.Pending;
+    }
 
-        /// <summary>
-        /// Gets or sets the requested loan type.
-        /// </summary>
-        public LoanType LoanType { get; set; }
+    public int UserId { get; private set; }
+    public LoanType LoanType { get; private set; }
+    public decimal DesiredAmount { get; private set; }
+    public int PreferredTermMonths { get; private set; }
+    public string Purpose { get; private set; } = string.Empty;
+    public LoanApplicationStatus ApplicationStatus { get; private set; }
+    public string? RejectionReason { get; private set; }
 
-        /// <summary>
-        /// Gets or sets the requested loan amount.
-        /// </summary>
-        public decimal DesiredAmount { get; set; }
+    public static LoanApplication Create(int userId, LoanType loanType, decimal desiredAmount, int preferredTermMonths, string purpose)
+        => new(userId, loanType, desiredAmount, preferredTermMonths, purpose);
 
-        /// <summary>
-        /// Gets or sets the preferred repayment term in months.
-        /// </summary>
-        public int PreferredTermMonths { get; set; }
+    /// <summary>Marks this application as approved.</summary>
+    public ErrorOr<Success> Approve()
+    {
+        if (ApplicationStatus != LoanApplicationStatus.Pending)
+        {
+            return LoanErrors.ApplicationAlreadyProcessed;
+        }
 
-        /// <summary>
-        /// Gets or sets the business or personal purpose for the request.
-        /// </summary>
-        public required string Purpose { get; set; }
+        ApplicationStatus = LoanApplicationStatus.Approved;
+        return Result.Success;
+    }
 
-        /// <summary>
-        /// Gets or sets the current review status of the application.
-        /// </summary>
-        public LoanApplicationStatus ApplicationStatus { get; set; }
+    /// <summary>Marks this application as rejected with the supplied reason.</summary>
+    public ErrorOr<Success> Reject(string reason)
+    {
+        if (ApplicationStatus != LoanApplicationStatus.Pending)
+        {
+            return LoanErrors.ApplicationAlreadyProcessed;
+        }
 
-        /// <summary>
-        /// Gets or sets the rejection reason when the application is denied.
-        /// </summary>
-        public string? RejectionReason { get; set; }
+        ApplicationStatus = LoanApplicationStatus.Rejected;
+        RejectionReason = reason;
+        return Result.Success;
     }
 }

@@ -1,123 +1,117 @@
-﻿using System;
-using System.Collections.Generic;
-using BankingApp.Contracts.Features.Loans.Dtos;
-using BankingApp.Domain.Aggregates.LoanAggregate;
+﻿namespace BankingApp.Application.Features.Loans;
 
-namespace BankingApp.Application.Features.Loans
+using Domain.Aggregates.LoanAggregate;
+using Domain.Aggregates.LoanAggregate.Entities;
+
+public static class AmortizationCalculator
 {
-    public static class AmortizationCalculator
+    private const decimal ZeroDecimal = 0m;
+    private const int FirstInstallmentNumber = 1;
+    private const decimal OneDecimal = 1m;
+    private const decimal MonthsPerYear = 12m;
+    private const decimal PercentageScale = 100m;
+    private const int CurrencyPrecisionDigits = 2;
+
+    public static LoanEstimate ComputeEstimate(decimal amount, decimal annualRate, int termMonths)
     {
-        private const decimal ZeroDecimal = 0m;
-        private const int FirstInstallmentNumber = 1;
-        private const decimal OneDecimal = 1m;
-        private const decimal MonthsPerYear = 12m;
-        private const decimal PercentageScale = 100m;
-        private const int CurrencyPrecisionDigits = 2;
+        decimal monthlyRate = annualRate / MonthsPerYear / PercentageScale;
+        decimal monthlyInstallment;
 
-        public static LoanEstimate ComputeEstimate(decimal amount, decimal annualRate, int termMonths)
+        if (monthlyRate == ZeroDecimal)
         {
-            var monthlyRate = annualRate / MonthsPerYear / PercentageScale;
-            decimal monthlyInstallment;
-
-            if (monthlyRate == ZeroDecimal)
-            {
-                monthlyInstallment = amount / termMonths;
-            }
-            else
-            {
-                monthlyInstallment = amount * monthlyRate * (decimal)Math.Pow((double)(OneDecimal + monthlyRate), termMonths) /
-                                     ((decimal)Math.Pow((double)(OneDecimal + monthlyRate), termMonths) - OneDecimal);
-            }
-
-            monthlyInstallment = Math.Round(monthlyInstallment, CurrencyPrecisionDigits);
-            var totalRepayable = Math.Round(monthlyInstallment * termMonths, CurrencyPrecisionDigits);
-
-            return new LoanEstimate
-            {
-                IndicativeRate = annualRate,
-                MonthlyInstallment = monthlyInstallment,
-                TotalRepayable = totalRepayable,
-            };
+            monthlyInstallment = amount / termMonths;
+        }
+        else
+        {
+            monthlyInstallment = amount * monthlyRate * (decimal)Math.Pow((double)(OneDecimal + monthlyRate), termMonths) /
+                                 ((decimal)Math.Pow((double)(OneDecimal + monthlyRate), termMonths) - OneDecimal);
         }
 
-        public static decimal ComputeRepaymentProgress(decimal principal, decimal outstandingBalance)
-        {
-            if (principal == ZeroDecimal)
-            {
-                return ZeroDecimal;
-            }
+        monthlyInstallment = Math.Round(monthlyInstallment, CurrencyPrecisionDigits);
+        decimal totalRepayable = Math.Round(monthlyInstallment * termMonths, CurrencyPrecisionDigits);
 
-            return (principal - outstandingBalance) / principal * PercentageScale;
+        return new LoanEstimate
+        {
+            IndicativeRate = annualRate,
+            MonthlyInstallment = monthlyInstallment,
+            TotalRepayable = totalRepayable,
+        };
+    }
+
+    public static decimal ComputeRepaymentProgress(decimal principal, decimal outstandingBalance)
+    {
+        if (principal == ZeroDecimal)
+        {
+            return ZeroDecimal;
         }
 
-        public static List<AmortizationRow> Generate(Loan loan)
+        return (principal - outstandingBalance) / principal * PercentageScale;
+    }
+
+    public static List<AmortizationRow> Generate(Loan loan)
+    {
+        var rows = new List<AmortizationRow>();
+
+        decimal principal = loan.Principal;
+        decimal annualRate = loan.InterestRate;
+        int termInMonths = loan.TermInMonths;
+        DateTime startDate = loan.StartDate;
+
+        decimal monthlyRate = annualRate / MonthsPerYear / PercentageScale;
+        decimal remainingBalance = principal;
+        decimal monthlyInstallment;
+
+        if (monthlyRate == ZeroDecimal)
         {
-            var rows = new List<AmortizationRow>();
-
-            var principal = loan.Principal;
-            var annualRate = loan.InterestRate;
-            var termInMonths = loan.TermInMonths;
-            var startDate = loan.StartDate;
-
-            var monthlyRate = annualRate / MonthsPerYear / PercentageScale;
-            var remainingBalance = principal;
-            decimal monthlyInstallment;
-
-            if (monthlyRate == ZeroDecimal)
-            {
-                monthlyInstallment = remainingBalance / termInMonths;
-            }
-            else
-            {
-                monthlyInstallment = remainingBalance * monthlyRate *
-                                     (decimal)Math.Pow((double)(OneDecimal + monthlyRate), termInMonths) /
-                                     ((decimal)Math.Pow((double)(OneDecimal + monthlyRate), termInMonths) - OneDecimal);
-            }
-
-            monthlyInstallment = Math.Round(monthlyInstallment, CurrencyPrecisionDigits);
-            var isCurrentMarked = false;
-
-            for (var index = FirstInstallmentNumber; index <= termInMonths; index++)
-            {
-                var dueDate = startDate.AddMonths(index);
-                var interestPortion = Math.Round(remainingBalance * monthlyRate, CurrencyPrecisionDigits);
-                var principalPortion = monthlyInstallment - interestPortion;
-
-                if (index == termInMonths)
-                {
-                    principalPortion = remainingBalance;
-                    monthlyInstallment = principalPortion + interestPortion;
-                }
-
-                remainingBalance -= principalPortion;
-
-                if (remainingBalance < ZeroDecimal || index == termInMonths)
-                {
-                    remainingBalance = ZeroDecimal;
-                }
-
-                var row = new AmortizationRow
-                {
-                    LoanId = loan.Id,
-                    InstallmentNumber = index,
-                    DueDate = dueDate,
-                    PrincipalPortion = principalPortion,
-                    InterestPortion = interestPortion,
-                    RemainingBalance = remainingBalance,
-                    IsCurrent = false,
-                };
-
-                if (!isCurrentMarked && dueDate.Date >= DateTime.Today)
-                {
-                    row.IsCurrent = true;
-                    isCurrentMarked = true;
-                }
-
-                rows.Add(row);
-            }
-
-            return rows;
+            monthlyInstallment = remainingBalance / termInMonths;
         }
+        else
+        {
+            monthlyInstallment = remainingBalance * monthlyRate *
+                                 (decimal)Math.Pow((double)(OneDecimal + monthlyRate), termInMonths) /
+                                 ((decimal)Math.Pow((double)(OneDecimal + monthlyRate), termInMonths) - OneDecimal);
+        }
+
+        monthlyInstallment = Math.Round(monthlyInstallment, CurrencyPrecisionDigits);
+        bool isCurrentMarked = false;
+
+        for (int index = FirstInstallmentNumber; index <= termInMonths; index++)
+        {
+            DateTime dueDate = startDate.AddMonths(index);
+            decimal interestPortion = Math.Round(remainingBalance * monthlyRate, CurrencyPrecisionDigits);
+            decimal principalPortion = monthlyInstallment - interestPortion;
+
+            if (index == termInMonths)
+            {
+                principalPortion = remainingBalance;
+                monthlyInstallment = principalPortion + interestPortion;
+            }
+
+            remainingBalance -= principalPortion;
+
+            if (remainingBalance < ZeroDecimal || index == termInMonths)
+            {
+                remainingBalance = ZeroDecimal;
+            }
+
+            var row = AmortizationRow.Create(
+                loan.Id,
+                index,
+                dueDate,
+                principalPortion,
+                interestPortion,
+                remainingBalance);
+
+            if (!isCurrentMarked && dueDate.Date >= DateTime.Today)
+            {
+                row.MarkAsCurrent();
+                isCurrentMarked = true;
+            }
+
+            rows.Add(row);
+        }
+
+        return rows;
     }
 }
 

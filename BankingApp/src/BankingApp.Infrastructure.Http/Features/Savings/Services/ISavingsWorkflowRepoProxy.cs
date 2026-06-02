@@ -6,6 +6,8 @@ using BankingApp.Domain.Aggregates.SavingsAggregate;
 
 namespace BankingApp.Infrastructure.Http.Features.Savings.Services
 {
+    using Contracts.Features.Investments;
+
     public interface ISavingsWorkflowRepoProxy
     {
         Task<FundingSourceOption> GetDefaultFundingSource(IEnumerable<FundingSourceOption> fundingSources);

@@ -6,6 +6,8 @@ using BankingApp.Domain.Aggregates.LoanAggregate;
 
 namespace BankingApp.Application.Features.Loans.Services
 {
+    using Domain.Aggregates.LoanAggregate.Entities;
+
     /// <summary>
     /// Desktop business service for Loans.
     /// Implements business rules locally and uses a RepoProxy for persistence.
