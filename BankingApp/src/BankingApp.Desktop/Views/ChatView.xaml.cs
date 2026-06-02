@@ -2,7 +2,6 @@ namespace BankingApp.Desktop.Views;
 
 using Contracts.Features.Chat.Dtos;
 using Infrastructure.Http.Features.Chat.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
@@ -17,12 +16,12 @@ public sealed partial class ChatView : Page
     private int _sessionId;
 
     /// <summary>
-    ///     Initializes a new instance of the chat view.
+    ///     Initializes a new instance of the <see cref="ChatView"/> class.
     /// </summary>
-    public ChatView()
+    public ChatView(IChatRepoProxy chatService)
     {
         InitializeComponent();
-        _chatService = ((App)Application.Current).Services.GetRequiredService<IChatRepoProxy>();
+        _chatService = chatService;
         _refreshTimer = new DispatcherTimer
         {
             Interval = TimeSpan.FromSeconds(3)

@@ -2,28 +2,31 @@
 
 using System.Globalization;
 using Contracts.Features.Savings.Dtos;
+using Contracts.Http;
 using Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+[Authorize]
 [ApiController]
-    [Route(Contracts.Http.ApiEndpoints.SavingsUiRules.Base)]
-public class SavingsUiRulesController : ControllerBase
+[Route(ApiEndpoints.SavingsUiRules.Base)]
+public class SavingsUiRulesController : ApiControllerBase
 {
     private const decimal PositiveAmountThreshold = 0m;
     private const int NoPages = 0;
 
-        [HttpGet(Contracts.Http.ApiEndpoints.SavingsUiRules.ParsePositiveAmount)]
+    [HttpGet(ApiEndpoints.SavingsUiRules.ParsePositiveAmount)]
     public ActionResult<decimal> ParsePositiveAmount([FromQuery] string text)
     {
-        bool isValid = TryParsePositiveAmount(text, out decimal amount);
-        if (isValid)
+        if (TryParsePositiveAmount(text, out decimal amount))
         {
             return Ok(amount);
         }
+
         return BadRequest("Invalid amount. Please enter a positive number.");
     }
 
-        [HttpPost(Contracts.Http.ApiEndpoints.SavingsUiRules.DepositPreview)]
+    [HttpPost(ApiEndpoints.SavingsUiRules.DepositPreview)]
     public ActionResult<string> GetDepositPreview([FromQuery] string depositAmountText, [FromBody] SavingsAccountSnapshotDto selectedAccount)
     {
         string previewText;
@@ -37,37 +40,38 @@ public class SavingsUiRulesController : ControllerBase
         {
             previewText = $"New balance will be: ${selectedAccount.Balance + amount:N2}";
         }
+
         return Ok(previewText);
     }
 
-        [HttpGet(Contracts.Http.ApiEndpoints.SavingsUiRules.WithdrawNetAmount)]
+    [HttpGet(ApiEndpoints.SavingsUiRules.WithdrawNetAmount)]
     public ActionResult<decimal> GetWithdrawNetAmount([FromQuery] decimal requestedAmount, [FromQuery] decimal penalty)
     {
         decimal netAmount = requestedAmount - penalty;
         return Ok(netAmount);
     }
 
-        [HttpGet(Contracts.Http.ApiEndpoints.SavingsUiRules.ParseDepositFrequency)]
+    [HttpGet(ApiEndpoints.SavingsUiRules.ParseDepositFrequency)]
     public ActionResult<DepositFrequency> ParseDepositFrequency([FromQuery] string frequencyText)
     {
-        bool isValid = Enum.TryParse(frequencyText, out DepositFrequency frequency);
-        if (isValid)
+        if (Enum.TryParse(frequencyText, out DepositFrequency frequency))
         {
             return Ok(frequency);
         }
+
         return BadRequest();
     }
 
-        [HttpGet(Contracts.Http.ApiEndpoints.SavingsUiRules.TotalPages)]
+    [HttpGet(ApiEndpoints.SavingsUiRules.TotalPages)]
     public ActionResult<int> GetTotalPages([FromQuery] int totalCount, [FromQuery] int pageSize)
     {
         int pages = pageSize <= NoPages
-                  ? NoPages
-                  : (int)Math.Ceiling((double)totalCount / pageSize);
+            ? NoPages
+            : (int)Math.Ceiling((double)totalCount / pageSize);
         return Ok(pages);
     }
 
-        [HttpPost(Contracts.Http.ApiEndpoints.SavingsUiRules.ValidateCreateAccount)]
+    [HttpPost(ApiEndpoints.SavingsUiRules.ValidateCreateAccount)]
     public ActionResult<Dictionary<string, string>> ValidateCreateAccount([FromBody] ValidateCreateAccountRequest request)
     {
         var errors = new Dictionary<string, string>();
@@ -117,10 +121,6 @@ public class SavingsUiRulesController : ControllerBase
         return Ok(errors);
     }
 
-    // Note: this function was salvaged over from the service, because it has been called multiple times
-    //  outside of the function which it is "routed" to
-    //  I don't know if it's good to have a function that is not routed to by anything inside an API controller,
-    //  this is just a helper function to not have to write out the same long conditional multiple times (DRY)
     private static bool TryParsePositiveAmount(string text, out decimal amount)
     {
         if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.CurrentCulture, out amount) &&

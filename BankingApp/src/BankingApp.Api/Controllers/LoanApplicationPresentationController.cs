@@ -1,11 +1,14 @@
 ﻿namespace BankingApp.Api.Controllers;
 
 using Contracts.Features.Loans.Dtos;
+using Contracts.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+[Authorize]
 [ApiController]
-    [Route(Contracts.Http.ApiEndpoints.LoanApplicationPresentation.Base)]
-public class LoanApplicationPresentationController : ControllerBase
+[Route(ApiEndpoints.LoanApplicationPresentation.Base)]
+public class LoanApplicationPresentationController : ApiControllerBase
 {
     [HttpGet]
     public IActionResult GetBuildApplicationOutcome([FromQuery] string? rejectionReason)

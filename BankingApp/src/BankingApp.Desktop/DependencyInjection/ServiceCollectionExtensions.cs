@@ -119,6 +119,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<StatisticsView>();
         services.AddTransient<AmortizationScheduleView>();
         services.AddTransient<ChatRoutingView>();
+        services.AddTransient<ChatView>();
 
         return services;
     }
