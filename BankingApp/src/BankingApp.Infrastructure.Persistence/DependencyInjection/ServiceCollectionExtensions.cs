@@ -58,6 +58,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IForexRepository, ForexTransactionRepository>();
         services.AddScoped<ISavedBillerRepository, SavedBillerRepository>();
 
+        services.AddScoped<IChatRepository, ChatRepository>();
         services.AddScoped<IInvestmentRepository, InvestmentRepository>();
         services.AddScoped<ISavingsRepository, SavingsRepository>();
         services.AddScoped<ILoanRepository, LoanRepository>();

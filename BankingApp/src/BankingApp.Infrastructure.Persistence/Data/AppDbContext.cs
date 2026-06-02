@@ -3,6 +3,8 @@ namespace BankingApp.Infrastructure.Persistence.Data;
 using Domain.Aggregates.AccountAggregate;
 using Domain.Aggregates.BeneficiaryAggregate;
 using Domain.Aggregates.BillPaymentAggregate;
+using Domain.Aggregates.ChatAggregate;
+using Domain.Aggregates.ChatAggregate.Entities;
 using Domain.Aggregates.ForexAggregate;
 using Domain.Aggregates.IdentityAggregate;
 using Domain.Aggregates.InvestmentAggregate;
@@ -20,6 +22,10 @@ using Microsoft.EntityFrameworkCore;
 public class AppDbContext(DbContextOptions options) : DbContext(options)
 {
     public DbSet<Account> Accounts => Set<Account>();
+
+    public DbSet<ChatSession> ChatSessions => Set<ChatSession>();
+
+    public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
 
     public DbSet<User> Users => Set<User>();
 
