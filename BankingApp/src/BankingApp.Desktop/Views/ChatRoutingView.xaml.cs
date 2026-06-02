@@ -2,7 +2,6 @@ namespace BankingApp.Desktop.Views;
 
 using Contracts.Features.Chat.Dtos;
 using Infrastructure.Http.Features.Chat.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -14,12 +13,12 @@ public sealed partial class ChatRoutingView : Page
     private readonly IChatRepoProxy _chatService;
 
     /// <summary>
-    ///     Initializes a new instance of the chat routing view.
+    ///     Initializes a new instance of the <see cref="ChatRoutingView"/> class.
     /// </summary>
-    public ChatRoutingView()
+    public ChatRoutingView(IChatRepoProxy chatService)
     {
         InitializeComponent();
-        _chatService = ((App)Application.Current).Services.GetRequiredService<IChatRepoProxy>();
+        _chatService = chatService;
         Loaded += ChatRoutingView_Loaded;
     }
 

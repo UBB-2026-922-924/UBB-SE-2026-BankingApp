@@ -167,11 +167,10 @@ public void NavigateToBillPayments()
         _navigationService.NavigateToContent<StatisticsView>();
     }
 
-    private async void NavSupport_Click(object sender, RoutedEventArgs e)
+    private void NavSupport_Click(object sender, RoutedEventArgs e)
     {
-        try { await ShowComingSoonAsync("Support"); }
-        catch
-        { /* Dialog display failure is non-critical. */ }
+        SetActiveNav(NavSupport);
+        _navigationService.NavigateToContent<ChatRoutingView>();
     }
 
     private void NotificationBell_PointerPressed(object sender, PointerRoutedEventArgs e)
