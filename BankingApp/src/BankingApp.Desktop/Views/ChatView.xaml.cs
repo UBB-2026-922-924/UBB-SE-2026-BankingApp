@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BankApp.Client.Services.Interfaces;
-using BankApp.Models.DTOs.Chat;
-using BankApp.Models.Features.Chat;
+using BankingApp.Contracts.Features.Chat.Dtos;
+using BankingApp.Domain.Aggregates.ChatAggregate;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -13,7 +12,7 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 
-namespace BankApp.Client.Views
+namespace BankingApp.Desktop.Views
 {
     public sealed partial class ChatView : Page
     {

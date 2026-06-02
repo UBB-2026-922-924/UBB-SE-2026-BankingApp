@@ -5,7 +5,7 @@
 /// <summary>
 /// Represents the review status of a loan application.
 /// </summary>
-namespace BankApp.Models.Enums;
+namespace BankingApp.Domain.Enums;
 public enum LoanApplicationStatus
 {
     /// <summary>The application is awaiting review.</summary>

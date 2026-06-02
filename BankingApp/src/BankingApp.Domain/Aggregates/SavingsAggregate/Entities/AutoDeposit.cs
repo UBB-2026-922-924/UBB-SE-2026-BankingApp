@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BankApp.Models.Enums;
+using BankingApp.Domain.Enums;
 
-namespace BankApp.Models.Features.Savings
+namespace BankingApp.Domain.Aggregates.SavingsAggregate.Entities
 {
     /// <summary>
     /// Represents an automatic recurring transfer into a savings account.

@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Controls;
-using BankApp.Client.ViewModels;
-namespace BankApp.Client.Views
+using BankingApp.Desktop.ViewModels;
+namespace BankingApp.Desktop.Views
 {
     public sealed partial class LoansAndSavingsView : Page
     {

@@ -1,14 +1,14 @@
-using System.Data;
+﻿using System.Data;
 using System.Data.Common;
 using System.Globalization;
-using BankApp.Models.DTOs.Loans;
-using BankApp.Models.Enums;
-using BankApp.Models.Features.Loans;
-using BankApp.Server.DataAccess;
-using BankApp.Server.Repositories.Interfaces;
+using BankingApp.Contracts.Features.Loans.Dtos;
+using BankingApp.Domain.Enums;
+using BankingApp.Domain.Aggregates.LoanAggregate;
+using BankingApp.Server.DataAccess;
+using BankingApp.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApp.Server.Repositories.Implementations
+namespace BankingApp.Infrastructure.Persistence.Repositories
 {
     /// <summary>
     /// EF Core-backed repository for loans and loan applications.

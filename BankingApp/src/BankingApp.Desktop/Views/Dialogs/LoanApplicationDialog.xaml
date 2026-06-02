@@ -1,5 +1,5 @@
-<ContentDialog
-    x:Class="BankApp.Client.Views.Dialogs.LoanApplicationDialog"
+﻿<ContentDialog
+    x:Class="BankingApp.Desktop.Views.Dialogs.LoanApplicationDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="{x:Bind viewModel.DialogTitle, Mode=OneWay}"

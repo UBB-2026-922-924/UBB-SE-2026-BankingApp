@@ -1,12 +1,11 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using BankApp.Client.RepoProxies;
-using BankApp.Client.RepoProxies.Interfaces;
-using BankApp.Models.DTOs.Savings;
-using BankApp.Models.Enums;
-using BankApp.Models.Features.Savings;
+using BankingApp.Client.RepoProxies;
+using BankingApp.Contracts.Features.Savings.Dtos;
+using BankingApp.Domain.Enums;
+using BankingApp.Domain.Aggregates.SavingsAggregate;
 
-namespace BankApp.Client.RepoProxies.Implementations
+namespace BankingApp.Infrastructure.Http.Features.Savings.Services
 {
     public class SavingsUiRulesRepoProxy : ISavingsUiRulesRepoProxy
     {

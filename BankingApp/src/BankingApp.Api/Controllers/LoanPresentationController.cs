@@ -1,8 +1,8 @@
-﻿using BankApp.Models.Features.Loans;
-using BankApp.Server.Utilities;
+﻿using BankingApp.Domain.Aggregates.LoanAggregate;
+using BankingApp.Server.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BankApp.Server.Controllers
+namespace BankingApp.Api.Controllers
 {
     [ApiController]
     [Route("api/loans/repayment-progress")]

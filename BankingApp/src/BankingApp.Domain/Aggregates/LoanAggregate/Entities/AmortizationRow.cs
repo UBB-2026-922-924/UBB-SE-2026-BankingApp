@@ -1,4 +1,4 @@
-// <copyright file="AmortizationRow.cs" company="Dev Core">
+﻿// <copyright file="AmortizationRow.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 /// <summary>
 /// Represents a single row from a loan amortization schedule.
 /// </summary>
-namespace BankApp.Models.Features.Loans
+namespace BankingApp.Domain.Aggregates.LoanAggregate.Entities
 {
     public class AmortizationRow
     {

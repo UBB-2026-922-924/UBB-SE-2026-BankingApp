@@ -1,7 +1,7 @@
-namespace BankApp.Client.Services.Interfaces
+﻿namespace BankingApp.Application.Features.Investments.Services
 {
     using System.Threading.Tasks;
-    using BankApp.Models.Entities;
+    using BankingApp.Domain.Aggregates.InvestmentAggregate;
 
     public interface IInvestmentsService
     {

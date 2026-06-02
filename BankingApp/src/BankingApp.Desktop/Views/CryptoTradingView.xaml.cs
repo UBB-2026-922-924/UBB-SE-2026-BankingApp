@@ -1,10 +1,10 @@
 ﻿using System;
-using BankApp.Client.ViewModels;
+using BankingApp.Desktop.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace BankApp.Client.Views
+namespace BankingApp.Desktop.Views
 {
     public sealed partial class CryptoTradingView : Page
     {

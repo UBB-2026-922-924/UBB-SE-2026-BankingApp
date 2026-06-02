@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using BankApp.Models.DTOs.Loans;
-using BankApp.Models.Features.Loans;
+using BankingApp.Contracts.Features.Loans.Dtos;
+using BankingApp.Domain.Aggregates.LoanAggregate;
 
-namespace BankApp.Client.Utilities
+namespace BankingApp.Application.Features.Loans
 {
     public static class AmortizationCalculator
     {

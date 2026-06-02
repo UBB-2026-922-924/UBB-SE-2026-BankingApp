@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using BankApp.Models.Features.Investments;
-using BankApp.Models.Features.Savings;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
+using BankingApp.Domain.Aggregates.SavingsAggregate;
 
-namespace BankApp.Web.Models.Savings;
+namespace BankingApp.Web.Models.Savings;
 
 public class SavingsPageViewModel
 {

@@ -1,8 +1,8 @@
-// <copyright file="WithdrawResponseDto.cs" company="Dev Core">
+﻿// <copyright file="WithdrawResponseDto.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
-namespace BankApp.Models.DTOs.Savings;
+namespace BankingApp.Contracts.Features.Savings.Dtos;
 
 using System;
 

@@ -1,14 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using BankApp.Client.Commands;
-using BankApp.Client.Services.Interfaces;
-using BankApp.Models.DTOs.Statistics;
+using BankingApp.Client.Commands;
+using BankingApp.Contracts.Features.Statistics.Dtos;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace BankApp.Client.ViewModels
+namespace BankingApp.Desktop.ViewModels
 {
     public class StatisticsViewModel : BaseViewModel
     {

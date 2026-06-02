@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BankApp.Models.Entities
+namespace BankingApp.Domain.Aggregates.InvestmentAggregate.Entities
 {
     /// <summary>
     /// Represents a specific trade or transaction within an investment holding.

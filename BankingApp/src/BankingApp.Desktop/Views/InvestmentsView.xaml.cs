@@ -1,9 +1,9 @@
-using BankApp.Client.ViewModels;
+﻿using BankingApp.Desktop.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 
-namespace BankApp.Client.Views
+namespace BankingApp.Desktop.Views
 {
     public sealed partial class InvestmentsView : Page
     {

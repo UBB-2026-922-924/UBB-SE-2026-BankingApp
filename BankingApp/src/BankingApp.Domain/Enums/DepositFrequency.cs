@@ -1,8 +1,8 @@
-// <copyright file="DepositFrequency.cs" company="Dev Core">
+﻿// <copyright file="DepositFrequency.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
-namespace BankApp.Models.Enums;
+namespace BankingApp.Domain.Enums;
 
 /// <summary>
 /// Defines recurrence intervals for scheduled deposits.

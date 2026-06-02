@@ -1,7 +1,7 @@
-using System;
-using BankApp.Models.Features.Loans;
+﻿using System;
+using BankingApp.Domain.Aggregates.LoanAggregate;
 
-namespace BankApp.Models.DTOs.Loans
+namespace BankingApp.Contracts.Features.Loans.Dtos
 {
     /// <summary>
     /// Minimal request contract for saving amortization schedule rows.

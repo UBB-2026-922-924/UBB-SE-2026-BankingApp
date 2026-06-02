@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using BankApp.Server.Configuration;
-using BankApp.Server.Repositories.Interfaces;
+﻿using Microsoft.AspNetCore.Mvc;
+using BankingApp.Server.Configuration;
+using BankingApp.Domain.Repositories;
 using Microsoft.Extensions.Options;
-using BankApp.Models.DTOs.Statistics;
-using BankApp.Models.DTOs.Transactions;
+using BankingApp.Contracts.Features.Statistics.Dtos;
+using BankingApp.Models.DTOs.Transactions;
 
-namespace BankApp.Server.Controllers
+namespace BankingApp.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

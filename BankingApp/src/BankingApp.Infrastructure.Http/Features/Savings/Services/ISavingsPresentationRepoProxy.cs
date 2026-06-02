@@ -1,8 +1,8 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using BankApp.Models.Features.Savings;
+using BankingApp.Domain.Aggregates.SavingsAggregate;
 
-namespace BankApp.Client.RepoProxies.Interfaces
+namespace BankingApp.Infrastructure.Http.Features.Savings.Services
 {
     public interface ISavingsPresentationRepoProxy
     {

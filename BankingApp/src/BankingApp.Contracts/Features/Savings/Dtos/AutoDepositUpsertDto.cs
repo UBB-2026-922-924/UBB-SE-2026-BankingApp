@@ -1,7 +1,7 @@
-using BankApp.Models.Enums;
-using BankApp.Models.Features.Savings;
+﻿using BankingApp.Domain.Enums;
+using BankingApp.Domain.Aggregates.SavingsAggregate;
 
-namespace BankApp.Models.DTOs.Savings
+namespace BankingApp.Contracts.Features.Savings.Dtos
 {
     /// <summary>
     /// Minimal request contract for creating or updating an auto-deposit schedule.

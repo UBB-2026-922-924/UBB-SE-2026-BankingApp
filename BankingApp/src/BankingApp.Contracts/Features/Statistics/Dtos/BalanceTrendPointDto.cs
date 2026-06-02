@@ -1,4 +1,4 @@
-namespace BankApp.Models.DTOs.Statistics
+﻿namespace BankingApp.Contracts.Features.Statistics.Dtos
 {
     public class BalanceTrendPointDto
     {

@@ -1,8 +1,8 @@
-@using System.Linq
+﻿@using System.Linq
 @model LoansPageViewModel
 @{
     ViewData["Title"] = "Loans";
-    var activeLoans = Model.Loans.Count(loan => loan.Loan.LoanStatus == BankApp.Models.Enums.LoanStatus.Active);
+    var activeLoans = Model.Loans.Count(loan => loan.Loan.LoanStatus == BankingApp.Domain.Enums.LoanStatus.Active);
     var totalOutstanding = Model.Loans.Sum(loan => loan.Loan.OutstandingBalance);
     var averageProgress = Model.Loans.Count == 0 ? 0 : Model.Loans.Average(loan => loan.RepaymentProgress);
 }
@@ -60,7 +60,7 @@
 
                     <div>
                         <label asp-for="Application.LoanType" class="form-label"></label>
-                        <select asp-for="Application.LoanType" class="form-select js-loan-type" asp-items="Html.GetEnumSelectList<BankApp.Models.Enums.LoanType>()"></select>
+                        <select asp-for="Application.LoanType" class="form-select js-loan-type" asp-items="Html.GetEnumSelectList<BankingApp.Domain.Enums.LoanType>()"></select>
                     </div>
 
                     <div class="row g-3">
@@ -118,7 +118,7 @@
                             <label class="form-label">Status</label>
                             <select name="statusFilter" class="form-select">
                                 <option value="">All</option>
-                                @foreach (var status in Enum.GetValues<BankApp.Models.Enums.LoanStatus>())
+                                @foreach (var status in Enum.GetValues<BankingApp.Domain.Enums.LoanStatus>())
                                 {
                                     if (Model.SelectedStatusFilter == status)
                                     {
@@ -135,7 +135,7 @@
                             <label class="form-label">Type</label>
                             <select name="typeFilter" class="form-select">
                                 <option value="">All</option>
-                                @foreach (var type in Enum.GetValues<BankApp.Models.Enums.LoanType>())
+                                @foreach (var type in Enum.GetValues<BankingApp.Domain.Enums.LoanType>())
                                 {
                                     if (Model.SelectedTypeFilter == type)
                                     {
@@ -172,7 +172,7 @@
                                         <span class="card-kicker">@loan.Loan.LoanType loan</span>
                                         <h3>@loan.Loan.Principal.ToString("C0")</h3>
                                     </div>
-                                    <span class="status-pill @(loan.Loan.LoanStatus == BankApp.Models.Enums.LoanStatus.Active ? "status-pill-active" : "status-pill-closed")">@loan.Loan.LoanStatus</span>
+                                    <span class="status-pill @(loan.Loan.LoanStatus == BankingApp.Domain.Enums.LoanStatus.Active ? "status-pill-active" : "status-pill-closed")">@loan.Loan.LoanStatus</span>
                                 </div>
 
                                 <div class="loan-meta-grid">

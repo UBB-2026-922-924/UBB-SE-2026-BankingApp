@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using BankApp.Client.Services.Interfaces;
-using BankApp.Web.ViewModels.Statistics;
+using BankingApp.Web.ViewModels.Statistics;
 
-namespace BankApp.Web.Controllers
+namespace BankingApp.Web.Controllers
 {
     public class StatisticsController : Controller
     {

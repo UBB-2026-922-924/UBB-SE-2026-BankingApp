@@ -1,9 +1,9 @@
-using System;
-using BankApp.Client.ViewModels;
+﻿using System;
+using BankingApp.Desktop.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace BankApp.Client.Views
+namespace BankingApp.Desktop.Views
 {
     public sealed partial class StatisticsView : Page
     {

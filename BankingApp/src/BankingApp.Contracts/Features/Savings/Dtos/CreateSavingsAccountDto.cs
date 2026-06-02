@@ -1,11 +1,11 @@
-// <copyright file="CreateSavingsAccountDto.cs" company="Dev Core">
+﻿// <copyright file="CreateSavingsAccountDto.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
-namespace BankApp.Models.DTOs.Savings;
+namespace BankingApp.Contracts.Features.Savings.Dtos;
 
 using System;
-using BankApp.Models.Enums;
+using BankingApp.Domain.Enums;
 
 /// <summary>
 /// Request payload for creating a new savings account.

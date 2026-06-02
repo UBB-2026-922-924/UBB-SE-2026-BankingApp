@@ -1,6 +1,6 @@
-using BankApp.Models.Features.Savings;
+﻿using BankingApp.Domain.Aggregates.SavingsAggregate;
 
-namespace BankApp.Models.DTOs.Savings
+namespace BankingApp.Contracts.Features.Savings.Dtos
 {
     public class GetTransactionsResponse
     {

@@ -1,13 +1,12 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BankApp.Client.RepoProxies;
-using BankApp.Client.RepoProxies.Interfaces;
-using BankApp.Models.DTOs.Savings;
-using BankApp.Models.Features.Investments;
-using BankApp.Models.Features.Savings;
+using BankingApp.Client.RepoProxies;
+using BankingApp.Contracts.Features.Savings.Dtos;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
+using BankingApp.Domain.Aggregates.SavingsAggregate;
 
-namespace BankApp.Client.RepoProxies.Implementations
+namespace BankingApp.Infrastructure.Http.Features.Savings.Services
 {
     public class SavingsWorkflowRepoProxy : ISavingsWorkflowRepoProxy
     {

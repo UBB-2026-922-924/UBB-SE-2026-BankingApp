@@ -1,16 +1,15 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Linq;
-using BankApp.Client.Services.Interfaces;
-using BankApp.Models.DTOs.Savings;
-using BankApp.Models.Enums;
-using BankApp.Models.Features.Investments;
-using BankApp.Models.Features.Savings;
-using BankApp.Web.Infrastructure;
-using BankApp.Web.Models.Savings;
+using BankingApp.Contracts.Features.Savings.Dtos;
+using BankingApp.Domain.Enums;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
+using BankingApp.Domain.Aggregates.SavingsAggregate;
+using BankingApp.Web.Infrastructure;
+using BankingApp.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BankApp.Web.Controllers;
+namespace BankingApp.Web.Controllers;
 
 //[Authorize]
 public class SavingsController : WebControllerBase

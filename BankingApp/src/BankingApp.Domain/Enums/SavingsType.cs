@@ -1,8 +1,8 @@
-// <copyright file="SavingsType.cs" company="Dev Core">
+﻿// <copyright file="SavingsType.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
-namespace BankApp.Models.Enums;
+namespace BankingApp.Domain.Enums;
 
 /// <summary>
 ///     Represents the types of savings accounts available in the application.

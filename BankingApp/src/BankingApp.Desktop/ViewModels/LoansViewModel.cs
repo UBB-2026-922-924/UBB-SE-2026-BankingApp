@@ -1,8 +1,8 @@
-// <copyright file="LoansViewModel.cs" company="Dev Core">
+﻿// <copyright file="LoansViewModel.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
-namespace BankApp.Client.ViewModels
+namespace BankingApp.Desktop.ViewModels
 {
     using System;
     using System.Collections.Generic;
@@ -12,12 +12,10 @@ namespace BankApp.Client.ViewModels
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using BankApp.Client.Services.Interfaces;
-    using BankApp.Client.Utilities;
-    using BankApp.Models.DTOs.Loans;
-    using BankApp.Models.Entities;
-    using BankApp.Models.Enums;
-    using BankApp.Models.Features.Loans;
+            using BankingApp.Contracts.Features.Loans.Dtos;
+    using BankingApp.Domain.Aggregates.InvestmentAggregate;
+    using BankingApp.Domain.Enums;
+    using BankingApp.Domain.Aggregates.LoanAggregate;
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
 

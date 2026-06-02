@@ -4,7 +4,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace BankApp.Models.Features.Investments;
+namespace BankingApp.Contracts.Features.Investments.Dtos;
 
 using System;
 

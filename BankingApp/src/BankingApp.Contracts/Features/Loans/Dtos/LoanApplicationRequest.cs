@@ -1,12 +1,12 @@
-// <copyright file="LoanApplicationRequest.cs" company="Dev Core">
+﻿// <copyright file="LoanApplicationRequest.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
 /// <summary>
 /// Request payload used to submit a new loan application.
 /// </summary>
-namespace BankApp.Models.DTOs.Loans;
-using BankApp.Models.Enums;
+namespace BankingApp.Contracts.Features.Loans.Dtos;
+using BankingApp.Domain.Enums;
 
 public class LoanApplicationRequest
 {

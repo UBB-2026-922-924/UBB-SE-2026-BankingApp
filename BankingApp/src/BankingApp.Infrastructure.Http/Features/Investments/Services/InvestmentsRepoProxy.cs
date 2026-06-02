@@ -1,8 +1,7 @@
-namespace BankApp.Client.RepoProxies.Implementations
+﻿namespace BankingApp.Infrastructure.Http.Features.Investments.Services
 {
     using System.Threading.Tasks;
-    using BankApp.Client.RepoProxies.Interfaces;
-    using BankApp.Models.Entities;
+        using BankingApp.Domain.Aggregates.InvestmentAggregate;
 
     public class InvestmentsRepoProxy : IInvestmentsRepoProxy
     {

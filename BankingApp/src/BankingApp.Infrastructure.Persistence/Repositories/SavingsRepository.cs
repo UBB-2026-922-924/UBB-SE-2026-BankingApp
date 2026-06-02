@@ -1,15 +1,15 @@
-using System.Data;
+﻿using System.Data;
 using System.Globalization;
-using BankApp.Models.DTOs.Savings;
-using BankApp.Models.Entities;
-using BankApp.Models.Enums;
-using BankApp.Models.Features.Investments;
-using BankApp.Models.Features.Savings;
-using BankApp.Server.DataAccess;
-using BankApp.Server.Repositories.Interfaces;
+using BankingApp.Contracts.Features.Savings.Dtos;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
+using BankingApp.Domain.Enums;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
+using BankingApp.Domain.Aggregates.SavingsAggregate;
+using BankingApp.Server.DataAccess;
+using BankingApp.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApp.Server.Repositories.Implementations
+namespace BankingApp.Infrastructure.Persistence.Repositories
 {
     /// <summary>
     /// EF Core-backed savings repository implementation.

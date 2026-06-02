@@ -1,11 +1,11 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using BankApp.Models;
-using BankApp.Models.DTOs.Savings;
-using BankApp.Models.Features.Savings;
-using BankApp.Models.Features.Investments;
+using BankingApp.Models;
+using BankingApp.Contracts.Features.Savings.Dtos;
+using BankingApp.Domain.Aggregates.SavingsAggregate;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
 
-namespace BankApp.Server.Repositories.Interfaces
+namespace BankingApp.Domain.Repositories
 {
     /// <summary>
     /// Defines persistence operations for savings accounts and transactions.

@@ -1,4 +1,4 @@
-namespace BankApp.Models.DTOs.Savings
+﻿namespace BankingApp.Contracts.Features.Savings.Dtos
 {
     public class ValidationResponse
     {

@@ -1,8 +1,8 @@
-// <copyright file="DepositRequestDto.cs" company="Dev Core">
+﻿// <copyright file="DepositRequestDto.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
-namespace BankApp.Models.DTOs.Savings;
+namespace BankingApp.Contracts.Features.Savings.Dtos;
 
 /// <summary>
 /// Request payload for depositing funds into a savings account.

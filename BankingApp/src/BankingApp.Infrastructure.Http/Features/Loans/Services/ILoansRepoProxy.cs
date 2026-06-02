@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using BankApp.Models.DTOs.Loans;
-using BankApp.Models.Enums;
-using BankApp.Models.Features.Loans;
+using BankingApp.Contracts.Features.Loans.Dtos;
+using BankingApp.Domain.Enums;
+using BankingApp.Domain.Aggregates.LoanAggregate;
 
-namespace BankApp.Client.RepoProxies.Interfaces
+namespace BankingApp.Infrastructure.Http.Features.Loans.Services
 {
     /// <summary>
     /// RepoProxy for Loans (desktop -> HTTP API).

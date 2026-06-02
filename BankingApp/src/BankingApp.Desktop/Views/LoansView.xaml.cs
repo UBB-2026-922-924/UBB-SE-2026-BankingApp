@@ -1,12 +1,12 @@
-namespace BankApp.Client.Views
+﻿namespace BankingApp.Desktop.Views
 {
     using System;
     using System.Diagnostics;
-    using BankApp.Client.View.Dialogs;
-    using BankApp.Client.ViewModels;
-    using BankApp.Client.Views.Dialogs;
-    using BankApp.Models.Entities;
-    using BankApp.Models.Enums;
+    using BankingApp.Client.View.Dialogs;
+    using BankingApp.Desktop.ViewModels;
+    using BankingApp.Client.Views.Dialogs;
+    using BankingApp.Domain.Aggregates.InvestmentAggregate;
+    using BankingApp.Domain.Enums;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Media;

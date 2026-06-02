@@ -1,7 +1,7 @@
-using System.Threading.Tasks;
-using BankApp.Models.DTOs.Loans;
+﻿using System.Threading.Tasks;
+using BankingApp.Contracts.Features.Loans.Dtos;
 
-namespace BankApp.Client.RepoProxies.Interfaces
+namespace BankingApp.Infrastructure.Http.Features.Loans.Services
 {
     public interface ILoanApplicationPresentationRepoProxy
     {

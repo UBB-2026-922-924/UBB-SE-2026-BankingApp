@@ -1,8 +1,8 @@
-namespace BankApp.Client.Views
+﻿namespace BankingApp.Desktop.Views
 {
     using System;
-    using BankApp.Client.ViewModels;
-    using BankApp.Models.Features.Loans;
+    using BankingApp.Desktop.ViewModels;
+    using BankingApp.Domain.Aggregates.LoanAggregate;
     using Microsoft.UI;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;

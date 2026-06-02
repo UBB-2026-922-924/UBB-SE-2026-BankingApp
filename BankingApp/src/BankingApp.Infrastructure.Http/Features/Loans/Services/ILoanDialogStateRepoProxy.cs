@@ -1,6 +1,6 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace BankApp.Client.RepoProxies.Interfaces
+namespace BankingApp.Infrastructure.Http.Features.Loans.Services
 {
     public interface ILoanDialogStateRepoProxy
     {

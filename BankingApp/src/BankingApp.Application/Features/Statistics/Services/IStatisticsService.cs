@@ -1,7 +1,7 @@
-using System.Threading.Tasks;
-using BankApp.Models.DTOs.Statistics;
+﻿using System.Threading.Tasks;
+using BankingApp.Contracts.Features.Statistics.Dtos;
 
-namespace BankApp.Client.Services.Interfaces
+namespace BankingApp.Application.Features.Statistics.Services
 {
     public interface IStatisticsService
     {

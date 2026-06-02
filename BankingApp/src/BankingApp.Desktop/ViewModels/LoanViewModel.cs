@@ -1,6 +1,6 @@
-namespace BankApp.Client.ViewModels
+﻿namespace BankingApp.Desktop.ViewModels
 {
-    using BankApp.Models.Features.Loans;
+    using BankingApp.Domain.Aggregates.LoanAggregate;
     using CommunityToolkit.Mvvm.ComponentModel;
 
     public partial class LoanViewModel : ObservableObject

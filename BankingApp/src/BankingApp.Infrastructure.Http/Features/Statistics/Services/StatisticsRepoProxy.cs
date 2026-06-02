@@ -1,9 +1,8 @@
-using System.Threading.Tasks;
-using BankApp.Client.RepoProxies;
-using BankApp.Client.RepoProxies.Interfaces;
-using BankApp.Models.DTOs.Statistics;
+﻿using System.Threading.Tasks;
+using BankingApp.Client.RepoProxies;
+using BankingApp.Contracts.Features.Statistics.Dtos;
 
-namespace BankApp.Client.RepoProxies.Implementations
+namespace BankingApp.Infrastructure.Http.Features.Statistics.Services
 {
     public class StatisticsRepoProxy : IStatisticsRepoProxy
     {

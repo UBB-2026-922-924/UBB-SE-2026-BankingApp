@@ -1,4 +1,4 @@
-// <copyright file="LoanEstimate.cs" company="Dev Core">
+﻿// <copyright file="LoanEstimate.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
@@ -7,7 +7,7 @@ using System;
 /// <summary>
 /// Represents a preliminary quote computed for a loan request.
 /// </summary>
-namespace BankApp.Models.Features.Loans
+namespace BankingApp.Domain.Aggregates.LoanAggregate
 {
     public class LoanEstimate : IEquatable<LoanEstimate>
     {

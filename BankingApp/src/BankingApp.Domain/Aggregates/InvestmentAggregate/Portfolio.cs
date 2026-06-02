@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
-namespace BankApp.Models.Entities
+namespace BankingApp.Domain.Aggregates.InvestmentAggregate
 {
     [Table("Portfolio")]
     public class Portfolio

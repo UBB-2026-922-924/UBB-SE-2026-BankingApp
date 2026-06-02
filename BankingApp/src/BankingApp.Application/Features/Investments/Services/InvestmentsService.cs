@@ -1,11 +1,9 @@
-namespace BankApp.Client.Services.Implementations
+﻿namespace BankingApp.Application.Features.Investments.Services
 {
     using System;
     using System.Diagnostics;
     using System.Threading.Tasks;
-    using BankApp.Client.RepoProxies.Interfaces;
-    using BankApp.Client.Services.Interfaces;
-    using BankApp.Models.Entities;
+            using BankingApp.Domain.Aggregates.InvestmentAggregate;
 
     public class InvestmentsService : IInvestmentsService
     {

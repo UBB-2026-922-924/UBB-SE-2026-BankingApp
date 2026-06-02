@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using BankApp.Client.Services.Interfaces;
 using Microsoft.UI.Xaml.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace BankApp.Client.ViewModels
+namespace BankingApp.Desktop.ViewModels
 {
     public partial class CryptoTradingViewModel : ObservableObject
     {

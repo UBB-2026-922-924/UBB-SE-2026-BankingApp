@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using BankApp.Models.Features.Loans;
-using BankApp.Models.DTOs.Loans;
-using BankApp.Models.Enums;
+using BankingApp.Domain.Aggregates.LoanAggregate;
+using BankingApp.Contracts.Features.Loans.Dtos;
+using BankingApp.Domain.Enums;
 
-namespace BankApp.Server.Repositories.Interfaces
+namespace BankingApp.Domain.Repositories
 {
     public interface ILoanRepository
     {

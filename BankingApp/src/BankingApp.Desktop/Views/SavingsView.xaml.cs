@@ -1,15 +1,15 @@
-namespace BankApp.Client.Views
+﻿namespace BankingApp.Desktop.Views
 {
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using BankApp.Client.ViewModels;
+    using BankingApp.Desktop.ViewModels;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Navigation;
-    using BankApp.Models.Features.Investments;
-    using BankApp.Models.Features.Savings;
-    using BankApp.Models.Entities;
+    using BankingApp.Domain.Aggregates.InvestmentAggregate;
+    using BankingApp.Domain.Aggregates.SavingsAggregate;
+    using BankingApp.Domain.Aggregates.InvestmentAggregate;
 
     public sealed partial class SavingsView : UserControl
     {

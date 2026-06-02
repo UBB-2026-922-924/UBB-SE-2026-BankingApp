@@ -1,4 +1,4 @@
-namespace BankApp.Models.DTOs.Loans
+﻿namespace BankingApp.Contracts.Features.Loans.Dtos
 {
     public class BuildApplicationOutcomeResponse
     {

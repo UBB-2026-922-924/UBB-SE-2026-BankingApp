@@ -1,9 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using BankApp.Models.DTOs.Chat;
-using BankApp.Models.Features.Chat;
+using BankingApp.Contracts.Features.Chat.Dtos;
+using BankingApp.Domain.Aggregates.ChatAggregate;
 
-namespace BankApp.Client.RepoProxies.Interfaces
+namespace BankingApp.Infrastructure.Http.Features.Chat.Services
 {
     public interface IChatRepoProxy
     {

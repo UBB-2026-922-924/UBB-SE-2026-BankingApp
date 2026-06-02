@@ -2,7 +2,7 @@
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
-namespace BankApp.Models.DTOs.Savings;
+namespace BankingApp.Contracts.Features.Savings.Dtos;
 
 using System;
 

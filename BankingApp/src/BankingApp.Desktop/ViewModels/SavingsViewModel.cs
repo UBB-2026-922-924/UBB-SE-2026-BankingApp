@@ -1,4 +1,4 @@
-namespace BankApp.Client.ViewModels
+﻿namespace BankingApp.Desktop.ViewModels
 {
     using System;
     using System.Collections.Generic;
@@ -7,15 +7,13 @@ namespace BankApp.Client.ViewModels
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using BankApp.Client.Services.Interfaces;
-    using BankApp.Client.Utilities;
-    using BankApp.Models.DTOs.Savings;
-    using BankApp.Models.Entities;
-    using BankApp.Models.Features.Investments;
-    using BankApp.Models.Features.Savings;
+            using BankingApp.Contracts.Features.Savings.Dtos;
+    using BankingApp.Domain.Aggregates.InvestmentAggregate;
+    using BankingApp.Domain.Aggregates.InvestmentAggregate;
+    using BankingApp.Domain.Aggregates.SavingsAggregate;
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
-    using BankApp.Models.Enums;
+    using BankingApp.Domain.Enums;
 
     public partial class SavingsViewModel : BaseViewModel
     {

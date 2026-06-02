@@ -1,11 +1,11 @@
 ﻿using System.Linq;
-using BankApp.Models.DTOs.Savings;
-using BankApp.Models.Features.Investments;
-using BankApp.Models.Features.Savings;
-using BankApp.Server.Repositories.Interfaces;
+using BankingApp.Contracts.Features.Savings.Dtos;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
+using BankingApp.Domain.Aggregates.SavingsAggregate;
+using BankingApp.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BankApp.Server.Controllers
+namespace BankingApp.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

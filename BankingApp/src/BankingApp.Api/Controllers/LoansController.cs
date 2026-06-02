@@ -1,10 +1,10 @@
-using BankApp.Models.DTOs.Loans;
-using BankApp.Models.Enums;
-using BankApp.Models.Features.Loans;
-using BankApp.Server.Repositories.Interfaces;
+﻿using BankingApp.Contracts.Features.Loans.Dtos;
+using BankingApp.Domain.Enums;
+using BankingApp.Domain.Aggregates.LoanAggregate;
+using BankingApp.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BankApp.Server.Controllers
+namespace BankingApp.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

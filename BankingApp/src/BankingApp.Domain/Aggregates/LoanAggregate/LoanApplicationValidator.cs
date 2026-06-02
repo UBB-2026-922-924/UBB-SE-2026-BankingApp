@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BankApp.Models.Enums;
-using BankApp.Models.DTOs.Loans;
+using BankingApp.Domain.Enums;
+using BankingApp.Contracts.Features.Loans.Dtos;
 
-namespace BankApp.Models.Features.Loans
+namespace BankingApp.Domain.Aggregates.LoanAggregate
 {
     /// <summary>
     /// Provides validation rules for incoming loan application requests.

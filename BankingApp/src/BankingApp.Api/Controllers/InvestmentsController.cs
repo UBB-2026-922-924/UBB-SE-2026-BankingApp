@@ -1,9 +1,9 @@
-﻿namespace BankApp.Server.Controllers
+﻿namespace BankingApp.Api.Controllers
 {
     using System.Linq;
     using System.Threading.Tasks;
-    using BankApp.Models.Entities;
-    using BankApp.Server.Repositories.Interfaces;
+    using BankingApp.Domain.Aggregates.InvestmentAggregate;
+    using BankingApp.Domain.Repositories;
     using Microsoft.AspNetCore.Mvc;
 
     [ApiController]

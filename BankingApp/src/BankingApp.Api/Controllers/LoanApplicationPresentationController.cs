@@ -1,7 +1,7 @@
-using BankApp.Models.DTOs.Loans;
+﻿using BankingApp.Contracts.Features.Loans.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BankApp.Server.Controllers
+namespace BankingApp.Api.Controllers
 {
     [ApiController]
     [Route("api/loans/loan-application-presentation-outcome")]

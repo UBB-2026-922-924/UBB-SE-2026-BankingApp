@@ -1,6 +1,6 @@
-namespace BankApp.Client.Views.Dialogs
+﻿namespace BankingApp.Desktop.Views.Dialogs
 {
-    using BankApp.Client.ViewModels;
+    using BankingApp.Desktop.ViewModels;
     using Microsoft.UI.Xaml.Controls;
 
     public sealed partial class LoanApplicationDialog : ContentDialog

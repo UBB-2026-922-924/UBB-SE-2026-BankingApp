@@ -1,10 +1,8 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using BankApp.Client.RepoProxies.Interfaces;
-using BankApp.Client.Services.Interfaces;
-using BankApp.Models.DTOs.Statistics;
+using BankingApp.Contracts.Features.Statistics.Dtos;
 
-namespace BankApp.Client.Services.Implementations
+namespace BankingApp.Application.Features.Statistics.Services
 {
     public class StatisticsService : IStatisticsService
     {

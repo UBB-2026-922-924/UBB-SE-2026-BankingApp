@@ -1,12 +1,12 @@
-﻿namespace BankApp.Server.Repositories.Implementations
+﻿namespace BankingApp.Infrastructure.Persistence.Repositories
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using BankApp.Models.Entities;
-    using BankApp.Server.DataAccess;
-    using BankApp.Server.Repositories.Interfaces;
+    using BankingApp.Domain.Aggregates.InvestmentAggregate;
+    using BankingApp.Server.DataAccess;
+    using BankingApp.Domain.Repositories;
     using Microsoft.EntityFrameworkCore;
 
     public class InvestmentRepository : IInvestmentRepository

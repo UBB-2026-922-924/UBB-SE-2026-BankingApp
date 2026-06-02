@@ -1,8 +1,8 @@
-using BankApp.Models.DTOs.Savings;
-using BankApp.Models.Features.Savings;
+﻿using BankingApp.Contracts.Features.Savings.Dtos;
+using BankingApp.Domain.Aggregates.SavingsAggregate;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BankApp.Server.Controllers
+namespace BankingApp.Api.Controllers
 {
     [ApiController]
     [Route("api/savings-presentation")]

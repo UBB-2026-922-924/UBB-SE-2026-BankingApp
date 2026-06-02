@@ -1,8 +1,8 @@
-// <copyright file="FundingSourceOption.cs" company="Dev Core">
+﻿// <copyright file="FundingSourceOption.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
-namespace BankApp.Models.Features.Investments;
+namespace BankingApp.Contracts.Features.Investments;
 
 /// <summary>
 /// Represents a selectable funding source for savings operations.

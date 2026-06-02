@@ -1,6 +1,6 @@
-﻿using BankApp.Models.Features.Chat;
+﻿using BankingApp.Domain.Aggregates.ChatAggregate;
 
-namespace BankApp.Web.Models.Chat
+namespace BankingApp.Web.Models.Chat
 {
     public class ChatIndexViewModel
     {

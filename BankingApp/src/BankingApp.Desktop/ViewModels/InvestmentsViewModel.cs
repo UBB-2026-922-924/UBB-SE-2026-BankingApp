@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -6,15 +6,13 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using BankApp.Client.Commands;
-using BankApp.Client.Services.Interfaces;
-using BankApp.Client.Utilities;
-using BankApp.Models.Entities;
+using BankingApp.Client.Commands;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace BankApp.Client.ViewModels
+namespace BankingApp.Desktop.ViewModels
 {
     public class InvestmentsViewModel : System.ComponentModel.INotifyPropertyChanged
     {
@@ -136,7 +134,7 @@ namespace BankApp.Client.ViewModels
             // This is much simpler and avoids that double-negative logic
             if (App.MainAppWindow?.Content is Frame rootFrame)
             {
-                rootFrame.Navigate(typeof(BankApp.Client.Views.CryptoTradingView));
+                rootFrame.Navigate(typeof(BankingApp.Desktop.Views.CryptoTradingView));
             }
             else
             {

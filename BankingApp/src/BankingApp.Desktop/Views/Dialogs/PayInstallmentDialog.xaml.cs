@@ -1,7 +1,7 @@
-namespace BankApp.Client.View.Dialogs
+﻿namespace BankingApp.Desktop.Views.Dialogs
 {
     using System;
-    using BankApp.Client.ViewModels;
+    using BankingApp.Desktop.ViewModels;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
 

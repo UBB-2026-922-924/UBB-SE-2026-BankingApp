@@ -5,7 +5,7 @@
 /// <summary>
 /// Defines supported loan product categories.
 /// </summary>
-namespace BankApp.Models.Enums;
+namespace BankingApp.Domain.Enums;
 public enum LoanType
 {
     /// <summary>Unsecured personal loan.</summary>

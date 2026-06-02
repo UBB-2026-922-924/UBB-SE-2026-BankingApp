@@ -1,12 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BankApp.Client.Utilities;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace BankApp.Client.ViewModels
+namespace BankingApp.Desktop.ViewModels
 {
     public partial class LoansAndSavingsViewModel : BaseViewModel
     {

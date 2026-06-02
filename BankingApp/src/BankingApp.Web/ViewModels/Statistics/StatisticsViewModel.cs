@@ -1,6 +1,6 @@
-using BankApp.Models.DTOs.Statistics;
+﻿using BankingApp.Contracts.Features.Statistics.Dtos;
 
-namespace BankApp.Web.ViewModels.Statistics
+namespace BankingApp.Web.ViewModels.Statistics
 {
     public class StatisticsViewModel
     {

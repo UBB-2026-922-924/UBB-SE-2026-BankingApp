@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using BankApp.Models.Entities;
-using BankApp.Models.Enums;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
+using BankingApp.Domain.Enums;
 
-namespace BankApp.Models.Features.Loans
+namespace BankingApp.Domain.Aggregates.LoanAggregate.Entities
 {
     public class LoanApplication
     {

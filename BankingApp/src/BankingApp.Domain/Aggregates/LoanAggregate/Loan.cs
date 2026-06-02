@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BankApp.Models.Entities;
-using BankApp.Models.Enums;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
+using BankingApp.Domain.Enums;
 
-namespace BankApp.Models.Features.Loans
+namespace BankingApp.Domain.Aggregates.LoanAggregate
 {
     public class Loan
     {

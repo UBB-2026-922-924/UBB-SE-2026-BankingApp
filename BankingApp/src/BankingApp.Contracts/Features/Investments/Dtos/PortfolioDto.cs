@@ -1,13 +1,13 @@
-// <copyright file="Portfolio.cs" company="Dev Core">
+﻿// <copyright file="Portfolio.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
 using System.ComponentModel.DataAnnotations;
 
-namespace BankApp.Models.Features.Investments;
+namespace BankingApp.Contracts.Features.Investments.Dtos;
 
 using System.Collections.Generic;
-using BankApp.Models.Entities;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
 
 /// <summary>
 /// Represents an aggregated view of a user's investment holdings.

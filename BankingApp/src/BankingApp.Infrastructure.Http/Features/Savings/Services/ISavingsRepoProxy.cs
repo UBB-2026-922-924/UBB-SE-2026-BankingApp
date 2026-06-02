@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using BankApp.Models.DTOs.Savings;
-using BankApp.Models.Features.Investments;
-using BankApp.Models.Features.Savings;
+using BankingApp.Contracts.Features.Savings.Dtos;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
+using BankingApp.Domain.Aggregates.SavingsAggregate;
 
-namespace BankApp.Client.RepoProxies.Interfaces
+namespace BankingApp.Infrastructure.Http.Features.Savings.Services
 {
     /// <summary>
     /// RepoProxy for Savings (desktop -> HTTP API).

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using BankApp.Client.Services.Interfaces;
-using BankApp.Web.Infrastructure;
+using BankingApp.Web.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BankApp.Web.Controllers
+namespace BankingApp.Web.Controllers
 {
     // The global RequireSessionLoginFilter in Program.cs covers this, 
     // but inheriting or leaving it plain aligns with your team's architecture.
@@ -28,7 +27,7 @@ namespace BankApp.Web.Controllers
             if (portfolio == null)
             {
                 // Fallback safe object instantiation to prevent NullReferenceExceptions in the View
-                portfolio = new BankApp.Models.Entities.Portfolio();
+                portfolio = new BankingApp.Domain.Aggregates.InvestmentAggregate.Portfolio();
             }
 
             return View(portfolio);

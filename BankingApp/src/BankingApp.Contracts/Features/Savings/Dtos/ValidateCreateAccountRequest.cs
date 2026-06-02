@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BankApp.Models.DTOs.Savings
+namespace BankingApp.Contracts.Features.Savings.Dtos
 {
     public class ValidateCreateAccountRequest
     {

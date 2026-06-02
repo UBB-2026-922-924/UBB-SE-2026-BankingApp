@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using BankApp.Client.RepoProxies;
-using BankApp.Client.RepoProxies.Interfaces;
+using BankingApp.Client.RepoProxies;
 
-namespace BankApp.Client.RepoProxies.Implementations
+namespace BankingApp.Infrastructure.Http.Features.Loans.Services
 {
     public class LoanDialogStateRepoProxy : ILoanDialogStateRepoProxy
     {

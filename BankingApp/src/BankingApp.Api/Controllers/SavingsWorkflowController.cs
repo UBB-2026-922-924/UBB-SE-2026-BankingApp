@@ -1,8 +1,8 @@
-﻿using BankApp.Models.DTOs.Savings;
-using BankApp.Models.Features.Investments;
+﻿using BankingApp.Contracts.Features.Savings.Dtos;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BankApp.Server.Controllers
+namespace BankingApp.Api.Controllers
 {
     [ApiController]
     [Route("api/savings-workflow")]

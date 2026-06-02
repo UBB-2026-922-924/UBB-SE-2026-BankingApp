@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BankApp.Models.Entities;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
 
-namespace BankApp.Models.Features.Savings
+namespace BankingApp.Domain.Aggregates.SavingsAggregate
 {
     /// <summary>
     ///     This model is used to manage and display information about a user's savings accounts within the application.

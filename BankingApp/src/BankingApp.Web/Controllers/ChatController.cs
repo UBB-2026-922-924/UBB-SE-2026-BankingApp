@@ -1,8 +1,7 @@
-﻿using BankApp.Client.Services.Interfaces;
-using BankApp.Web.Models.Chat;
+﻿using BankingApp.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BankApp.Web.Controllers
+namespace BankingApp.Web.Controllers
 {
     public class ChatController : Controller
     {

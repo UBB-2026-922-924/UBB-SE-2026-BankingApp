@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BankApp.Models.Entities;
-using BankApp.Models.Enums;
+using BankingApp.Domain.Aggregates.InvestmentAggregate;
+using BankingApp.Domain.Enums;
 
-namespace BankApp.Models.Features.Savings
+namespace BankingApp.Domain.Aggregates.SavingsAggregate.Entities
 {
     public class SavingsTransaction
     {

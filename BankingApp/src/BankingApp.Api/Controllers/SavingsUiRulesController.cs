@@ -1,9 +1,9 @@
 ﻿using System.Globalization;
-using BankApp.Models.DTOs.Savings;
-using BankApp.Models.Enums;
+using BankingApp.Contracts.Features.Savings.Dtos;
+using BankingApp.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BankApp.Server.Controllers
+namespace BankingApp.Api.Controllers
 {
     [ApiController]
     [Route("api/savings-ui-rules")]

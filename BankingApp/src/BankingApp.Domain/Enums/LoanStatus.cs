@@ -5,7 +5,7 @@
 /// <summary>
 /// Represents the lifecycle state of a loan.
 /// </summary>
-namespace BankApp.Models.Enums;
+namespace BankingApp.Domain.Enums;
 public enum LoanStatus
 {
     /// <summary>The loan is active and being repaid.</summary>
