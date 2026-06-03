@@ -105,4 +105,38 @@ public class TransferEndpointsTests : IClassFixture<BankingAppWebFactory>
         result.Should().NotBeNull();
         result!.TransactionRef.Should().NotBeNullOrEmpty();
     }
+
+    [Fact]
+    public async Task ExecuteTransfer_WhenIbanIsInvalid_ShouldReturnBadRequest()
+    {
+        _factory.TransferServiceMock
+            .Setup(service => service.ExecuteAsync(
+                ValidUserId,
+                ValidSourceAccountId,
+                ValidRecipientName,
+                InvalidRecipientIban,
+                ValidAmount,
+                ValidCurrency,
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Error.Validation("Transfer.InvalidIban", "The recipient IBAN is not valid."));
+
+        var requestBody = new CreateTransferRequest
+        {
+            SourceAccountId = ValidSourceAccountId,
+            RecipientName = ValidRecipientName,
+            RecipientIban = InvalidRecipientIban,
+            Amount = ValidAmount,
+            Currency = ValidCurrency,
+            Reference = "Test transfer"
+        };
+
+        var request = new HttpRequestMessage(HttpMethod.Post, ExecuteTransferRoute);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", ValidToken);
+        request.Content = JsonContent.Create(requestBody);
+
+        HttpResponseMessage response = await _client.SendAsync(request, _cancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
 }
