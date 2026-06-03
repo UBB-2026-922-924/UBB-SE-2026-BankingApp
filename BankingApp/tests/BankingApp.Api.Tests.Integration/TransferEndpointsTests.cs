@@ -4,10 +4,10 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using BankingApp.Api.Tests.Integration.Infrastructure;
-using BankingApp.Application.Features.Transfers.Services;
 using BankingApp.Contracts.Features.Transfers.Dtos;
 using BankingApp.Contracts.Http;
 using BankingApp.Domain.Aggregates.IdentityAggregate;
+using BankingApp.Domain.Enums;
 
 public class TransferEndpointsTests : IClassFixture<BankingAppWebFactory>
 {
@@ -47,7 +47,7 @@ public class TransferEndpointsTests : IClassFixture<BankingAppWebFactory>
 
     private static IdentityAccount CreateActiveIdentity(int userId, string token)
     {
-        IdentityAccount identity = IdentityAccount.Create(userId, null);
+        var identity = IdentityAccount.Create(userId, null);
         identity.OpenSession(token, DateTime.UtcNow.AddMinutes(5), DateTime.UtcNow);
         return identity;
     }
@@ -63,5 +63,46 @@ public class TransferEndpointsTests : IClassFixture<BankingAppWebFactory>
             Currency = ValidCurrency,
             Reference = "Test transfer"
         };
+    }
+
+    [Fact]
+    public async Task ExecuteTransfer_WhenRequestIsValid_ShouldReturnOk()
+    {
+        var serviceResult = new TransferResponse
+        {
+            Id = 1,
+            SourceAccountId = ValidSourceAccountId,
+            RecipientName = ValidRecipientName,
+            RecipientIban = ValidRecipientIban,
+            Amount = ValidAmount,
+            Currency = ValidCurrency,
+            TransactionRef = "TRF-20260603-ABCDEF",
+            Status = TransferStatus.Completed
+        };
+
+        _factory.TransferServiceMock
+            .Setup(service => service.ExecuteAsync(
+                ValidUserId,
+                ValidSourceAccountId,
+                ValidRecipientName,
+                ValidRecipientIban,
+                ValidAmount,
+                ValidCurrency,
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(serviceResult);
+
+        var request = new HttpRequestMessage(HttpMethod.Post, ExecuteTransferRoute);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", ValidToken);
+        request.Content = JsonContent.Create(BuildValidRequest());
+
+        HttpResponseMessage response = await _client.SendAsync(request, _cancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        TransferExecutionResponse? result = await response.Content.ReadFromJsonAsync<TransferExecutionResponse>(_cancellationToken);
+
+        result.Should().NotBeNull();
+        result!.TransactionRef.Should().NotBeNullOrEmpty();
     }
 }
