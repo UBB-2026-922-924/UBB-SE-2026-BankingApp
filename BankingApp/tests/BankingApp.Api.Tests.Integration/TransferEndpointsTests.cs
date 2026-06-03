@@ -139,4 +139,49 @@ public class TransferEndpointsTests : IClassFixture<BankingAppWebFactory>
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
+
+    [Fact]
+    public async Task ExecuteTransfer_WhenFundsAreInsufficient_ShouldReturnConflict()
+    {
+        _factory.TransferServiceMock
+            .Setup(service => service.ExecuteAsync(
+                ValidUserId,
+                ValidSourceAccountId,
+                ValidRecipientName,
+                ValidRecipientIban,
+                ExcessiveAmount,
+                ValidCurrency,
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Error.Conflict("Transfer.InsufficientFunds", "Insufficient funds to complete the transfer."));
+
+        var requestBody = new CreateTransferRequest
+        {
+            SourceAccountId = ValidSourceAccountId,
+            RecipientName = ValidRecipientName,
+            RecipientIban = ValidRecipientIban,
+            Amount = ExcessiveAmount,
+            Currency = ValidCurrency,
+            Reference = "Test transfer"
+        };
+
+        var request = new HttpRequestMessage(HttpMethod.Post, ExecuteTransferRoute);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", ValidToken);
+        request.Content = JsonContent.Create(requestBody);
+
+        HttpResponseMessage response = await _client.SendAsync(request, _cancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
+
+    [Fact]
+    public async Task ExecuteTransfer_WhenUserIsNotAuthenticated_ShouldReturnUnauthorized()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, ExecuteTransferRoute);
+        request.Content = JsonContent.Create(BuildValidRequest());
+
+        HttpResponseMessage response = await _client.SendAsync(request, _cancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
 }
