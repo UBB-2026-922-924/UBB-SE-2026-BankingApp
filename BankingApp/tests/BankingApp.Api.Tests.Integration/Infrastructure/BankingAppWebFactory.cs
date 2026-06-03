@@ -2,6 +2,7 @@ using BankingApp.Application.Common.Security;
 using BankingApp.Application.Features.AccountOverview.Services;
 using BankingApp.Application.Features.Authentication.Services;
 using BankingApp.Application.Features.Beneficiaries.Services;
+using BankingApp.Application.Features.Transfers.Services;
 using BankingApp.Application.Features.UserProfile.Services;
 using BankingApp.Domain.Repositories;
 using Microsoft.AspNetCore.Authentication;
@@ -37,6 +38,8 @@ public class BankingAppWebFactory : WebApplicationFactory<Program>
 
     public Mock<IAccountOverviewService> AccountOverviewServiceMock { get; } = new();
 
+    public Mock<ITransferService> TransferServiceMock { get; } = new();
+
     public Mock<IJsonWebTokenService> JwtServiceMock { get; } = new();
 
     public Mock<IIdentityRepository> IdentityRepositoryMock { get; } = new();
@@ -59,6 +62,7 @@ public class BankingAppWebFactory : WebApplicationFactory<Program>
             ReplaceService(services, BeneficiaryServiceMock.Object);
             ReplaceService(services, UserProfileServiceMock.Object);
             ReplaceService(services, AccountOverviewServiceMock.Object);
+            ReplaceService(services, TransferServiceMock.Object);
             ReplaceService(services, JwtServiceMock.Object);
             ReplaceService(services, IdentityRepositoryMock.Object);
 
