@@ -46,7 +46,7 @@ public class AccountOverviewEndpointsTests : IClassFixture<BankingAppWebFactory>
             .Setup(service => service.GetDashboardAsync(ValidUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedDashboard);
 
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, DashboardRoute);
+        var request = new HttpRequestMessage(HttpMethod.Get, DashboardRoute);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", ValidToken);
 
         HttpResponseMessage response = await _client.SendAsync(request, _cancellationToken);
@@ -67,7 +67,7 @@ public class AccountOverviewEndpointsTests : IClassFixture<BankingAppWebFactory>
     [Fact]
     public async Task GetDashboard_WhenUserIsNotAuthenticated_ShouldReturnUnauthorized()
     {
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, DashboardRoute);
+        var request = new HttpRequestMessage(HttpMethod.Get, DashboardRoute);
 
         HttpResponseMessage response = await _client.SendAsync(request, _cancellationToken);
 
@@ -112,7 +112,7 @@ public class AccountOverviewEndpointsTests : IClassFixture<BankingAppWebFactory>
 
     private static IdentityAccount CreateActiveIdentity(int userId, string token)
     {
-        IdentityAccount identity = IdentityAccount.Create(userId, null);
+        var identity = IdentityAccount.Create(userId, null);
         identity.OpenSession(token, DateTime.UtcNow.AddMinutes(5), DateTime.UtcNow);
         return identity;
     }
