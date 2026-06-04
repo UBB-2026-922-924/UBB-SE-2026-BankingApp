@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utils="using:BankingApp.Desktop.Shared.Converters"
+    Background="#F4F6FA"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -13,27 +14,35 @@
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="24" Spacing="24" MaxWidth="600" HorizontalAlignment="Left">
+        <StackPanel Margin="36,32" Spacing="24" MaxWidth="600" HorizontalAlignment="Left">
 
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <Button Content="" 
                         FontFamily="Segoe MDL2 Assets" 
                         Click="OnBackButtonClicked" 
-                        Background="Transparent"
-                        BorderBrush="Transparent"
+                        Background="White"
+                        BorderBrush="#D8DEE9"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Foreground="#333"
+                        Padding="8,4"
                         FontSize="16" 
                         VerticalAlignment="Center"/>
-                <TextBlock Text="Crypto Trading" FontSize="28" FontWeight="Bold" VerticalAlignment="Center" />
+                <TextBlock Text="Crypto Trading"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="#1A1A2E"
+                           VerticalAlignment="Center" />
             </StackPanel>
 
-            <Border Background="#FFF4CE" BorderBrush="#FFD666" BorderThickness="1" CornerRadius="8" Padding="16">
+            <Border Background="White" BorderBrush="#FFD666" BorderThickness="1" CornerRadius="12" Padding="16">
                 <StackPanel Orientation="Horizontal" Spacing="12">
                     <TextBlock Text="" FontSize="20" VerticalAlignment="Center" />
                     <StackPanel>
-                        <TextBlock Text="High Volatility Warning" FontWeight="SemiBold" Foreground="#8A6D3B" />
+                        <TextBlock Text="High Volatility Warning" FontWeight="SemiBold" Foreground="#1A1A2E" />
                         <TextBlock
                             Text="Cryptocurrency prices are highly volatile. You may lose all or part of your invested capital."
-                            TextWrapping="Wrap" Foreground="#8A6D3B" FontSize="12" />
+                            TextWrapping="Wrap" Foreground="#667085" FontSize="12" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -61,27 +70,27 @@
                          Text="{Binding QuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
 
-            <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Foreground="White" FontWeight="Medium" />
+            <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Foreground="#1A1A2E" FontWeight="Medium" />
 
-            <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8"
+            <Border Background="White"
+                    BorderBrush="#D8DEE9" BorderThickness="1" CornerRadius="12"
                     Padding="16">
                 <StackPanel Spacing="12">
                     <Grid>
-                        <TextBlock Text="Available Wallet Balance:" Foreground="Gray" />
+                        <TextBlock Text="Available Wallet Balance:" Foreground="#667085" />
                         <TextBlock Text="{Binding CurrentBalance, Converter={StaticResource CurrencyConverter}}"
                                    HorizontalAlignment="Right" FontWeight="SemiBold" />
                     </Grid>
                     <Grid>
-                        <TextBlock Text="Estimated Fee (1.5%):" Foreground="Gray" />
+                        <TextBlock Text="Estimated Fee (1.5%):" Foreground="#667085" />
                         <TextBlock Text="{Binding EstimatedFee, Converter={StaticResource CurrencyConverter}}"
                                    HorizontalAlignment="Right" FontWeight="SemiBold" />
                     </Grid>
                     <Grid>
-                        <TextBlock Text="Total Estimated Amount:" FontWeight="SemiBold" />
+                        <TextBlock Text="Total Estimated Amount:" FontWeight="SemiBold" Foreground="#1A1A2E" />
                         <TextBlock Text="{Binding TotalAmount, Converter={StaticResource CurrencyConverter}}"
                                    HorizontalAlignment="Right" FontWeight="Bold"
-                                   Foreground="{ThemeResource SystemControlForegroundAccentBrush}" />
+                                   Foreground="#1A1A2E" />
                     </Grid>
                 </StackPanel>
             </Border>
