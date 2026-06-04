@@ -3,13 +3,18 @@ using BankingApp.Api.Middleware;
 using BankingApp.Application.DependencyInjection;
 using BankingApp.Application.Features.Authentication.Services;
 using BankingApp.Contracts.Http;
+using BankingApp.Domain.Aggregates.AccountAggregate;
+using BankingApp.Domain.Aggregates.UserAggregate;
 using BankingApp.Domain.Common.Errors;
+using BankingApp.Domain.Enums;
+using BankingApp.Domain.ValueObjects;
 using BankingApp.Infrastructure.Core.DependencyInjection;
 using BankingApp.Infrastructure.Persistence.Data;
 using BankingApp.Infrastructure.Persistence.DependencyInjection;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using NodaMoney;
 using Serilog;
 using Serilog.Events;
 
@@ -151,17 +156,20 @@ static async Task SeedDevelopmentLoginAsync(WebApplication application)
 
     using IServiceScope scope = application.Services.CreateScope();
     IAuthService authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
+    AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     ErrorOr<Success> result = await authService.RegisterAsync(email, password, fullName);
 
     if (!result.IsError)
     {
         Log.Information("Development login user seeded: {Email}", email);
+        await SeedDevelopmentDashboardDataAsync(dbContext, email);
         return;
     }
 
     if (result.Errors.Any(error => error.Code == AuthErrors.EmailAlreadyRegistered.Code))
     {
         Log.Information("Development login user already exists: {Email}", email);
+        await SeedDevelopmentDashboardDataAsync(dbContext, email);
         return;
     }
 
@@ -169,4 +177,91 @@ static async Task SeedDevelopmentLoginAsync(WebApplication application)
         "; ",
         result.Errors.Select(error => $"{error.Code}: {error.Description}"));
     throw new InvalidOperationException($"Development login seed failed for {email}: {errors}");
+}
+
+static async Task SeedDevelopmentDashboardDataAsync(AppDbContext dbContext, string email)
+{
+    ErrorOr<Email> emailResult = Email.Create(email);
+    if (emailResult.IsError)
+    {
+        return;
+    }
+
+    User? user = await dbContext.Users.FirstOrDefaultAsync(candidate => candidate.Email == emailResult.Value);
+    if (user is null)
+    {
+        return;
+    }
+
+    DateTime now = DateTime.UtcNow;
+    ErrorOr<Iban> ibanResult = Iban.Create("RO49AAAA1B31007593840000");
+    if (ibanResult.IsError)
+    {
+        throw new InvalidOperationException("Development dashboard seed IBAN is invalid.");
+    }
+
+    Account? account = await dbContext.Accounts
+        .Include(candidate => candidate.Cards)
+        .Include(candidate => candidate.Transactions)
+        .FirstOrDefaultAsync(candidate => candidate.Iban == ibanResult.Value);
+
+    if (account is null)
+    {
+        account = Account.Open(
+            user.Id,
+            ibanResult.Value,
+            Currency.FromCode("RON"),
+            AccountType.Checking,
+            "Everyday Checking",
+            now.AddDays(-30));
+
+        ErrorOr<Money> balanceResult = account.Credit(new Money(2500.75m, "RON"), now.AddDays(-30));
+        if (balanceResult.IsError)
+        {
+            throw new InvalidOperationException("Development dashboard seed balance failed.");
+        }
+
+        await dbContext.Accounts.AddAsync(account);
+        await dbContext.SaveChangesAsync();
+    }
+
+    if (!account.Cards.Any(card => card.CardNumber.EndsWith("1234", StringComparison.Ordinal)))
+    {
+        account.IssueCard(
+            "4111111111111234",
+            user.FullName,
+            new DateTime(2029, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+            "123",
+            CardType.Debit,
+            "Visa",
+            now.AddDays(-29));
+    }
+
+    if (!account.Transactions.Any(transaction => transaction.TransactionRef == "DEV-SALARY-001"))
+    {
+        account.RecordTransaction(
+            "DEV-SALARY-001",
+            "Deposit",
+            TransactionDirection.In,
+            new Money(2500.75m, "RON"),
+            new Money(2500.75m, "RON"),
+            TransactionStatus.Completed,
+            now.AddDays(-5));
+    }
+
+    if (!account.Transactions.Any(transaction => transaction.TransactionRef == "DEV-COFFEE-001"))
+    {
+        account.RecordTransaction(
+            "DEV-COFFEE-001",
+            "CardPayment",
+            TransactionDirection.Out,
+            new Money(18.50m, "RON"),
+            new Money(2482.25m, "RON"),
+            TransactionStatus.Completed,
+            now.AddDays(-1));
+    }
+
+    dbContext.Accounts.Update(account);
+    await dbContext.SaveChangesAsync();
+    Log.Information("Development dashboard data seeded for {Email}", email);
 }
