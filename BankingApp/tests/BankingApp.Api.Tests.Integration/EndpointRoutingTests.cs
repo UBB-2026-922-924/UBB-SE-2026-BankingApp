@@ -62,6 +62,14 @@ public class EndpointRoutingTests : IClassFixture<BankingAppWebFactory>
     [InlineData("POST", "/" + ApiEndpoints.Profile.VerifyPasswordFull)]
     [InlineData("GET", "/" + ApiEndpoints.Profile.SessionsFull)]
     [InlineData("DELETE", "/" + ApiEndpoints.Profile.SessionsFull + "/1")]
+    [InlineData("GET", "/" + ApiEndpoints.Transfers.AccountsFull)]
+    [InlineData("POST", "/" + ApiEndpoints.Transfers.ValidateIbanFull)]
+    [InlineData("POST", "/" + ApiEndpoints.Transfers.ExecuteFull)]
+    [InlineData("GET", "/" + ApiEndpoints.BillPayments.AccountsFull)]
+    [InlineData("POST", "/" + ApiEndpoints.BillPayments.PayFull)]
+    [InlineData("GET", "/" + ApiEndpoints.Forex.PreviewFull + "?from=RON&to=EUR&amount=100")]
+    [InlineData("POST", "/" + ApiEndpoints.Forex.ExecuteFull)]
+    [InlineData("GET", "/" + ApiEndpoints.Cards.Base)]
     public async Task SendAsync_WhenProtectedEndpointIsRequestedAndTokenIsMissing_ShouldReturnUnauthorized(
         string method,
         string path)
@@ -83,6 +91,14 @@ public class EndpointRoutingTests : IClassFixture<BankingAppWebFactory>
     [InlineData("POST", "/" + ApiEndpoints.Profile.VerifyPasswordFull)]
     [InlineData("GET", "/" + ApiEndpoints.Profile.SessionsFull)]
     [InlineData("DELETE", "/" + ApiEndpoints.Profile.SessionsFull + "/1")]
+    [InlineData("GET", "/" + ApiEndpoints.Transfers.AccountsFull)]
+    [InlineData("POST", "/" + ApiEndpoints.Transfers.ValidateIbanFull)]
+    [InlineData("POST", "/" + ApiEndpoints.Transfers.ExecuteFull)]
+    [InlineData("GET", "/" + ApiEndpoints.BillPayments.AccountsFull)]
+    [InlineData("POST", "/" + ApiEndpoints.BillPayments.PayFull)]
+    [InlineData("GET", "/" + ApiEndpoints.Forex.PreviewFull + "?from=RON&to=EUR&amount=100")]
+    [InlineData("POST", "/" + ApiEndpoints.Forex.ExecuteFull)]
+    [InlineData("GET", "/" + ApiEndpoints.Cards.Base)]
     public async Task SendAsync_WhenProtectedEndpointIsRequestedAndTokenIsValid_ShouldNotReturnUnauthorized(
         string method,
         string path)
