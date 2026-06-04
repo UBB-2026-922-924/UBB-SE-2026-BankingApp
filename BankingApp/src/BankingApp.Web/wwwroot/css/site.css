@@ -741,6 +741,38 @@ body {
     filter: grayscale(60%);
 }
 
+/* ── Statistics ──────────────────────────────────────────────────────── */
+.stats-page .card {
+    background-color: #fff;
+    color: var(--ba-text-primary);
+}
+
+.stats-page .card-header {
+    background-color: #fff;
+}
+
+.stats-page .stats-metric-card .card-body {
+    padding: 1.5rem 1.25rem;
+}
+
+.stats-page .stats-metric-icon {
+    font-size: 1.9rem;
+    color: var(--ba-text-primary);
+}
+
+.stats-page .stats-metric-value {
+    color: var(--ba-text-primary);
+}
+
+.stats-page .list-group-item {
+    background-color: #fff;
+    color: var(--ba-text-primary);
+}
+
+.stats-page .table thead th {
+    color: var(--ba-text-primary);
+}
+
 /* ── Dashboard ───────────────────────────────────────────────────────── */
 
 /* Carousel wrapper — provides relative positioning for the arrow buttons */
