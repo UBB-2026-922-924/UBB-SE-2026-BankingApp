@@ -1,7 +1,9 @@
 ﻿<Page
     x:Class="BankingApp.Desktop.Views.LoansAndSavingsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="#F4F6FA"
+    RequestedTheme="Light">
 
     <Grid>
         <TabView IsAddTabButtonVisible="False" CanDragTabs="False">
