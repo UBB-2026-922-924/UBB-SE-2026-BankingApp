@@ -28,7 +28,7 @@ public class AccountOverviewServiceTests
     private IAccountRepository mockAccountRepository = Substitute.For<IAccountRepository>();
     private ITransactionRepository mockTransactionRepository = Substitute.For<ITransactionRepository>();
 
-    private AccountOverviewService accountOverviewService;
+    private AccountOverviewService accountOverviewService = null!;
 
     [SetUp]
     public void SetUp()
