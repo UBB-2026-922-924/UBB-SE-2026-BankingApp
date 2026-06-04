@@ -230,6 +230,43 @@ public class BillPayViewModelTests
     }
 
     [Fact]
+    public async Task ExecutePayBillAsync_WhenSuccess_ShouldDecreaseSelectedAccountBalanceByAmountAndFee()
+    {
+        _billPaymentClientService
+            .Setup(service => service.PayBillAsync(It.IsAny<BillPayRequest>()))
+            .ReturnsAsync(new BillPayResponse
+            {
+                Id = 1,
+                ReceiptNumber = "RCP-20260504-ABC123",
+                Fee = 0.50m,
+                Amount = 50m,
+                Status = "Completed",
+            });
+
+        BillPayViewModel vm = CreateViewModel();
+        var account = new AccountDto
+        {
+            Id = 1,
+            AccountName = "Test",
+            Balance = 2500.75m,
+            Currency = "RON",
+            Iban = "RO49AAAA1B31007593840000",
+            CardLastFourDigits = "1234",
+        };
+        vm.Accounts.Add(account);
+        vm.ExecuteSelectBiller(new BillerDto { Id = 1, Name = "Test", Category = "Utilities" });
+        vm.BillerReference = "REF-001";
+        vm.SelectedAccount = account;
+        vm.Amount = 50m;
+
+        await vm.ExecutePayBillAsync();
+
+        vm.SelectedAccount.Should().NotBeNull();
+        vm.SelectedAccount!.Balance.Should().Be(2450.25m);
+        vm.Accounts.Single().Balance.Should().Be(2450.25m);
+    }
+
+    [Fact]
     public async Task ExecutePayBillAsync_WhenApiFails_ShouldSetErrorMessage()
     {
         _billPaymentClientService

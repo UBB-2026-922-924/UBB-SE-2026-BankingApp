@@ -273,7 +273,34 @@ public partial class BillPayViewModel
     {
         ReceiptNumber = response.ReceiptNumber;
         Fee = response.Fee;
+        ApplyAccountDebit(response.Amount + response.Fee);
         CurrentStep = PaymentResultStep;
+    }
+
+    private void ApplyAccountDebit(decimal totalDebit)
+    {
+        if (SelectedAccount is null)
+        {
+            return;
+        }
+
+        AccountDto updatedAccount = new()
+        {
+            Id = SelectedAccount.Id,
+            Iban = SelectedAccount.Iban,
+            Currency = SelectedAccount.Currency,
+            Balance = SelectedAccount.Balance - totalDebit,
+            AccountName = SelectedAccount.AccountName,
+            CardLastFourDigits = SelectedAccount.CardLastFourDigits,
+        };
+
+        int accountIndex = Accounts.IndexOf(SelectedAccount);
+        if (accountIndex >= 0)
+        {
+            Accounts[accountIndex] = updatedAccount;
+        }
+
+        SelectedAccount = updatedAccount;
     }
 
     private void ResetFormStateOnly()

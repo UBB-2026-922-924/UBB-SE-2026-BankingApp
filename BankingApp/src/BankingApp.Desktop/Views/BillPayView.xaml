@@ -409,6 +409,12 @@
                                                     <Run Text=" · " />
                                                     <Run Text="{Binding Currency}" />
                                                 </TextBlock>
+                                                <TextBlock FontSize="12" Foreground="#2563EB" FontWeight="SemiBold">
+                                                    <Run Text="Balance: " />
+                                                    <Run Text="{Binding Balance}" />
+                                                    <Run Text=" " />
+                                                    <Run Text="{Binding Currency}" />
+                                                </TextBlock>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -548,6 +554,12 @@
                                         <TextBlock FontSize="12" Foreground="#6B7280">
                                             <Run Text="Card ending " />
                                             <Run Text="{Binding SelectedAccount.CardLastFourDigits}" />
+                                        </TextBlock>
+                                        <TextBlock FontSize="12" Foreground="#2563EB" FontWeight="SemiBold">
+                                            <Run Text="Balance: " />
+                                            <Run Text="{Binding SelectedAccount.Balance}" />
+                                            <Run Text=" " />
+                                            <Run Text="{Binding SelectedAccount.Currency}" />
                                         </TextBlock>
                                     </StackPanel>
                                 </Grid>
@@ -711,4 +723,3 @@
         </ScrollViewer>
     </Grid>
 </Page>
-
