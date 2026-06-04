@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utils="using:BankingApp.Desktop.Shared.Converters"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Background="#F4F6FA"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -27,7 +27,11 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Portfolio Overview" FontSize="30" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock Text="Portfolio Overview"
+                               FontSize="30"
+                               FontWeight="SemiBold"
+                               Foreground="#1A1A2E"
+                               VerticalAlignment="Center"/>
 
                     <Button Grid.Column="1" 
                             Content="Trade Assets" 
@@ -43,25 +47,42 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Padding="26" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="14">
+                    <Border Grid.Column="0"
+                            Padding="24"
+                            Background="White"
+                            BorderBrush="#D8DEE9"
+                            BorderThickness="1"
+                            CornerRadius="12">
                         <StackPanel Spacing="8">
-                            <TextBlock Text="Total Portfolio Value" FontSize="14" Opacity="0.72" />
-                            <TextBlock Text="{Binding UserPortfolio.TotalValue, Converter={StaticResource DecimalToCurrencyConverter}}" FontSize="28" FontWeight="SemiBold" />
+                            <TextBlock Text="Total Portfolio Value" FontSize="14" Foreground="#667085" />
+                            <TextBlock Text="{Binding UserPortfolio.TotalValue, Converter={StaticResource DecimalToCurrencyConverter}}"
+                                       FontSize="28"
+                                       FontWeight="SemiBold"
+                                       Foreground="#1A1A2E" />
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Padding="26" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="14">
+                    <Border Grid.Column="1"
+                            Padding="24"
+                            Background="White"
+                            BorderBrush="#D8DEE9"
+                            BorderThickness="1"
+                            CornerRadius="12">
                         <StackPanel Spacing="8">
-                            <TextBlock Text="Total Gain/Loss" FontSize="14" Opacity="0.72" />
+                            <TextBlock Text="Total Gain/Loss" FontSize="14" Foreground="#667085" />
                             <TextBlock Text="{Binding UserPortfolio.TotalGainLoss, Converter={StaticResource DecimalToCurrencyConverter}}" FontSize="28" FontWeight="SemiBold" Foreground="{Binding UserPortfolio.TotalGainLoss, Converter={StaticResource GainLossBrushConverter}}" />
                             <TextBlock Text="{Binding UserPortfolio.GainLossPercent, Converter={StaticResource DecimalToPercentConverter}}" FontSize="15" Foreground="{Binding UserPortfolio.TotalGainLoss, Converter={StaticResource GainLossBrushConverter}}" />
                         </StackPanel>
                     </Border>
                 </Grid>
 
-                <Border Padding="28" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="14">
+                <Border Padding="28"
+                        Background="White"
+                        BorderBrush="#D8DEE9"
+                        BorderThickness="1"
+                        CornerRadius="12">
                     <StackPanel Spacing="22">
-                        <TextBlock Text="Asset Holdings" FontSize="22" FontWeight="SemiBold" />
+                        <TextBlock Text="Asset Holdings" FontSize="22" FontWeight="SemiBold" Foreground="#1A1A2E" />
                         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                             <StackPanel Orientation="Horizontal" Spacing="12">
                                 <ToggleButton Content="All" Command="{Binding SelectFilterCommand}" CommandParameter="All" IsChecked="{Binding ActiveFilterType, Converter={StaticResource FilterMatchToBooleanConverter}, ConverterParameter=All}" />
@@ -73,7 +94,12 @@
                         <ListView ItemsSource="{Binding DisplayedHoldings}" Visibility="{Binding IsHoldingsVisible, Converter={StaticResource BoolToVisibility}}" SelectionMode="None">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="18,20" Margin="0,0,0,12" Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10">
+                                    <Border Padding="18,20"
+                                            Margin="0,0,0,12"
+                                            Background="White"
+                                            BorderBrush="#EEF2F6"
+                                            BorderThickness="1"
+                                            CornerRadius="10">
                                         <Grid ColumnSpacing="28">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="220" />
@@ -98,7 +124,10 @@
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
-                        <TextBlock Text="No holdings found" HorizontalAlignment="Center" Visibility="{Binding IsEmptyStateVisible, Converter={StaticResource BoolToVisibility}}" />
+                        <TextBlock Text="No holdings found"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#667085"
+                                   Visibility="{Binding IsEmptyStateVisible, Converter={StaticResource BoolToVisibility}}" />
                     </StackPanel>
                 </Border>
             </StackPanel>
