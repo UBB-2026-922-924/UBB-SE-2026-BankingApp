@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utils="using:BankingApp.Desktop.Shared.Converters"
+    RequestedTheme="Light"
     mc:Ignorable="d">
 
     <UserControl.Resources>
@@ -15,7 +16,7 @@
         <utils:NullToVisibilityConverter x:Key="NullToVisibility" />
     </UserControl.Resources>
 
-    <Grid>
+    <Grid Background="#F4F6FA">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
