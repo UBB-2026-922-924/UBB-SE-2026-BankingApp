@@ -4,6 +4,8 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using BankingApp.Api.Tests.Integration.Infrastructure;
+using BankingApp.Application.Features.Cards.Services;
+using BankingApp.Contracts.Features.Cards.Dtos;
 using BankingApp.Contracts.Http;
 using BankingApp.Domain.Aggregates.IdentityAggregate;
 using ErrorOr;
@@ -23,6 +25,7 @@ public class EndpointRoutingTests : IClassFixture<BankingAppWebFactory>
 
         _factory.JwtServiceMock.Reset();
         _factory.IdentityRepositoryMock.Reset();
+        _factory.CardServiceMock.Reset();
 
         factory.JwtServiceMock
             .Setup(service => service.ExtractUserId(ValidToken))
@@ -31,6 +34,10 @@ public class EndpointRoutingTests : IClassFixture<BankingAppWebFactory>
         factory.IdentityRepositoryMock
             .Setup(repository => repository.GetBySessionTokenAsync(ValidToken, It.IsAny<CancellationToken>()))
             .ReturnsAsync(CreateActiveIdentity(TestUserId, ValidToken));
+
+        factory.CardServiceMock
+            .Setup(service => service.GetCardsAsync(TestUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<CardDetailsDto>());
     }
 
     [Theory]

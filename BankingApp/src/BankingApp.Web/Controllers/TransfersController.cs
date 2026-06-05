@@ -1,5 +1,6 @@
 namespace BankingApp.Web.Controllers;
 
+using System.Globalization;
 using Contracts.Features.Beneficiaries.Dtos;
 using Contracts.Features.Beneficiaries.Services;
 using Contracts.Features.Transfers.Dtos;
@@ -178,7 +179,7 @@ public class TransfersController(
 
         TempData["Success"] =
             $"Transfer completed! Ref: {result.Value.TransactionRef} — " +
-            $"{model.Currency} {model.Amount:N2} to {model.RecipientName}.";
+            $"{model.Currency} {model.Amount.ToString("N2", CultureInfo.InvariantCulture)} to {model.RecipientName}.";
 
         return RedirectToAction(nameof(History));
     }
