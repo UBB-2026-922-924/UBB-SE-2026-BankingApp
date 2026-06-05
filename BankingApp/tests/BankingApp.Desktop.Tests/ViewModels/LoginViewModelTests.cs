@@ -20,13 +20,13 @@ public class LoginViewModelTests
     }
 
     [Fact]
-    public void CanLogin_WhenValid_ReturnsTrue()
+    public void CanLogin_WhenValid_ShouldReturnTrue()
     {
         LoginViewModel.CanLogin("test@test.com", "password").Should().BeTrue();
     }
 
     [Fact]
-    public void CanLogin_WhenInvalid_ReturnsFalse()
+    public void CanLogin_WhenInvalid_ShouldReturnFalse()
     {
         LoginViewModel.CanLogin(string.Empty, "password").Should().BeFalse();
         LoginViewModel.CanLogin("test@test.com", string.Empty).Should().BeFalse();

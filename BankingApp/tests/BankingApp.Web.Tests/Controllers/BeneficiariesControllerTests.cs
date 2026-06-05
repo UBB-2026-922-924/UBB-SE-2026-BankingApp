@@ -26,7 +26,7 @@ public sealed class BeneficiariesControllerTests : IDisposable
     public void Dispose() => _controller.Dispose();
 
     [Fact]
-    public async Task Index_WhenServiceReturnsBeneficiaries_ReturnsModelWithMappedRows()
+    public async Task Index_WhenServiceReturnsBeneficiaries_ShouldReturnModelWithMappedRows()
     {
         _beneficiaryService
             .Setup(service => service.GetAllAsync(CancellationToken.None))
@@ -55,7 +55,7 @@ public sealed class BeneficiariesControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Create_WhenServiceSucceeds_MapsFormModelAndRedirects()
+    public async Task Create_WhenServiceSucceeds_ShouldMapFormModelAndRedirect()
     {
         BeneficiaryFormModel beneficiaryForm = new()
         {
@@ -82,7 +82,7 @@ public sealed class BeneficiariesControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Edit_WhenServiceReturnsBeneficiary_ReturnsFormModel()
+    public async Task Edit_WhenServiceReturnsBeneficiary_ShouldReturnFormModel()
     {
         _beneficiaryService
             .Setup(service => service.GetByIdAsync(9, CancellationToken.None))

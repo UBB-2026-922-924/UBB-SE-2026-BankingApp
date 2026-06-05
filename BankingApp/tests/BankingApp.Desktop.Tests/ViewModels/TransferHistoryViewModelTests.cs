@@ -17,7 +17,7 @@ public class TransferHistoryViewModelTests
         new(_transferServiceMock.Object, NullLogger<TransferHistoryViewModel>.Instance);
 
     [Fact]
-    public async Task LoadHistoryAsync_WhenTransferHasReference_SetsReferenceDisplay()
+    public async Task LoadHistoryAsync_WhenTransferHasReference_ShouldSetReferenceDisplay()
     {
         // Arrange
         _transferServiceMock
@@ -35,7 +35,7 @@ public class TransferHistoryViewModelTests
     }
 
     [Fact]
-    public async Task LoadHistoryAsync_WhenTransferReferenceIsNull_SetsReferenceDisplayToFallback()
+    public async Task LoadHistoryAsync_WhenTransferReferenceIsNull_ShouldSetReferenceDisplayToFallback()
     {
         // Arrange
         _transferServiceMock
@@ -52,7 +52,7 @@ public class TransferHistoryViewModelTests
     }
 
     [Fact]
-    public async Task LoadHistoryAsync_WhenTransferReferenceIsEmpty_SetsReferenceDisplayToFallback()
+    public async Task LoadHistoryAsync_WhenTransferReferenceIsEmpty_ShouldSetReferenceDisplayToFallback()
     {
         // Arrange
         _transferServiceMock
@@ -69,7 +69,7 @@ public class TransferHistoryViewModelTests
     }
 
     [Fact]
-    public async Task LoadHistoryAsync_MapsAmountCurrencyAndStatusCorrectly()
+    public async Task LoadHistoryAsync_WhenTransferExists_ShouldMapAmountCurrencyAndStatusCorrectly()
     {
         // Arrange
         _transferServiceMock
@@ -92,7 +92,7 @@ public class TransferHistoryViewModelTests
     }
 
     [Fact]
-    public async Task LoadHistoryAsync_WhenResultIsEmpty_HasNoTransfersIsTrueAndShowTransferListIsFalse()
+    public async Task LoadHistoryAsync_WhenResultIsEmpty_ShouldSetHasNoTransfersTrueAndHideTransferList()
     {
         // Arrange
         _transferServiceMock
@@ -112,7 +112,7 @@ public class TransferHistoryViewModelTests
     }
 
     [Fact]
-    public async Task LoadHistoryAsync_WhenApiFails_HasErrorIsTrueAndShowTransferListIsFalse()
+    public async Task LoadHistoryAsync_WhenApiFails_ShouldSetHasErrorTrueAndHideTransferList()
     {
         // Arrange
         _transferServiceMock

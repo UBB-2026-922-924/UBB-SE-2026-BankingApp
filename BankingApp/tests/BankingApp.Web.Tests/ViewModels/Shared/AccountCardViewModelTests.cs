@@ -7,7 +7,7 @@ using BankingApp.Web.ViewModels.Shared;
 public sealed class AccountCardViewModelTests
 {
     [Fact]
-    public void IsActive_WhenStatusIsActive_ReturnsTrue()
+    public void IsActive_WhenStatusIsActive_ShouldReturnTrue()
     {
         AccountCardViewModel viewModel = new() { Status = "Active" };
 
@@ -18,7 +18,7 @@ public sealed class AccountCardViewModelTests
     [InlineData("Frozen")]
     [InlineData("Cancelled")]
     [InlineData("Expired")]
-    public void IsActive_WhenStatusIsNotActive_ReturnsFalse(string status)
+    public void IsActive_WhenStatusIsNotActive_ShouldReturnFalse(string status)
     {
         AccountCardViewModel viewModel = new() { Status = status };
 
@@ -26,7 +26,7 @@ public sealed class AccountCardViewModelTests
     }
 
     [Fact]
-    public void FromCard_MapsAllFields()
+    public void FromCard_WhenCardProvided_ShouldMapAllFields()
     {
         var card = new CardDto()
         {
@@ -48,7 +48,7 @@ public sealed class AccountCardViewModelTests
     }
 
     [Fact]
-    public void FromCard_WhenAccountNameIsNull_UsesEmptyString()
+    public void FromCard_WhenAccountNameIsNull_ShouldUseEmptyString()
     {
         var card = new CardDto() { AccountName = null, Status = CardStatus.Frozen };
 
@@ -59,7 +59,7 @@ public sealed class AccountCardViewModelTests
     }
 
     [Fact]
-    public void FromCard_WhenAccountBalanceIsNull_UsesZero()
+    public void FromCard_WhenAccountBalanceIsNull_ShouldUseZero()
     {
         var card = new CardDto() { AccountBalance = null, Status = CardStatus.Active };
 

@@ -30,7 +30,7 @@ public sealed class LoansControllerTests : IDisposable
     public void Dispose() => _controller.Dispose();
 
     [Fact]
-    public async Task Index_WhenProxyThrows_ReturnsFallbackViewInsteadOfCrashing()
+    public async Task Index_WhenProxyThrows_ShouldReturnFallbackViewInsteadOfCrashing()
     {
         _loansRepoProxy
             .Setup(proxy => proxy.GetLoansByUserAsync(It.IsAny<int>()))
@@ -44,7 +44,7 @@ public sealed class LoansControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Index_WhenProxyThrows_FallbackModelHasNonNullCollections()
+    public async Task Index_WhenProxyThrows_ShouldReturnFallbackModelWithNonNullCollections()
     {
         _loansRepoProxy
             .Setup(proxy => proxy.GetLoansByUserAsync(It.IsAny<int>()))
@@ -59,7 +59,7 @@ public sealed class LoansControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Index_WhenProxyThrows_SetsErrorInTempData()
+    public async Task Index_WhenProxyThrows_ShouldSetErrorInTempData()
     {
         const string errorMessage = "loan service down";
         _loansRepoProxy
@@ -72,7 +72,7 @@ public sealed class LoansControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Index_WhenProxyReturnsEmptyList_ReturnsViewWithNoLoans()
+    public async Task Index_WhenProxyReturnsEmptyList_ShouldReturnViewWithNoLoans()
     {
         _loansRepoProxy
             .Setup(proxy => proxy.GetLoansByUserAsync(It.IsAny<int>()))

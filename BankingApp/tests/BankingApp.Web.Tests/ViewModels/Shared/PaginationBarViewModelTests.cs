@@ -5,7 +5,7 @@ using BankingApp.Web.ViewModels.Shared;
 public sealed class PaginationBarViewModelTests
 {
     [Fact]
-    public void HasPreviousPage_WhenOnFirstPage_ReturnsFalse()
+    public void HasPreviousPage_WhenOnFirstPage_ShouldReturnFalse()
     {
         PaginationBarViewModel viewModel = new() { CurrentPage = 1, TotalPages = 5 };
 
@@ -13,7 +13,7 @@ public sealed class PaginationBarViewModelTests
     }
 
     [Fact]
-    public void HasPreviousPage_WhenPastFirstPage_ReturnsTrue()
+    public void HasPreviousPage_WhenPastFirstPage_ShouldReturnTrue()
     {
         PaginationBarViewModel viewModel = new() { CurrentPage = 2, TotalPages = 5 };
 
@@ -21,7 +21,7 @@ public sealed class PaginationBarViewModelTests
     }
 
     [Fact]
-    public void HasNextPage_WhenOnLastPage_ReturnsFalse()
+    public void HasNextPage_WhenOnLastPage_ShouldReturnFalse()
     {
         PaginationBarViewModel viewModel = new() { CurrentPage = 5, TotalPages = 5 };
 
@@ -29,7 +29,7 @@ public sealed class PaginationBarViewModelTests
     }
 
     [Fact]
-    public void HasNextPage_WhenBeforeLastPage_ReturnsTrue()
+    public void HasNextPage_WhenBeforeLastPage_ShouldReturnTrue()
     {
         PaginationBarViewModel viewModel = new() { CurrentPage = 4, TotalPages = 5 };
 
@@ -37,7 +37,7 @@ public sealed class PaginationBarViewModelTests
     }
 
     [Fact]
-    public void VisiblePageNumbers_WhenSinglePage_ReturnsThatPage()
+    public void VisiblePageNumbers_WhenSinglePage_ShouldReturnThatPage()
     {
         PaginationBarViewModel viewModel = new() { CurrentPage = 1, TotalPages = 1 };
 
@@ -45,7 +45,7 @@ public sealed class PaginationBarViewModelTests
     }
 
     [Fact]
-    public void VisiblePageNumbers_WhenCurrentPageNearStart_StartsFromPage1()
+    public void VisiblePageNumbers_WhenCurrentPageNearStart_ShouldStartFromPage1()
     {
         PaginationBarViewModel viewModel = new() { CurrentPage = 2, TotalPages = 10 };
 
@@ -53,7 +53,7 @@ public sealed class PaginationBarViewModelTests
     }
 
     [Fact]
-    public void VisiblePageNumbers_WhenCurrentPageInMiddle_CentersWindow()
+    public void VisiblePageNumbers_WhenCurrentPageInMiddle_ShouldCenterWindow()
     {
         PaginationBarViewModel viewModel = new() { CurrentPage = 6, TotalPages = 10 };
 
@@ -61,7 +61,7 @@ public sealed class PaginationBarViewModelTests
     }
 
     [Fact]
-    public void VisiblePageNumbers_WhenCurrentPageNearEnd_EndsAtLastPage()
+    public void VisiblePageNumbers_WhenCurrentPageNearEnd_ShouldEndAtLastPage()
     {
         PaginationBarViewModel viewModel = new() { CurrentPage = 9, TotalPages = 10 };
 
@@ -69,7 +69,7 @@ public sealed class PaginationBarViewModelTests
     }
 
     [Fact]
-    public void VisiblePageNumbers_WhenFewerThanWindowSizePages_ReturnsAllPages()
+    public void VisiblePageNumbers_WhenFewerThanWindowSizePages_ShouldReturnAllPages()
     {
         PaginationBarViewModel viewModel = new() { CurrentPage = 2, TotalPages = 3 };
 

@@ -32,7 +32,7 @@ public sealed class SavingsControllerTests : IDisposable
     public void Dispose() => _controller.Dispose();
 
     [Fact]
-    public async Task Index_WhenProxyThrows_ReturnsFallbackViewInsteadOfCrashing()
+    public async Task Index_WhenProxyThrows_ShouldReturnFallbackViewInsteadOfCrashing()
     {
         _savingsRepoProxy
             .Setup(proxy => proxy.GetSavingsAccountsByUserIdAsync(It.IsAny<int>(), It.IsAny<bool>()))
@@ -46,7 +46,7 @@ public sealed class SavingsControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Index_WhenProxyThrows_FallbackModelHasNonNullCollections()
+    public async Task Index_WhenProxyThrows_ShouldReturnFallbackModelWithNonNullCollections()
     {
         _savingsRepoProxy
             .Setup(proxy => proxy.GetSavingsAccountsByUserIdAsync(It.IsAny<int>(), It.IsAny<bool>()))
@@ -62,7 +62,7 @@ public sealed class SavingsControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Index_WhenProxyThrows_SetsErrorInTempData()
+    public async Task Index_WhenProxyThrows_ShouldSetErrorInTempData()
     {
         const string errorMessage = "upstream failure";
         _savingsRepoProxy
@@ -75,7 +75,7 @@ public sealed class SavingsControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Index_WhenPresentationProxyThrows_ReturnsFallbackView()
+    public async Task Index_WhenPresentationProxyThrows_ShouldReturnFallbackView()
     {
         _savingsRepoProxy
             .Setup(proxy => proxy.GetSavingsAccountsByUserIdAsync(It.IsAny<int>(), It.IsAny<bool>()))

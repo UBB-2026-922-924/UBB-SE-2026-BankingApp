@@ -26,7 +26,7 @@ public sealed class ChatControllerTests : IDisposable
     public void Dispose() => _controller.Dispose();
 
     [Fact]
-    public async Task Index_WhenProxyReturnsSessions_ReturnsViewWithSessions()
+    public async Task Index_WhenProxyReturnsSessions_ShouldReturnViewWithSessions()
     {
         List<ChatSessionDto> sessions =
         [
@@ -47,7 +47,7 @@ public sealed class ChatControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Index_WhenProxyThrows_ReturnsFallbackViewWithErrorMessage()
+    public async Task Index_WhenProxyThrows_ShouldReturnFallbackViewWithErrorMessage()
     {
         _chatRepoProxy
             .Setup(proxy => proxy.GetSessionsAsync())
@@ -63,7 +63,7 @@ public sealed class ChatControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Details_WhenSessionNotFound_ReturnsNotFound()
+    public async Task Details_WhenSessionNotFound_ShouldReturnNotFound()
     {
         _chatRepoProxy
             .Setup(proxy => proxy.GetSessionAsync(99))
@@ -76,7 +76,7 @@ public sealed class ChatControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Details_WhenSessionFound_ReturnsViewWithMessages()
+    public async Task Details_WhenSessionFound_ShouldReturnViewWithMessages()
     {
         ChatSessionDto session = new()
         {
@@ -99,7 +99,7 @@ public sealed class ChatControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Create_WhenProxySucceeds_RedirectsToDetails()
+    public async Task Create_WhenProxySucceeds_ShouldRedirectToDetails()
     {
         ChatSessionDto newSession = new() { Id = 10, Subject = "General", Status = "Open" };
         _chatRepoProxy
@@ -115,7 +115,7 @@ public sealed class ChatControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Create_WhenProxyThrows_RedirectsToIndexWithTempDataError()
+    public async Task Create_WhenProxyThrows_ShouldRedirectToIndexWithTempDataError()
     {
         _chatRepoProxy
             .Setup(proxy => proxy.CreateSessionAsync(It.IsAny<string>()))

@@ -24,7 +24,7 @@ public class DashboardViewModelTests
     }
 
     [Fact]
-    public async Task LoadDashboard_WhenResponseIsValid_PopulatesViewModel()
+    public async Task LoadDashboard_WhenResponseIsValid_ShouldPopulateViewModel()
     {
         // Arrange
         const string fullName = "Ada Lovelace";
@@ -115,7 +115,7 @@ public class DashboardViewModelTests
     }
 
     [Fact]
-    public async Task LoadDashboard_WhenCurrentUserIsMissing_SetsErrorState()
+    public async Task LoadDashboard_WhenCurrentUserIsMissing_ShouldSetErrorState()
     {
         // Arrange
         _dashboardClientService
@@ -132,7 +132,7 @@ public class DashboardViewModelTests
     }
 
     [Fact]
-    public async Task LoadDashboard_WhenUnauthorized_SetsSessionExpiredMessage()
+    public async Task LoadDashboard_WhenUnauthorized_ShouldSetSessionExpiredMessage()
     {
         // Arrange
         _dashboardClientService
@@ -183,7 +183,7 @@ public class DashboardViewModelTests
     }
 
     [Fact]
-    public async Task NavigatePrevious_WhenNoCardsAreLoaded_ReturnsError()
+    public async Task NavigatePrevious_WhenNoCardsAreLoaded_ShouldReturnError()
     {
         // Arrange
         await LoadViewModelWithCards(0);
@@ -196,7 +196,7 @@ public class DashboardViewModelTests
     }
 
     [Fact]
-    public async Task NavigatePrevious_WhenAtFirstCard_ReturnsError()
+    public async Task NavigatePrevious_WhenAtFirstCard_ShouldReturnError()
     {
         // Arrange
         await LoadViewModelWithCards(2);
@@ -225,7 +225,7 @@ public class DashboardViewModelTests
     }
 
     [Fact]
-    public async Task NavigateNext_WhenNoCardsAreLoaded_ReturnsError()
+    public async Task NavigateNext_WhenNoCardsAreLoaded_ShouldReturnError()
     {
         // Arrange
         await LoadViewModelWithCards(0);
@@ -238,7 +238,7 @@ public class DashboardViewModelTests
     }
 
     [Fact]
-    public async Task NavigateNext_WhenAtLastCard_ReturnsError()
+    public async Task NavigateNext_WhenAtLastCard_ShouldReturnError()
     {
         // Arrange
         await LoadViewModelWithCards(1);
@@ -252,7 +252,7 @@ public class DashboardViewModelTests
     }
 
     [Fact]
-    public async Task NavigateNext_WhenNotAtLastCard_SucceedsAndIncrementsIndex()
+    public async Task NavigateNext_WhenNotAtLastCard_ShouldSucceedAndIncrementIndex()
     {
         // Arrange
         await LoadViewModelWithCards(2);
@@ -266,7 +266,7 @@ public class DashboardViewModelTests
     }
 
     [Fact]
-    public async Task SelectedCardBrandDisplay_WhenBrandIsPresent_ReturnsBrand()
+    public async Task SelectedCardBrandDisplay_WhenBrandIsPresent_ShouldReturnBrand()
     {
         // Arrange
         const string expectedCardBrand = "Visa";
@@ -308,7 +308,7 @@ public class DashboardViewModelTests
     }
 
     [Fact]
-    public async Task SelectedCardHolderDisplay_WhenNameIsAbsent_ReturnsPlaceholder()
+    public async Task SelectedCardHolderDisplay_WhenNameIsAbsent_ShouldReturnPlaceholder()
     {
         // Arrange
         const string expectedSelectedCardHolderDisplay = "CARD HOLDER";
@@ -322,7 +322,7 @@ public class DashboardViewModelTests
     }
 
     [Fact]
-    public async Task SelectedCardNumberMasked_WhenCardNumberIsValid_ShowsOnlyLastFourDigits()
+    public async Task SelectedCardNumberMasked_WhenCardNumberIsValid_ShouldShowOnlyLastFourDigits()
     {
         // Arrange
         const string cardNumber = "1234567890123456";
@@ -351,7 +351,7 @@ public class DashboardViewModelTests
     }
 
     [Fact]
-    public void GetSelectedCardDetails_WhenNoCardIsSelected_ReturnsEmptyString()
+    public void GetSelectedCardDetails_WhenNoCardIsSelected_ShouldReturnEmptyString()
     {
         string details = _viewModel.GetSelectedCardDetails();
 

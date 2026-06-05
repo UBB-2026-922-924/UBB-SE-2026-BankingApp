@@ -27,7 +27,7 @@ public class BeneficiariesViewModelTests
     }
 
     [Fact]
-    public async Task LoadBeneficiaries_WhenResponseIsValid_PopulatesViewModel()
+    public async Task LoadBeneficiaries_WhenResponseIsValid_ShouldPopulateViewModel()
     {
         var data = new List<BeneficiaryDto>
         {
@@ -47,7 +47,7 @@ public class BeneficiariesViewModelTests
     }
 
     [Fact]
-    public async Task LoadBeneficiaries_WhenUnauthorized_SetsErrorMessage()
+    public async Task LoadBeneficiaries_WhenUnauthorized_ShouldSetErrorMessage()
     {
         _beneficiaryClientService
             .Setup(service => service.GetAllAsync(default))

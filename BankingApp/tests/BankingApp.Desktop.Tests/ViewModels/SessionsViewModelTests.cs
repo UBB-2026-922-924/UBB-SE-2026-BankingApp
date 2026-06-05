@@ -12,7 +12,7 @@ public class SessionsViewModelTests
     private readonly Mock<IProfileService> _profileClientService = new(MockBehavior.Strict);
 
     [Fact]
-    public async Task LoadSessionsAsync_WhenApiReturnsSessions_PopulatesCollectionAndResetsState()
+    public async Task LoadSessionsAsync_WhenApiReturnsSessions_ShouldPopulateCollectionAndResetState()
     {
         // Arrange
         const int userId = 7;
@@ -38,7 +38,7 @@ public class SessionsViewModelTests
     }
 
     [Fact]
-    public async Task LoadSessionsAsync_WhenApiReturnsError_ClearsCollectionAndSetsErrorState()
+    public async Task LoadSessionsAsync_WhenApiReturnsError_ShouldClearCollectionAndSetErrorState()
     {
         // Arrange
         const int userId = 7;
@@ -58,7 +58,7 @@ public class SessionsViewModelTests
     }
 
     [Fact]
-    public async Task LoadSessionsAsync_WhenApiThrows_ClearsCollectionAndSetsErrorState()
+    public async Task LoadSessionsAsync_WhenApiThrows_ShouldClearCollectionAndSetErrorState()
     {
         // Arrange
         const int userId = 7;
@@ -78,7 +78,7 @@ public class SessionsViewModelTests
     }
 
     [Fact]
-    public async Task RevokeSessionAsync_WhenApiSucceeds_ReturnsTrueAndResetsState()
+    public async Task RevokeSessionAsync_WhenApiSucceeds_ShouldReturnTrueAndResetState()
     {
         // Arrange
         const int sessionId = 42;
@@ -97,7 +97,7 @@ public class SessionsViewModelTests
     }
 
     [Fact]
-    public async Task RevokeSessionAsync_WhenApiReturnsError_SetsErrorState()
+    public async Task RevokeSessionAsync_WhenApiReturnsError_ShouldSetErrorState()
     {
         // Arrange
         const int sessionId = 42;
@@ -116,7 +116,7 @@ public class SessionsViewModelTests
     }
 
     [Fact]
-    public async Task RevokeSessionAsync_WhenApiThrows_SetsErrorState()
+    public async Task RevokeSessionAsync_WhenApiThrows_ShouldSetErrorState()
     {
         // Arrange
         const int sessionId = 42;
