@@ -9,6 +9,40 @@ env:
   DOTNET_VERSION: 10.0.x
 
 jobs:
+  code-quality-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reject TestController in production Controllers
+        run: |
+          echo "Checking for TestController in production Controllers/ directories..."
+          if find BankingApp/src -path "*/Controllers/TestController*" | grep -q .; then
+            echo "::error::TestController found in production Controllers/ directory. Remove it immediately."
+            exit 1
+          fi
+          echo "✅ No TestController found."
+
+      - name: Reject NotImplementedException in production Controllers
+        run: |
+          echo "Checking for NotImplementedException in production Controllers/ files..."
+          if grep -rn "NotImplementedException" --include="*.cs" BankingApp/src/*/Controllers/ 2>/dev/null | grep -q .; then
+            echo "::error::NotImplementedException found in production Controllers/:"
+            grep -rn "NotImplementedException" --include="*.cs" BankingApp/src/*/Controllers/
+            exit 1
+          fi
+          echo "✅ No NotImplementedException in production Controllers."
+
+      - name: Reject hardcoded stub return values in Controllers
+        run: |
+          echo "Checking for hardcoded stub strings in production Controllers/..."
+          if grep -rn '"TODO"\|"Not Implemented"\|"not implemented"' --include="*.cs" BankingApp/src/*/Controllers/ 2>/dev/null | grep -q .; then
+            echo "::error::Hardcoded stub return values found in production Controllers/:"
+            grep -rn '"TODO"\|"Not Implemented"\|"not implemented"' --include="*.cs" BankingApp/src/*/Controllers/
+            exit 1
+          fi
+          echo "✅ No hardcoded stub return values in production Controllers."
+
   test-api:
     runs-on: ubuntu-latest
     services:
