@@ -130,3 +130,9 @@ dotnet_diagnostic.RCS1246.severity = none
 [tests/**/*.cs]
 dotnet_diagnostic.IDE1006.severity = none
 dotnet_diagnostic.CA1707.severity = none
+
+[**/Migrations/*.cs]
+generated_code = true
+dotnet_diagnostic.IDE0065.severity = none
+dotnet_diagnostic.IDE0161.severity = none
+dotnet_diagnostic.CA1861.severity = none

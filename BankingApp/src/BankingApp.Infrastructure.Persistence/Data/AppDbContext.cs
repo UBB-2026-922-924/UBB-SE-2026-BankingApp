@@ -1,5 +1,8 @@
 namespace BankingApp.Infrastructure.Persistence.Data;
 
+using BankingApp.Domain.ReferenceData.Categories;
+using BankingApp.Domain.Aggregates.AccountAggregate.Entities;
+using BankingApp.Domain.Aggregates.UserAggregate.Entities;
 using Domain.Aggregates.AccountAggregate;
 using Domain.Aggregates.BeneficiaryAggregate;
 using Domain.Aggregates.BillPaymentAggregate;
@@ -60,6 +63,20 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<LoanApplication> LoanApplications => Set<LoanApplication>();
 
     public DbSet<AmortizationRow> AmortizationRows => Set<AmortizationRow>();
+
+    public DbSet<Category> Categories => Set<Category>();
+
+    public DbSet<TransactionCategoryOverride> TransactionCategoryOverrides => Set<TransactionCategoryOverride>();
+
+    public DbSet<LoanEstimate> LoanEstimates => Set<LoanEstimate>();
+
+    public DbSet<OAuthLink> OAuthLinks => Set<OAuthLink>();
+
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
+
+    public DbSet<UserCardPreference> UserCardPreferences => Set<UserCardPreference>();
+
+    public DbSet<ChatAttachment> ChatAttachments => Set<ChatAttachment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
