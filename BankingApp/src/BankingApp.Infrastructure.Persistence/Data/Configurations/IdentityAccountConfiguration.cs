@@ -20,6 +20,8 @@ public sealed class IdentityAccountConfiguration : IEntityTypeConfiguration<Iden
         builder.Property(identityAccount => identityAccount.IsLocked).HasDefaultValue(false);
         builder.Property(identityAccount => identityAccount.LockoutEnd);
         builder.Property(identityAccount => identityAccount.FailedLoginAttempts).HasDefaultValue(0);
+        builder.Property(identityAccount => identityAccount.Is2FAEnabled).HasDefaultValue(false);
+        builder.Property(identityAccount => identityAccount.Preferred2FAMethod).HasMaxLength(64);
 
         builder.Navigation(identityAccount => identityAccount.Sessions).UsePropertyAccessMode(PropertyAccessMode.Field);
 

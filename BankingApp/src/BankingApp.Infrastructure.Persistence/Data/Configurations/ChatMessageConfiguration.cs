@@ -16,8 +16,6 @@ public sealed class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMess
         builder.Property(m => m.Content).HasMaxLength(4000).IsRequired();
         builder.Property(m => m.SentAt).IsRequired();
 
-        builder.Ignore(m => m.Attachments);
-
         builder.HasIndex(m => m.ChatSessionId);
     }
 }
