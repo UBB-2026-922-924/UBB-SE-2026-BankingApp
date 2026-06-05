@@ -1,6 +1,7 @@
 namespace BankingApp.Desktop.ViewModels;
 
 using System;
+using System.Globalization;
 using System.Collections.ObjectModel;
 using Contracts.Features.Transfers;
 using Contracts.Features.Transfers.Dtos;
@@ -157,16 +158,19 @@ public partial class TransferViewModel : ObservableObject
     }
 
     /// <summary>Gets the formatted transfer amount shown on the review step.</summary>
-    public string ReviewAmountText => $"{Amount:0.00} {Currency}";
+    public string ReviewAmountText =>
+        $"{Amount.ToString("0.00", CultureInfo.InvariantCulture)} {Currency}";
 
     /// <summary>Gets the formatted transfer fee shown on the review step.</summary>
-    public string TransferFeeText => $"{TransferPricing.Fee:0.00} {Currency}";
+    public string TransferFeeText =>
+        $"{TransferPricing.Fee.ToString("0.00", CultureInfo.InvariantCulture)} {Currency}";
 
     /// <summary>Gets the total amount debited from the source account.</summary>
     public decimal TotalDebit => Amount + TransferPricing.Fee;
 
     /// <summary>Gets the formatted total debit shown on the review step.</summary>
-    public string TotalDebitText => $"{TotalDebit:0.00} {Currency}";
+    public string TotalDebitText =>
+        $"{TotalDebit.ToString("0.00", CultureInfo.InvariantCulture)} {Currency}";
 
     /// <summary>Gets a value indicating whether a foreign-exchange preview should be shown.</summary>
     public bool HasFxPreview => !string.IsNullOrWhiteSpace(FxPreviewText);

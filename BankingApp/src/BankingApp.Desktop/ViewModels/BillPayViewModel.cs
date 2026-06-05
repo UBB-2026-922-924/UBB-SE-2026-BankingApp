@@ -1,5 +1,6 @@
 namespace BankingApp.Desktop.ViewModels;
 
+using System.Globalization;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Contracts.Features.BillPayments.Dtos;
@@ -173,14 +174,16 @@ public partial class BillPayViewModel : ObservableObject
 
     /// <summary>Gets the formatted amount shown on the review step.</summary>
     public string ReviewAmountText =>
-        Amount > MinimumAmount ? $"{Amount:0.00} RON" : "No amount entered";
+        Amount > MinimumAmount
+            ? $"{Amount.ToString("0.00", CultureInfo.InvariantCulture)} RON"
+            : "No amount entered";
 
     /// <summary>Gets the formatted fee shown on the review step.</summary>
-    public string ReviewFeeText => $"{Fee:0.00} RON";
+    public string ReviewFeeText => $"{Fee.ToString("0.00", CultureInfo.InvariantCulture)} RON";
 
     /// <summary>Gets the payment total including fees.</summary>
     public decimal Total => Amount + Fee;
 
     /// <summary>Gets the formatted payment total shown on the review step.</summary>
-    public string TotalText => $"{Total:0.00} RON";
+    public string TotalText => $"{Total.ToString("0.00", CultureInfo.InvariantCulture)} RON";
 }
