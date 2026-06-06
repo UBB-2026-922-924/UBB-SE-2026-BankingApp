@@ -128,3 +128,42 @@ public class SavingsController(ISavingsService savingsService) : ApiControllerBa
     public async Task<IActionResult> GetFundingSourcesAsync(CancellationToken cancellationToken)
     {
         int userId = GetAuthenticatedUserId();
+        return ToActionResult(
+            await savingsService.GetFundingSourcesAsync(userId, cancellationToken),
+            value => Ok(value.Select(source => new FundingSourceOption
+            {
+                Id = source.Id,
+                DisplayName = source.DisplayName
+            }).ToList()));
+    }
+
+    [HttpGet(ApiEndpoints.Savings.Transactions)]
+    public async Task<IActionResult> GetTransactionsAsync(
+        int accountId,
+        [FromQuery] string filter = string.Empty,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        return ToActionResult(
+            await savingsService.GetTransactionsAsync(accountId, filter, page, pageSize, cancellationToken),
+            value => Ok(new GetTransactionsResponse
+            {
+                Items = value.Items.ToList(),
+                TotalCount = value.TotalCount,
+                Page = page,
+                PageSize = pageSize,
+            }));
+    }
+
+    [HttpGet(ApiEndpoints.Savings.ValidDestinations)]
+    public async Task<IActionResult> GetValidTransferDestinationsAsync(
+        int currentAccountId,
+        CancellationToken cancellationToken)
+    {
+        int userId = GetAuthenticatedUserId();
+        return ToActionResult(
+            await savingsService.GetAccountsAsync(userId, includesClosed: false, cancellationToken),
+            accounts => Ok(accounts.Where(account => account.Id != currentAccountId).ToList()));
+    }
+}
