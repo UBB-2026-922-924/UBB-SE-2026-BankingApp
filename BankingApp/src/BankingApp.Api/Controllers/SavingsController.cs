@@ -1,6 +1,7 @@
 namespace BankingApp.Api.Controllers;
 
 using Application.Features.Savings.Services;
+using BankingApp.Contracts.Features.Investments;
 using Contracts.Features.Savings.Dtos;
 using Contracts.Http;
 using Domain.Aggregates.SavingsAggregate;
@@ -124,10 +125,17 @@ public class SavingsController(ISavingsService savingsService) : ApiControllerBa
     }
 
     [HttpGet(ApiEndpoints.Savings.FundingSources)]
+    [HttpGet(ApiEndpoints.Savings.FundingSources)]
     public async Task<IActionResult> GetFundingSourcesAsync(CancellationToken cancellationToken)
     {
         int userId = GetAuthenticatedUserId();
-        return ToActionResult(await savingsService.GetFundingSourcesAsync(userId, cancellationToken), value => Ok(value));
+        return ToActionResult(
+            await savingsService.GetFundingSourcesAsync(userId, cancellationToken),
+            value => Ok(value.Select(source => new FundingSourceOption
+            {
+                Id = source.Id,
+                DisplayName = source.DisplayName
+            }).ToList()));
     }
 
     [HttpGet(ApiEndpoints.Savings.Transactions)]
