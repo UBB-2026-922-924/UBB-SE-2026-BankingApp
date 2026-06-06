@@ -13,6 +13,7 @@ using Features.Investments.Services;
 using Features.Loans.Services;
 using Features.Savings.Services;
 using Features.Statistics.Services;
+using Features.Transactions.Services;
 using Features.Transfers.Services;
 using Features.UserProfile.Services;
 using FluentValidation;
