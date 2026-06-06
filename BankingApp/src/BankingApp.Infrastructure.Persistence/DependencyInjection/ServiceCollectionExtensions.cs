@@ -62,6 +62,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IInvestmentRepository, InvestmentRepository>();
         services.AddScoped<ISavingsRepository, SavingsRepository>();
         services.AddScoped<ILoanRepository, LoanRepository>();
+        services.AddScoped<ITransactionHistoryRepository, TransactionHistoryRepository>();
 
         services.AddScoped<IHashService, HashService>();
         services.AddScoped<IJsonWebTokenService>(_ => new JsonWebTokenService(jwtSecret));
