@@ -16,9 +16,18 @@ public sealed class InvestmentRepository(AppDbContext dbContext) : IInvestmentRe
 {
     public async Task<Portfolio?> GetPortfolioAsync(int userId, CancellationToken cancellationToken)
     {
-        return await dbContext.Portfolios
+        Portfolio? portfolio =  await dbContext.Portfolios
             .Include(p => p.Holdings)
             .FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
+
+        if (portfolio == null)
+        {
+            portfolio = Portfolio.Create(userId);
+            await dbContext.Portfolios.AddAsync(portfolio, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        return portfolio;
     }
 
     public async Task RecordCryptoTradeAsync(

@@ -29,17 +29,20 @@ public sealed class ChatRepository(AppDbContext dbContext) : IChatRepository
     public async Task AddAsync(ChatSession session, CancellationToken cancellationToken = default)
     {
         await dbContext.ChatSessions.AddAsync(session, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task UpdateAsync(ChatSession session, CancellationToken cancellationToken = default)
+    public async Task<Task> UpdateAsync(ChatSession session, CancellationToken cancellationToken = default)
     {
         dbContext.ChatSessions.Update(session);
+        await dbContext.SaveChangesAsync(cancellationToken);
         return Task.CompletedTask;
     }
 
-    public Task DeleteAsync(ChatSession session, CancellationToken cancellationToken = default)
+    public async Task<Task> DeleteAsync(ChatSession session, CancellationToken cancellationToken = default)
     {
         dbContext.ChatSessions.Remove(session);
+        await dbContext.SaveChangesAsync(cancellationToken);
         return Task.CompletedTask;
     }
 }
