@@ -13,6 +13,6 @@ public interface IChatRepository
     public Task<IReadOnlyCollection<ChatSession>> ListByUserIdAsync(int userId, CancellationToken cancellationToken = default);
     public Task<ChatSession?> GetByIdAsync(int sessionId, CancellationToken cancellationToken = default);
     public Task AddAsync(ChatSession session, CancellationToken cancellationToken = default);
-    public Task UpdateAsync(ChatSession session, CancellationToken cancellationToken = default);
-    public Task DeleteAsync(ChatSession session, CancellationToken cancellationToken = default);
+    public Task<Task> UpdateAsync(ChatSession session, CancellationToken cancellationToken = default);
+    public Task<Task> DeleteAsync(ChatSession session, CancellationToken cancellationToken = default);
 }

@@ -30,7 +30,7 @@ public sealed class ChatServiceTests
 
         _chatRepositoryMock
             .Setup(repository => repository.UpdateAsync(session, cancellationToken))
-            .Returns(Task.CompletedTask);
+            .Returns(Task.FromResult(Task.CompletedTask));
 
         _unitOfWorkMock
             .Setup(uow => uow.SaveChangesAsync(cancellationToken))
@@ -80,7 +80,7 @@ public sealed class ChatServiceTests
 
         _chatRepositoryMock
             .Setup(repository => repository.UpdateAsync(session, cancellationToken))
-            .Returns(Task.CompletedTask);
+            .Returns(Task.FromResult(Task.CompletedTask));
 
         _unitOfWorkMock
             .Setup(uow => uow.SaveChangesAsync(cancellationToken))

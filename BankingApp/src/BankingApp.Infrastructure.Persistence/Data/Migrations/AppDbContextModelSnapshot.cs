@@ -825,7 +825,9 @@ namespace BankingApp.Infrastructure.Persistence.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("FundingAccountId")
+                    b.Property<int?>("" +
+                                     "FundingAccount" +
+                                     "Id")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("MaturityDate")
