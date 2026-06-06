@@ -19,10 +19,11 @@ public sealed class SavingsAccount : AggregateRoot<int>
     private readonly List<AutoDeposit> _autoDeposits = [];
     private readonly List<SavingsTransaction> _transactions = [];
 
+
+    [System.Text.Json.Serialization.JsonConstructor]
     private SavingsAccount()
     {
     }
-
     private SavingsAccount(
         int userId,
         SavingsType savingsType,

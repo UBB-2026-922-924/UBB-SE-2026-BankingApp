@@ -139,6 +139,13 @@ public sealed class ApiClient : IApiClient, IDisposable
                 return await MapErrorAsync(operation, endpoint, response, cancellationToken);
             }
 
+            if (typeof(TResponse) == typeof(string))
+            {
+                string raw = await response.Content.ReadAsStringAsync(cancellationToken);
+                string trimmed = raw.Trim('"');
+                return (TResponse)(object)trimmed;
+            }
+
             TResponse? result = await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
             if (result is null)
             {
