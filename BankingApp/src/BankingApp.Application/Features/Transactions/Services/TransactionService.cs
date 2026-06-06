@@ -225,6 +225,25 @@ public sealed class TransactionService(
         };
     }
 
+    private static TransactionHistoryRequest NormalizeRequest(TransactionExportRequest request)
+    {
+        return new TransactionHistoryRequest
+        {
+            SearchTerm = request.SearchTerm?.Trim(),
+            FromDate = request.FromDate,
+            ToDate = request.ToDate,
+            TransactionType = NormalizeOptionalValue(request.TransactionType),
+            MinimumAmount = request.MinimumAmount,
+            MaximumAmount = request.MaximumAmount,
+            AccountId = request.AccountId,
+            CardId = request.CardId,
+            Status = NormalizeOptionalValue(request.Status),
+            Direction = NormalizeOptionalValue(request.Direction),
+            SortField = NormalizeSortField(request.SortField),
+            SortDirection = NormalizeSortDirection(request.SortDirection)
+        };
+    }
+
     private static string NormalizeSortField(string? sortField)
     {
         return string.Equals(sortField, TransactionSortFields.Amount, StringComparison.OrdinalIgnoreCase)
