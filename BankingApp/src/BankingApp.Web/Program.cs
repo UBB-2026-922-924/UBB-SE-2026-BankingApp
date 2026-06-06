@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using System.Security.Claims;
 using BankingApp.Contracts.Features.Authentication.Dtos;
 using BankingApp.Contracts.Http;
@@ -17,7 +18,10 @@ string apiBaseUrl = builder.Configuration["ApiBaseUrl"]
 int defaultCookieExpiryTime = 8;
 int defaultLoginExpiryTime = 12;
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AuthorizeFilter());
+});
 builder.Services.AddWebClientServices(apiBaseUrl);
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -30,12 +34,7 @@ builder.Services
         options.ExpireTimeSpan = TimeSpan.FromHours(defaultCookieExpiryTime);
         options.SlidingExpiration = true;
     });
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
+builder.Services.AddAuthorization();
 
 WebApplication app = builder.Build();
 

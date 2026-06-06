@@ -1,7 +1,9 @@
 namespace BankingApp.Web.Controllers;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+[AllowAnonymous]
 public class ErrorController : Controller
 {
     [Route("Error/401")]
