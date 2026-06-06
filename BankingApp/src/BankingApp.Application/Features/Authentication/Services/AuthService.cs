@@ -50,7 +50,7 @@ public sealed class AuthService(
 
         if (identity.IsLocked)
         {
-            if (identity.IsCurrentlyLocked())
+            if (identity.IsCurrentlyLocked(clock.UtcNow))
             {
                 ApplicationLogMessages.LoginBlockedLockedAccount(logger, user.Id, identity.LockoutEnd);
                 return AuthErrors.AccountLocked;

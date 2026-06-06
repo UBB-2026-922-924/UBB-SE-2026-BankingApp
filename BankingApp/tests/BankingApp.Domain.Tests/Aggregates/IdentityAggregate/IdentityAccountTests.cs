@@ -1,23 +1,50 @@
 namespace BankingApp.Domain.Tests.Aggregates.IdentityAggregate;
 
+using BankingApp.Domain.Aggregates.IdentityAggregate;
+
 public sealed class IdentityAccountTests
 {
-    [Fact(Skip = "Not implemented yet.")]
+    private static readonly DateTime _now = new(2026, 6, 5, 8, 0, 0, DateTimeKind.Utc);
+
+    [Fact]
     public void IsCurrentlyLocked_WhenLockedWithFutureLockoutEnd_ShouldReturnTrue()
     {
-        throw new NotImplementedException();
+        // Arrange
+        var identity = IdentityAccount.Create(userId: 1, passwordHash: null);
+        identity.LockAccount(_now.AddMinutes(15));
+
+        // Act
+        bool isLocked = identity.IsCurrentlyLocked(_now);
+
+        // Assert
+        isLocked.Should().BeTrue();
     }
 
-    [Fact(Skip = "Not implemented yet.")]
+    [Fact]
     public void IsCurrentlyLocked_WhenLockedWithPastLockoutEnd_ShouldReturnFalse()
     {
-        throw new NotImplementedException();
+        // Arrange
+        var identity = IdentityAccount.Create(userId: 1, passwordHash: null);
+        identity.LockAccount(_now.AddMinutes(-1));
+
+        // Act
+        bool isLocked = identity.IsCurrentlyLocked(_now);
+
+        // Assert
+        isLocked.Should().BeFalse();
     }
 
-    [Fact(Skip = "Not implemented yet.")]
+    [Fact]
     public void IsCurrentlyLocked_WhenNotLocked_ShouldReturnFalse()
     {
-        throw new NotImplementedException();
+        // Arrange
+        var identity = IdentityAccount.Create(userId: 1, passwordHash: null);
+
+        // Act
+        bool isLocked = identity.IsCurrentlyLocked(_now);
+
+        // Assert
+        isLocked.Should().BeFalse();
     }
 
     [Fact(Skip = "Not implemented yet.")]

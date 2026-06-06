@@ -39,7 +39,7 @@ public sealed class IdentityAccount : AggregateRoot<int>
         };
     }
 
-    public bool IsCurrentlyLocked() => IsLocked && LockoutEnd.HasValue && LockoutEnd.Value > DateTime.UtcNow;
+    public bool IsCurrentlyLocked(DateTime now) => IsLocked && LockoutEnd.HasValue && LockoutEnd.Value > now;
 
     public void IncrementFailedAttempts() => FailedLoginAttempts++;
 

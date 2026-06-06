@@ -93,6 +93,8 @@ public sealed class AuthServiceTests
         (User user, IdentityAccount identity) = MockFactory.CreateUserWithIdentityAccount(TestEmail, PasswordHash, _testNow);
         identity.LockAccount(_testNow.AddMinutes(15));
 
+        _clockMock.Setup(clock => clock.UtcNow).Returns(_testNow);
+
         _userRepositoryMock
             .Setup(repository => repository.GetByEmailAsync(It.Is<Email>(email => email.Value == TestEmail), cancellationToken))
             .ReturnsAsync(user);
