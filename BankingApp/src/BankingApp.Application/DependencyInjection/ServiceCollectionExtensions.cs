@@ -45,6 +45,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISavingsService, SavingsService>();
         services.AddScoped<ILoansService, LoansService>();
         services.AddScoped<IStatisticsService, StatisticsService>();
+        services.AddScoped<ITransactionService, TransactionService>();
         return services;
     }
 }
