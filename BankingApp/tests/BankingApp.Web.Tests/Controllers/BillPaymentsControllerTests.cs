@@ -175,4 +175,42 @@ public sealed class BillPaymentsControllerTests : IDisposable
         _billerServiceMock.VerifyAll();
         _billPaymentServiceMock.VerifyAll();
     }
+
+    [Fact]
+    public async Task RemoveSavedBiller_WhenSuccess_ShouldSetSuccessTempDataAndRedirectToIndex()
+    {
+        // Arrange
+        _billerServiceMock
+            .Setup(service => service.DeleteSavedBillerAsync(5, CancellationToken.None))
+            .ReturnsAsync(Result.Success);
+
+        // Act
+        IActionResult result = await _controller.RemoveSavedBiller(5, CancellationToken.None);
+
+        // Assert
+        RedirectToActionResult redirect = result.Should().BeOfType<RedirectToActionResult>().Subject;
+        redirect.ActionName.Should().Be("Index");
+        _controller.TempData["Success"].Should().Be("Saved biller removed.");
+
+        _billerServiceMock.VerifyAll();
+    }
+
+    [Fact]
+    public async Task RemoveSavedBiller_WhenServiceFails_ShouldSetErrorTempDataAndRedirectToIndex()
+    {
+        // Arrange
+        _billerServiceMock
+            .Setup(service => service.DeleteSavedBillerAsync(5, CancellationToken.None))
+            .ReturnsAsync(Error.NotFound("saved_biller_not_found", "Saved biller not found."));
+
+        // Act
+        IActionResult result = await _controller.RemoveSavedBiller(5, CancellationToken.None);
+
+        // Assert
+        RedirectToActionResult redirect = result.Should().BeOfType<RedirectToActionResult>().Subject;
+        redirect.ActionName.Should().Be("Index");
+        _controller.TempData["Error"].Should().Be("Could not remove saved biller.");
+
+        _billerServiceMock.VerifyAll();
+    }
 }

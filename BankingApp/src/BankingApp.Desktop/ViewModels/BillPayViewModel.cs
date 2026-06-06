@@ -20,6 +20,7 @@ public partial class BillPayViewModel : ObservableObject
     private const int MinimumBillers = 0;
     private const int MinimumAmount = 0;
     private const int NoFee = 0;
+    private const string AllCategoriesOption = "All categories";
 
     private readonly IBillPaymentService _billPaymentService;
     private readonly IBillerService _billerService;
@@ -81,7 +82,8 @@ public partial class BillPayViewModel : ObservableObject
     /// <summary>Gets or sets the saved billers for the current user.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSavedBillers))]
-    [NotifyPropertyChangedFor(nameof(SavedBillersVisibility))]
+    [NotifyPropertyChangedFor(nameof(SavedBillersListVisibility))]
+    [NotifyPropertyChangedFor(nameof(EmptySavedBillersVisibility))]
     public partial ObservableCollection<SavedBillerDto> SavedBillers { get; set; }
 
     /// <summary>Gets or sets the source accounts available for payment.</summary>
@@ -165,9 +167,13 @@ public partial class BillPayViewModel : ObservableObject
     /// <summary>Gets a value indicating whether any saved billers are available.</summary>
     public bool HasSavedBillers => SavedBillers.Count > MinimumBillers;
 
-    /// <summary>Gets the visibility of the saved billers section.</summary>
-    public Visibility SavedBillersVisibility =>
+    /// <summary>Gets the visibility of the saved billers list.</summary>
+    public Visibility SavedBillersListVisibility =>
         HasSavedBillers ? Visibility.Visible : Visibility.Collapsed;
+
+    /// <summary>Gets the visibility of the empty-state message shown when no billers are saved.</summary>
+    public Visibility EmptySavedBillersVisibility =>
+        HasSavedBillers ? Visibility.Collapsed : Visibility.Visible;
 
     /// <summary>Gets the selected biller display name.</summary>
     public string SelectedBillerName => SelectedBiller?.Name ?? "No biller selected";

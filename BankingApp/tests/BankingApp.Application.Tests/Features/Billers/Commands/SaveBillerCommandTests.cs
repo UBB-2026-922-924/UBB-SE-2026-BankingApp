@@ -46,7 +46,7 @@ public sealed class SaveBillerCommandTests
     }
 
     [Fact]
-    public async Task Handle_WhenBillerAlreadySaved_ShouldReturnBillerAlreadySavedErrorAndNotPersist()
+    public async Task Handle_WhenBillerAlreadySaved_ShouldUpdateReferenceAndPersistWithoutCreating()
     {
         // Arrange
         CancellationToken cancellationToken = new CancellationTokenSource().Token;
@@ -61,21 +61,69 @@ public sealed class SaveBillerCommandTests
             .Setup(repository => repository.ListByUserIdAsync(TestUserId, cancellationToken))
             .ReturnsAsync([savedBiller]);
 
+        _savedBillerRepositoryMock
+            .Setup(repository => repository.UpdateAsync(savedBiller, cancellationToken))
+            .Returns(Task.CompletedTask);
+
+        _unitOfWorkMock
+            .Setup(uow => uow.SaveChangesAsync(cancellationToken))
+            .Returns(Task.CompletedTask);
+
         BillerService service = CreateService();
 
         // Act
-        ErrorOr<SavedBillerDto> result = await service.SaveBillerAsync(TestUserId, TestBillerId, "Power", "ACC-123", cancellationToken);
+        ErrorOr<SavedBillerDto> result = await service.SaveBillerAsync(TestUserId, TestBillerId, "Power", "NEW-REF", cancellationToken);
 
         // Assert
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(BillerErrors.BillerAlreadySaved);
+        result.IsError.Should().BeFalse();
+        result.Value.DefaultReference.Should().Be("NEW-REF");
+        savedBiller.DefaultReference.Should().Be("NEW-REF");
 
         _billerRepositoryMock.Verify(repository => repository.GetByIdAsync(TestBillerId, cancellationToken), Times.Once);
         _savedBillerRepositoryMock.Verify(repository => repository.ListByUserIdAsync(TestUserId, cancellationToken), Times.Once);
+        _savedBillerRepositoryMock.Verify(repository => repository.UpdateAsync(savedBiller, cancellationToken), Times.Once);
+        _savedBillerRepositoryMock.Verify(repository => repository.AddAsync(It.IsAny<SavedBiller>(), cancellationToken), Times.Never);
+        _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(cancellationToken), Times.Once);
         _billerRepositoryMock.VerifyNoOtherCalls();
         _savedBillerRepositoryMock.VerifyNoOtherCalls();
         _unitOfWorkMock.VerifyNoOtherCalls();
         _clockMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Handle_WhenBillerAlreadySavedAndReferenceOmitted_ShouldPreserveStoredReference()
+    {
+        // Arrange
+        CancellationToken cancellationToken = new CancellationTokenSource().Token;
+        Biller biller = CreateBiller();
+        SavedBiller savedBiller = CreateSavedBiller(TestUserId, TestBillerId);
+
+        _billerRepositoryMock
+            .Setup(repository => repository.GetByIdAsync(TestBillerId, cancellationToken))
+            .ReturnsAsync(biller);
+
+        _savedBillerRepositoryMock
+            .Setup(repository => repository.ListByUserIdAsync(TestUserId, cancellationToken))
+            .ReturnsAsync([savedBiller]);
+
+        _savedBillerRepositoryMock
+            .Setup(repository => repository.UpdateAsync(savedBiller, cancellationToken))
+            .Returns(Task.CompletedTask);
+
+        _unitOfWorkMock
+            .Setup(uow => uow.SaveChangesAsync(cancellationToken))
+            .Returns(Task.CompletedTask);
+
+        BillerService service = CreateService();
+
+        // Act
+        ErrorOr<SavedBillerDto> result = await service.SaveBillerAsync(TestUserId, TestBillerId, null, null, cancellationToken);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.DefaultReference.Should().Be("ACC-123");
+        savedBiller.DefaultReference.Should().Be("ACC-123");
+        savedBiller.Nickname.Should().Be("Power");
     }
 
     [Fact]

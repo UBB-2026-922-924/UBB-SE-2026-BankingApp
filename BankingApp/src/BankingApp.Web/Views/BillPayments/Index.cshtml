@@ -7,6 +7,10 @@
         .Distinct()
         .OrderBy(category => category)
         .ToList();
+
+    var savedReferenceByBillerId = Model.SavedBillers
+        .GroupBy(savedBiller => savedBiller.BillerId)
+        .ToDictionary(group => group.Key, group => group.First().DefaultReference ?? string.Empty);
 }
 
 <div class="page-header d-flex justify-content-between align-items-center">
@@ -41,7 +45,45 @@
                     <div class="list-group list-group-flush saved-billers-list" id="savedBillersList">
                         @foreach (var savedBiller in Model.SavedBillers)
                         {
-                            <partial name="_BillerCard" model="@BillerCardViewModel.FromSavedBiller(savedBiller)" />
+                            var card = BillerCardViewModel.FromSavedBiller(savedBiller);
+                            <div class="list-group-item d-flex align-items-center gap-1 p-0">
+                                <button type="button"
+                                        class="saved-biller-item flex-grow-1 d-flex align-items-center gap-3 text-start border-0 bg-transparent py-3 ps-3 pe-1 m-0 overflow-hidden"
+                                        data-biller-id="@card.BillerId"
+                                        data-biller-ref="@card.DefaultReference"
+                                        title="Click to pre-fill the form">
+                                    @if (!string.IsNullOrWhiteSpace(card.LogoUrl))
+                                    {
+                                        <img src="@card.LogoUrl" alt="@card.DisplayName"
+                                             class="rounded flex-shrink-0" width="36" height="36"
+                                             style="object-fit:contain;" />
+                                    }
+                                    else
+                                    {
+                                        <span class="biller-icon-placeholder rounded d-flex align-items-center justify-content-center flex-shrink-0"
+                                              style="width:36px;height:36px;background:var(--ba-surface);">
+                                            <i class="bi bi-building text-primary"></i>
+                                        </span>
+                                    }
+                                    <span class="flex-grow-1 overflow-hidden">
+                                        <span class="d-block fw-600 text-truncate small">@card.DisplayName</span>
+                                        <span class="d-block text-muted-sm text-truncate">@card.Category</span>
+                                    </span>
+                                </button>
+                                <form asp-controller="BillPayments"
+                                      asp-action="RemoveSavedBiller"
+                                      asp-route-savedBillerId="@savedBiller.Id"
+                                      method="post"
+                                      class="flex-shrink-0 pe-2">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="btn btn-link text-danger p-1 lh-1 d-flex align-items-center saved-biller-remove"
+                                            title="Remove saved biller"
+                                            aria-label="Remove saved biller">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+                            </div>
                         }
                     </div>
                 }
@@ -90,19 +132,31 @@
                         <label asp-for="SelectedBillerId" class="form-label">
                             <i class="bi bi-building me-1"></i>Biller
                         </label>
-                        <select asp-for="SelectedBillerId"
-                                class="form-select"
-                                id="billerSelect">
-                            <option value="0">— Select a biller —</option>
+                        <input type="hidden" asp-for="SelectedBillerId" id="selectedBillerId" />
+                        <div class="list-group biller-listview border rounded"
+                             id="billerListView"
+                             style="max-height: 280px; overflow-y: auto;">
                             @foreach (var biller in Model.AllBillers)
                             {
-                                <option value="@biller.Id"
+                                var isSaved = savedReferenceByBillerId.ContainsKey(biller.Id);
+                                var savedRef = isSaved ? savedReferenceByBillerId[biller.Id] : string.Empty;
+                                <button type="button"
+                                        class="list-group-item list-group-item-action biller-list-item d-flex justify-content-between align-items-center"
+                                        data-biller-id="@biller.Id"
+                                        data-name="@biller.Name.ToLowerInvariant()"
                                         data-category="@biller.Category"
-                                        data-name="@biller.Name.ToLowerInvariant()">
-                                    @biller.Name (@biller.Category)
-                                </option>
+                                        data-saved="@isSaved.ToString().ToLowerInvariant()"
+                                        data-biller-ref="@savedRef">
+                                    <span class="text-truncate">
+                                        <i class="bi bi-building me-2 text-primary"></i>@biller.Name
+                                    </span>
+                                    <span class="badge bg-light text-secondary ms-2">@biller.Category</span>
+                                </button>
                             }
-                        </select>
+                        </div>
+                        <div class="text-muted small mt-1 d-none" id="noBillersHint">
+                            <i class="bi bi-info-circle me-1"></i>No billers match your search.
+                        </div>
                         <span asp-validation-for="SelectedBillerId" class="invalid-feedback d-block"></span>
                     </div>
 
@@ -122,7 +176,7 @@
                                     : "no card";
                                 <option value="@account.Id"
                                         data-currency="@account.Currency">
-                                    @account.AccountName — @cardDisplay (@account.Currency) | Balance: @account.Balance.ToString("N2")
+                                    @account.Iban — @cardDisplay (@account.Currency) | Balance: @account.Balance.ToString("N2")
                                 </option>
                             }
                         </select>
@@ -196,44 +250,87 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Pre-fill form when a saved biller card is clicked
+        const billerSearch = document.getElementById('billerSearch');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const billerListView = document.getElementById('billerListView');
+        const billerItems = Array.from(billerListView.querySelectorAll('.biller-list-item'));
+        const selectedBillerIdInput = document.getElementById('selectedBillerId');
+        const billerRefInput = document.getElementById('billerRef');
+        const saveBillerToggle = document.getElementById('shouldSaveBiller');
+        const noBillersHint = document.getElementById('noBillersHint');
+
+        // Select a biller from the list view, reflecting its saved state on the toggle.
+        function selectBiller(item, prefillReference) {
+            billerItems.forEach(other => other.classList.remove('active'));
+            item.classList.add('active');
+            selectedBillerIdInput.value = item.dataset.billerId;
+
+            const isSaved = item.dataset.saved === 'true';
+            saveBillerToggle.checked = isSaved;
+
+            const savedRef = item.dataset.billerRef ?? '';
+            if (prefillReference && isSaved && savedRef !== '') {
+                billerRefInput.value = savedRef;
+            }
+        }
+
+        billerItems.forEach(item => {
+            item.addEventListener('click', () => selectBiller(item, true));
+        });
+
+        // Pre-fill the form and select the matching list item when a saved biller card is clicked.
         document.querySelectorAll('.saved-biller-item').forEach(btn => {
             btn.addEventListener('click', () => {
                 const billerId = btn.dataset.billerId;
                 const billerRef = btn.dataset.billerRef ?? '';
-                document.getElementById('billerSelect').value = billerId;
-                document.getElementById('billerRef').value = billerRef;
+                const match = billerItems.find(item => item.dataset.billerId === billerId);
+                if (match) {
+                    selectBiller(match, false);
+                    match.scrollIntoView({ block: 'nearest' });
+                }
+                billerRefInput.value = billerRef;
                 document.getElementById('amountInput').focus();
                 document.querySelectorAll('.saved-biller-item').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             });
         });
 
-        // Biller search and category filter
-        const billerSearch = document.getElementById('billerSearch');
-        const categoryFilter = document.getElementById('categoryFilter');
-        const billerSelect = document.getElementById('billerSelect');
-
+        // Biller search and category filter narrow the visible list items.
         function filterBillers() {
             const searchText = billerSearch.value.toLowerCase();
             const selectedCategory = categoryFilter.value.toLowerCase();
-            const options = billerSelect.querySelectorAll('option[data-name]');
-            options.forEach(option => {
-                const billerName = option.dataset.name ?? '';
-                const billerCategory = (option.dataset.category ?? '').toLowerCase();
+            let visibleCount = 0;
+            billerItems.forEach(item => {
+                const billerName = item.dataset.name ?? '';
+                const billerCategory = (item.dataset.category ?? '').toLowerCase();
                 const matchesSearch = searchText === '' || billerName.includes(searchText);
                 const matchesCategory = selectedCategory === '' || billerCategory === selectedCategory;
-                option.hidden = !(matchesSearch && matchesCategory);
+                item.classList.toggle('d-none', !(matchesSearch && matchesCategory));
+                if (matchesSearch && matchesCategory) {
+                    visibleCount++;
+                }
             });
-            // Reset selection if the currently selected option is now hidden
-            const selectedOption = billerSelect.options[billerSelect.selectedIndex];
-            if (selectedOption && selectedOption.hidden) {
-                billerSelect.value = '0';
+            noBillersHint.classList.toggle('d-none', visibleCount > 0);
+
+            // Clear the selection if the currently selected biller is now hidden.
+            const selected = billerItems.find(item => item.classList.contains('active'));
+            if (selected && selected.classList.contains('d-none')) {
+                selected.classList.remove('active');
+                selectedBillerIdInput.value = '0';
             }
         }
 
         billerSearch.addEventListener('input', filterBillers);
         categoryFilter.addEventListener('change', filterBillers);
+
+        // Restore the highlighted item when the form re-renders with a chosen biller.
+        const initialBillerId = selectedBillerIdInput.value;
+        if (initialBillerId && initialBillerId !== '0') {
+            const initialMatch = billerItems.find(item => item.dataset.billerId === initialBillerId);
+            if (initialMatch) {
+                initialMatch.classList.add('active');
+            }
+        }
 
         // Update currency symbol when account is selected
         const accountSelect = document.getElementById('accountSelect');

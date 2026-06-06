@@ -86,14 +86,22 @@ public sealed class BillerService(
         }
 
         IReadOnlyCollection<SavedBiller> existing = await savedBillerRepository.ListByUserIdAsync(userId, cancellationToken);
-        if (existing.Any(s => s.BillerId == billerId))
+        SavedBiller? saved = existing.FirstOrDefault(s => s.BillerId == billerId);
+
+        // Upsert: re-saving an existing biller updates its nickname and reference so that
+        // edits made from the payment form persist into the saved profile. Null values
+        // preserve the stored ones, keeping the biller-directory "save" action non-destructive.
+        if (saved is null)
         {
-            return BillerErrors.BillerAlreadySaved;
+            saved = SavedBiller.Create(userId, billerId, nickname, defaultReference, clock.UtcNow);
+            await savedBillerRepository.AddAsync(saved, cancellationToken);
+        }
+        else
+        {
+            saved.Update(nickname ?? saved.Nickname, defaultReference ?? saved.DefaultReference);
+            await savedBillerRepository.UpdateAsync(saved, cancellationToken);
         }
 
-        var saved = SavedBiller.Create(userId, billerId, nickname, defaultReference, clock.UtcNow);
-
-        await savedBillerRepository.AddAsync(saved, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new SavedBillerDto

@@ -114,6 +114,32 @@ public partial class BillPayViewModel
     {
         ErrorMessage = string.Empty;
         ResetFormStateOnly();
+
+        // Refresh the biller list so the cleared search/category filters take effect.
+        ExecuteSearch();
+    }
+
+    internal async Task ExecuteRemoveSavedBillerAsync(SavedBillerDto? savedBiller)
+    {
+        if (savedBiller == null)
+        {
+            return;
+        }
+
+        ErrorMessage = string.Empty;
+
+        ErrorOr<Success> result = await _billerService.DeleteSavedBillerAsync(savedBiller.Id);
+        if (result.IsError)
+        {
+            ErrorMessage = $"Failed to remove saved biller: {result.FirstError.Description}";
+            return;
+        }
+
+        SavedBillerDto? existing = SavedBillers.FirstOrDefault(saved => saved.Id == savedBiller.Id);
+        if (existing != null)
+        {
+            SavedBillers.Remove(existing);
+        }
     }
 
     private async Task LoadBillersAsync()
@@ -143,14 +169,20 @@ public partial class BillPayViewModel
         }
     }
 
-    private async Task SearchBillersAsync()
+    internal async Task SearchBillersAsync()
     {
         try
         {
             ErrorMessage = string.Empty;
-            ErrorOr<List<BillerDto>> result = await _billerService.GetBillersAsync(SearchQuery, SelectedCategory);
 
-            if (!result.IsError)
+            // "All categories" is a sentinel meaning no category filter.
+            string? category = string.Equals(SelectedCategory, AllCategoriesOption, StringComparison.OrdinalIgnoreCase)
+                ? null
+                : SelectedCategory;
+
+            ErrorOr<List<BillerDto>> result = await _billerService.GetBillersAsync(SearchQuery, category);
+
+            if (!result.IsError && result.Value is not null)
             {
                 Billers = new ObservableCollection<BillerDto>(result.Value);
             }
@@ -246,11 +278,11 @@ public partial class BillPayViewModel
             return;
         }
 
-        bool alreadySaved = SavedBillers.Any(savedBiller =>
+        bool alreadySavedWithSameReference = SavedBillers.Any(savedBiller =>
             savedBiller.BillerId == SelectedBiller.Id &&
             string.Equals(savedBiller.DefaultReference, BillerReference, StringComparison.OrdinalIgnoreCase));
 
-        if (alreadySaved)
+        if (alreadySavedWithSameReference)
         {
             return;
         }
@@ -263,7 +295,20 @@ public partial class BillPayViewModel
         };
 
         ErrorOr<SavedBillerDto> saveResult = await _billerService.SaveBillerAsync(saveRequest);
-        if (!saveResult.IsError)
+        if (saveResult.IsError)
+        {
+            return;
+        }
+
+        // The save endpoint upserts, so replace any existing entry for this biller instead of
+        // appending a duplicate when only the reference changed.
+        SavedBillerDto? existing = SavedBillers.FirstOrDefault(savedBiller => savedBiller.BillerId == saveResult.Value.BillerId);
+        if (existing != null)
+        {
+            int index = SavedBillers.IndexOf(existing);
+            SavedBillers[index] = saveResult.Value;
+        }
+        else
         {
             SavedBillers.Add(saveResult.Value);
         }
@@ -293,12 +338,17 @@ public partial class BillPayViewModel
 
     private void ApplySavedDefaultsForSelectedBiller()
     {
-        if (SelectedBiller == null || SavedBillers.Count == MinimumBillers)
+        if (SelectedBiller == null)
         {
+            ShouldSaveBiller = false;
             return;
         }
 
         SavedBillerDto? matchingSaved = SavedBillers.FirstOrDefault(s => s.BillerId == SelectedBiller.Id);
+
+        // Reflect whether this biller is already saved so the toggle starts in the right state.
+        ShouldSaveBiller = matchingSaved != null;
+
         if (matchingSaved != null &&
             string.IsNullOrWhiteSpace(BillerReference) &&
             !string.IsNullOrWhiteSpace(matchingSaved.DefaultReference))
