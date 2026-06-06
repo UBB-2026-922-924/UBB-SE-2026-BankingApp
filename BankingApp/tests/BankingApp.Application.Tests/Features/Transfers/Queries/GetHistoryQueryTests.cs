@@ -19,7 +19,7 @@ public sealed class GetHistoryQueryTests
     private readonly Mock<ITransferRepository> _transferRepositoryMock = new(MockBehavior.Strict);
 
     [Fact]
-    public async Task GetHistoryAsync_WhenTransferHasReference_MapsReferenceToResponse()
+    public async Task GetHistoryAsync_WhenTransferHasReference_ShouldMapReferenceToResponse()
     {
         // Arrange
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
@@ -45,7 +45,7 @@ public sealed class GetHistoryQueryTests
     }
 
     [Fact]
-    public async Task GetHistoryAsync_WhenTransferHasNoReference_ResponseReferenceIsNull()
+    public async Task GetHistoryAsync_WhenTransferHasNoReference_ShouldSetReferenceToNull()
     {
         // Arrange
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;

@@ -12,7 +12,7 @@ public sealed class TransactionRowViewModelTests
     [InlineData("failed",     "bg-danger")]
     [InlineData("cancelled",  "bg-secondary")]
     [InlineData("unknown",    "bg-secondary")]
-    public void StatusBadgeCssClass_ReturnsExpectedClass(string status, string expectedClass)
+    public void StatusBadgeCssClass_WhenStatusProvided_ShouldReturnExpectedClass(string status, string expectedClass)
     {
         TransactionRowViewModel viewModel = new() { Status = status };
 
@@ -20,7 +20,7 @@ public sealed class TransactionRowViewModelTests
     }
 
     [Fact]
-    public void AmountCssClass_WhenDebit_ReturnsDebitClass()
+    public void AmountCssClass_WhenDebit_ShouldReturnDebitClass()
     {
         TransactionRowViewModel viewModel = new() { IsDebit = true };
 
@@ -28,7 +28,7 @@ public sealed class TransactionRowViewModelTests
     }
 
     [Fact]
-    public void AmountCssClass_WhenCredit_ReturnsCreditClass()
+    public void AmountCssClass_WhenCredit_ShouldReturnCreditClass()
     {
         TransactionRowViewModel viewModel = new() { IsDebit = false };
 
@@ -36,7 +36,7 @@ public sealed class TransactionRowViewModelTests
     }
 
     [Fact]
-    public void FromBillPayment_MapsAllFields()
+    public void FromBillPayment_WhenBillPaymentProvided_ShouldMapAllFields()
     {
         var billPayment = new BillPaymentRowModel()
         {

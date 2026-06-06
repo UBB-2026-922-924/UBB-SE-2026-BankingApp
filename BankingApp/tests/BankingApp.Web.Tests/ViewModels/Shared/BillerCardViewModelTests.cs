@@ -6,7 +6,7 @@ using BankingApp.Web.ViewModels.Shared;
 public sealed class BillerCardViewModelTests
 {
     [Fact]
-    public void FromSavedBiller_MapsAllFields()
+    public void FromSavedBiller_WhenSavedBillerProvided_ShouldMapAllFields()
     {
         var biller = new SavedBillerDto()
         {
@@ -28,7 +28,7 @@ public sealed class BillerCardViewModelTests
     }
 
     [Fact]
-    public void FromSavedBiller_WhenNicknameIsSet_UsesNicknameAsDisplayName()
+    public void FromSavedBiller_WhenNicknameIsSet_ShouldUseNicknameAsDisplayName()
     {
         var biller = new SavedBillerDto()
         {
@@ -42,7 +42,7 @@ public sealed class BillerCardViewModelTests
     }
 
     [Fact]
-    public void FromSavedBiller_WhenBillerHasCategory_UsesBillerCategory()
+    public void FromSavedBiller_WhenBillerHasCategory_ShouldUseBillerCategory()
     {
         var billerDetail = new BillerDto { Category = "Utilities Premium" };
         var biller = new SavedBillerDto()

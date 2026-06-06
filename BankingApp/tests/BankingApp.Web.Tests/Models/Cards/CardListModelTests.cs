@@ -6,7 +6,7 @@ using BankingApp.Web.Models.Cards;
 public sealed class CardListModelTests
 {
     [Fact]
-    public void HasCards_WhenCardsListIsEmpty_ReturnsFalse()
+    public void HasCards_WhenCardsListIsEmpty_ShouldReturnFalse()
     {
         CardListModel model = new() { Cards = [] };
 
@@ -14,7 +14,7 @@ public sealed class CardListModelTests
     }
 
     [Fact]
-    public void HasCards_WhenCardsListHasOneEntry_ReturnsTrue()
+    public void HasCards_WhenCardsListHasOneEntry_ShouldReturnTrue()
     {
         CardListModel model = new()
         {
@@ -25,7 +25,7 @@ public sealed class CardListModelTests
     }
 
     [Fact]
-    public void HasCards_WhenCardsListHasMultipleEntries_ReturnsTrue()
+    public void HasCards_WhenCardsListHasMultipleEntries_ShouldReturnTrue()
     {
         CardListModel model = new()
         {

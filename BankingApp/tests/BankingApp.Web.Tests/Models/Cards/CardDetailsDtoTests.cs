@@ -5,7 +5,7 @@ using BankingApp.Contracts.Features.Cards.Dtos;
 public sealed class CardDetailsDtoTests
 {
     [Fact]
-    public void BalanceDisplay_WhenCurrencyIsSet_ReturnsFormattedAmountWithCurrency()
+    public void BalanceDisplay_WhenCurrencyIsSet_ShouldReturnFormattedAmountWithCurrency()
     {
         CardDetailsDto dto = new() { AccountBalance = 1250.75m, AccountCurrency = "USD" };
 
@@ -13,7 +13,7 @@ public sealed class CardDetailsDtoTests
     }
 
     [Fact]
-    public void BalanceDisplay_WhenCurrencyIsEmpty_ReturnsFormattedAmountOnly()
+    public void BalanceDisplay_WhenCurrencyIsEmpty_ShouldReturnFormattedAmountOnly()
     {
         CardDetailsDto dto = new() { AccountBalance = 500.00m, AccountCurrency = string.Empty };
 
@@ -21,7 +21,7 @@ public sealed class CardDetailsDtoTests
     }
 
     [Fact]
-    public void BalanceDisplay_WhenBalanceIsZero_ReturnsZeroWithCurrency()
+    public void BalanceDisplay_WhenBalanceIsZero_ShouldReturnZeroWithCurrency()
     {
         CardDetailsDto dto = new() { AccountBalance = 0m, AccountCurrency = "EUR" };
 

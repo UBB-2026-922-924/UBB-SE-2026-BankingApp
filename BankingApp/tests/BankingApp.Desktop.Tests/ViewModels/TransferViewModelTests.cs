@@ -41,7 +41,7 @@ public class TransferViewModelTests
     /// </summary>
     /// <returns>A <see cref="Task" /> representing the result of the asynchronous operation.</returns>
     [Fact]
-    public async Task LoadAccountsAsync_WhenApiReturnsAccounts_PopulatesAccountsAndSelectsFirst()
+    public async Task LoadAccountsAsync_WhenApiReturnsAccounts_ShouldPopulateAccountsAndSelectFirst()
     {
         // Arrange
         var accounts = new List<TransferAccountSelectionResponse>
@@ -70,7 +70,7 @@ public class TransferViewModelTests
     /// </summary>
     /// <returns>A <see cref="Task" /> representing the result of the asynchronous operation.</returns>
     [Fact]
-    public async Task LoadAccountsAsync_WhenApiFails_SetsErrorMessage()
+    public async Task LoadAccountsAsync_WhenApiFails_ShouldSetErrorMessage()
     {
         // Arrange
         _transferClientService
@@ -180,7 +180,7 @@ public class TransferViewModelTests
     /// </summary>
     /// <returns>A <see cref="Task" /> representing the result of the asynchronous operation.</returns>
     [Fact]
-    public async Task ExecuteTransferAsync_WhenApiSucceeds_SetsCompletedStep()
+    public async Task ExecuteTransferAsync_WhenApiSucceeds_ShouldSetCompletedStep()
     {
         // Arrange
         const string expectedRef = "TXN-20260504-0001";
@@ -208,7 +208,7 @@ public class TransferViewModelTests
     /// </summary>
     /// <returns>A <see cref="Task" /> representing the result of the asynchronous operation.</returns>
     [Fact]
-    public async Task ExecuteTransferAsync_WhenApiFails_SetsErrorStep()
+    public async Task ExecuteTransferAsync_WhenApiFails_ShouldSetErrorStep()
     {
         // Arrange
         const string errorDescription = "Insufficient funds.";
@@ -230,7 +230,7 @@ public class TransferViewModelTests
     ///     ExecuteSendAgain should reset all form fields and return to step 1.
     /// </summary>
     [Fact]
-    public async Task ExecuteSendAgain_ResetsAllFieldsAndReturnsToStep1()
+    public async Task ExecuteSendAgain_WhenCalled_ShouldResetAllFieldsAndReturnToStep1()
     {
         // Arrange - set up accounts and dirty state
         var accounts = new List<TransferAccountSelectionResponse>
@@ -270,7 +270,7 @@ public class TransferViewModelTests
     /// </summary>
     /// <returns>A <see cref="Task" /> representing the result of the asynchronous operation.</returns>
     [Fact]
-    public async Task ExecuteTransferAsync_WhenNoAccountSelected_SetsErrorStep()
+    public async Task ExecuteTransferAsync_WhenNoAccountSelected_ShouldSetErrorStep()
     {
         // Arrange
         _viewModel.SelectedAccount = null;

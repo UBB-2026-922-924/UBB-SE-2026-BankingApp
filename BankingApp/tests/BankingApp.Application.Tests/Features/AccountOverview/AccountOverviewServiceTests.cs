@@ -39,7 +39,7 @@ public sealed class AccountOverviewServiceTests
     }
 
     [Fact]
-    public async Task GetDashboard_WhenUserIsNull_ReturnsNotFoundError()
+    public async Task GetDashboardAsync_WhenUserIsNull_ShouldReturnNotFoundError()
     {
         _mockUserRepository.Setup(r => r.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((User)null!);
@@ -51,7 +51,7 @@ public sealed class AccountOverviewServiceTests
     }
 
     [Fact]
-    public async Task GetDashboard_WhenUserExists_ReturnsTransactions()
+    public async Task GetDashboardAsync_WhenUserExists_ShouldReturnTransactions()
     {
 
         var user = User.Register(Email.Create("example@example.com").Value, "full", DateTime.Today);

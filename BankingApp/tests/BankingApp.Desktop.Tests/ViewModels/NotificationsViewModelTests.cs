@@ -13,7 +13,7 @@ public class NotificationsViewModelTests
     private readonly Mock<IProfileService> _profileClientService = new(MockBehavior.Strict);
 
     [Fact]
-    public async Task ToggleNotificationPreference_WhenApiSucceeds_UpdatesPreferenceAndSetsSuccessState()
+    public async Task ToggleNotificationPreference_WhenApiSucceeds_ShouldUpdatePreferenceAndSetSuccessState()
     {
         // Arrange
         var preference = new NotificationPreferenceDto
@@ -40,7 +40,7 @@ public class NotificationsViewModelTests
     }
 
     [Fact]
-    public async Task ToggleNotificationPreference_WhenApiFails_RollsBackPreferenceAndSetsErrorState()
+    public async Task ToggleNotificationPreference_WhenApiFails_ShouldRollbackPreferenceAndSetErrorState()
     {
         // Arrange
         var preference = new NotificationPreferenceDto
@@ -67,7 +67,7 @@ public class NotificationsViewModelTests
     }
 
     [Fact]
-    public async Task LoadNotificationPreferences_WhenApiReturnsPreferences_PopulatesCollection()
+    public async Task LoadNotificationPreferences_WhenApiReturnsPreferences_ShouldPopulateCollection()
     {
         // Arrange
         var preferences = new List<NotificationPreferenceDto>
@@ -92,7 +92,7 @@ public class NotificationsViewModelTests
     }
 
     [Fact]
-    public async Task LoadNotificationPreferences_WhenApiFails_PreservesExistingPreferences()
+    public async Task LoadNotificationPreferences_WhenApiFails_ShouldPreserveExistingPreferences()
     {
         // Arrange
         var existingPreference = new NotificationPreferenceDto
@@ -119,7 +119,7 @@ public class NotificationsViewModelTests
     }
 
     [Fact]
-    public async Task UpdateNotificationPreferences_WhenApiSucceeds_ReplacesPreferencesAndSetsSuccessState()
+    public async Task UpdateNotificationPreferences_WhenApiSucceeds_ShouldReplacePreferencesAndSetSuccessState()
     {
         // Arrange
         var updatedPreferences = new List<NotificationPreferenceDto>
@@ -143,7 +143,7 @@ public class NotificationsViewModelTests
     }
 
     [Fact]
-    public async Task UpdateNotificationPreferences_WhenApiFails_PreservesExistingPreferencesAndSetsErrorState()
+    public async Task UpdateNotificationPreferences_WhenApiFails_ShouldPreserveExistingPreferencesAndSetErrorState()
     {
         // Arrange
         var existingPreference = new NotificationPreferenceDto

@@ -11,7 +11,7 @@ public class RegisterViewModelTests
     private readonly Mock<IAuthenticationService> _authenticationService = new();
 
     [Fact]
-    public async Task Register_WhenEmptyFields_SetsErrorState()
+    public async Task Register_WhenEmptyFields_ShouldSetErrorState()
     {
         // Arrange
         var viewModel = new RegisterViewModel(
@@ -26,7 +26,7 @@ public class RegisterViewModelTests
     }
 
     [Fact]
-    public async Task Register_WhenPasswordMismatch_SetsPasswordMismatchState()
+    public async Task Register_WhenPasswordMismatch_ShouldSetPasswordMismatchState()
     {
         // Arrange
         var viewModel = new RegisterViewModel(
@@ -41,7 +41,7 @@ public class RegisterViewModelTests
     }
 
     [Fact]
-    public async Task Register_WhenWeakPassword_SetsWeakPasswordState()
+    public async Task Register_WhenWeakPassword_ShouldSetWeakPasswordState()
     {
         // Arrange
         var viewModel = new RegisterViewModel(
@@ -56,7 +56,7 @@ public class RegisterViewModelTests
     }
 
     [Fact]
-    public async Task Register_WhenValid_SetsSuccessState()
+    public async Task Register_WhenValid_ShouldSetSuccessState()
     {
         // Arrange
         var viewModel = new RegisterViewModel(
@@ -77,7 +77,7 @@ public class RegisterViewModelTests
     }
 
     [Fact]
-    public async Task Register_WhenEmailConflicts_SetsEmailAlreadyExistsState()
+    public async Task Register_WhenEmailConflicts_ShouldSetEmailAlreadyExistsState()
     {
         // Arrange
         var viewModel = new RegisterViewModel(

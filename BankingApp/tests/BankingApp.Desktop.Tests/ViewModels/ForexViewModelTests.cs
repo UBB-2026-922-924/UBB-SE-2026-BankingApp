@@ -29,7 +29,7 @@ public class ForexViewModelTests
     }
 
     [Fact]
-    public async Task LoadPreviewAsync_WhenSourceCurrencyIsEmpty_SetsError()
+    public async Task LoadPreviewAsync_WhenSourceCurrencyIsEmpty_ShouldSetError()
     {
         // Arrange
         _viewModel.SelectedSourceAccount = new AccountDto { Id = 1 };
@@ -45,7 +45,7 @@ public class ForexViewModelTests
     }
 
     [Fact]
-    public async Task LoadPreviewAsync_WhenTargetCurrencyIsEmpty_SetsError()
+    public async Task LoadPreviewAsync_WhenTargetCurrencyIsEmpty_ShouldSetError()
     {
         // Arrange
         _viewModel.SelectedSourceAccount = new AccountDto { Id = 1 };
@@ -61,7 +61,7 @@ public class ForexViewModelTests
     }
 
     [Fact]
-    public async Task LoadPreviewAsync_WhenAmountIsZero_SetsError()
+    public async Task LoadPreviewAsync_WhenAmountIsZero_ShouldSetError()
     {
         // Arrange
         _viewModel.SelectedSourceAccount = new AccountDto { Id = 1 };
@@ -78,7 +78,7 @@ public class ForexViewModelTests
     }
 
     [Fact]
-    public async Task LoadPreviewAsync_WhenApiSucceeds_PopulatesRateData()
+    public async Task LoadPreviewAsync_WhenApiSucceeds_ShouldPopulateRateData()
     {
         // Arrange
         const decimal expectedRate = 1.12m;
@@ -114,7 +114,7 @@ public class ForexViewModelTests
     }
 
     [Fact]
-    public async Task LoadPreviewAsync_WhenApiFails_SetsErrorMessage()
+    public async Task LoadPreviewAsync_WhenApiFails_ShouldSetErrorMessage()
     {
         // Arrange
         _viewModel.SelectedSourceAccount = new AccountDto { Id = 1 };
@@ -136,7 +136,7 @@ public class ForexViewModelTests
     }
 
     [Fact]
-    public async Task ExecuteExchangeAsync_WhenAmountIsZero_SetsError()
+    public async Task ExecuteExchangeAsync_WhenAmountIsZero_ShouldSetError()
     {
         // Arrange
         _viewModel.SelectedSourceAccount = new AccountDto { Id = 1 };
@@ -153,7 +153,7 @@ public class ForexViewModelTests
     }
 
     [Fact]
-    public async Task ExecuteExchangeAsync_WhenApiSucceeds_SetsTransactionReference()
+    public async Task ExecuteExchangeAsync_WhenApiSucceeds_ShouldSetTransactionReference()
     {
         // Arrange
         const int transactionId = 42;
@@ -178,7 +178,7 @@ public class ForexViewModelTests
     }
 
     [Fact]
-    public async Task ExecuteExchangeAsync_WhenApiFails_SetsErrorMessage()
+    public async Task ExecuteExchangeAsync_WhenApiFails_ShouldSetErrorMessage()
     {
         // Arrange
         _viewModel.SelectedSourceAccount = new AccountDto { Id = 1 };
@@ -200,7 +200,7 @@ public class ForexViewModelTests
     }
 
     [Fact]
-    public void Reset_ClearsAllState()
+    public void Reset_WhenCalled_ShouldClearAllState()
     {
         // Arrange
         _viewModel.SourceCurrency = "EUR";

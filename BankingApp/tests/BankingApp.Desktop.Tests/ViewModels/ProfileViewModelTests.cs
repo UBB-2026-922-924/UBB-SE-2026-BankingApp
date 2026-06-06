@@ -13,7 +13,7 @@ public class ProfileViewModelTests
     private readonly Mock<IProfileService> _profileClientService = new(MockBehavior.Strict);
 
     [Fact]
-    public async Task LoadProfile_WhenApiReturnsProfile_PopulatesProfileDto()
+    public async Task LoadProfile_WhenApiReturnsProfile_ShouldPopulateProfileDto()
     {
         // Arrange
         const int userId = 1;
@@ -43,7 +43,7 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public async Task LoadProfile_WhenApiFails_SetsErrorState()
+    public async Task LoadProfile_WhenApiFails_ShouldSetErrorState()
     {
         // Arrange
         var viewModel = new PersonalInfoViewModel(_profileClientService.Object, NullLogger<PersonalInfoViewModel>.Instance);
@@ -61,7 +61,7 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public void HasPhoneNumber_WhenPhoneNumberIsNotSet_ReturnsFalse()
+    public void HasPhoneNumber_WhenPhoneNumberIsNotSet_ShouldReturnFalse()
     {
         // Arrange
         var viewModel = new PersonalInfoViewModel(_profileClientService.Object, NullLogger<PersonalInfoViewModel>.Instance);
@@ -71,7 +71,7 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public async Task UpdatePersonalInfo_WhenUserIdIsNull_SetsErrorState()
+    public async Task UpdatePersonalInfo_WhenUserIdIsNull_ShouldSetErrorState()
     {
         // Arrange
         const string phoneNumber = "0712345678";
@@ -88,7 +88,7 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public async Task ChangePassword_WhenPasswordTooShort_ReturnsError()
+    public async Task ChangePassword_WhenPasswordTooShort_ShouldReturnError()
     {
         // Arrange
         const int userId = 1;
@@ -110,7 +110,7 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public async Task ChangePassword_WhenPasswordsDoNotMatch_ReturnsError()
+    public async Task ChangePassword_WhenPasswordsDoNotMatch_ShouldReturnError()
     {
         // Arrange
         const int userId = 1;
@@ -133,7 +133,7 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public async Task ChangePassword_WhenValid_SetsUpdateSuccessState()
+    public async Task ChangePassword_WhenValid_ShouldSetUpdateSuccessState()
     {
         // Arrange
         const int userId = 1;
@@ -159,7 +159,7 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public async Task ChangePassword_WhenApiReturnsIncorrectPassword_ReturnsSpecificMessage()
+    public async Task ChangePassword_WhenApiReturnsIncorrectPassword_ShouldReturnSpecificMessage()
     {
         // Arrange
         const int userId = 1;
@@ -182,7 +182,7 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public async Task ToggleNotificationPreference_WhenApiSucceeds_UpdatesPreference()
+    public async Task ToggleNotificationPreference_WhenApiSucceeds_ShouldUpdatePreference()
     {
         // Arrange
         const int preferenceId = 1;
@@ -205,7 +205,7 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public async Task ToggleNotificationPreference_WhenApiFails_RollsBackPreference()
+    public async Task ToggleNotificationPreference_WhenApiFails_ShouldRollbackPreference()
     {
         // Arrange
         const int preferenceId = 1;
@@ -227,7 +227,7 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public async Task UpdateNotificationPreferences_WhenListIsEmpty_ReturnsFalse()
+    public async Task UpdateNotificationPreferences_WhenListIsEmpty_ShouldReturnFalse()
     {
         // Arrange
         var viewModel = new NotificationsViewModel(_profileClientService.Object, NullLogger<NotificationsViewModel>.Instance);
@@ -241,7 +241,7 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public async Task LoadProfile_WhenPersonalInfoFails_SetsErrorState()
+    public async Task LoadProfile_WhenPersonalInfoFails_ShouldSetErrorState()
     {
         // Arrange
         _profileClientService
@@ -263,7 +263,7 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public void IsInitializingView_DefaultsFalse_CanBeToggled()
+    public void IsInitializingView_WhenCreated_ShouldDefaultToFalseAndAllowToggle()
     {
         // Arrange
         var profileVm = new ProfileViewModel(

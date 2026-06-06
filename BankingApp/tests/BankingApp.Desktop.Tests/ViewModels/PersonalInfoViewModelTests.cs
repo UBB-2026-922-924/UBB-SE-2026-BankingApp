@@ -12,7 +12,7 @@ public class PersonalInfoViewModelTests
     private readonly Mock<IProfileService> _profileClientService = new(MockBehavior.Strict);
 
     [Fact]
-    public async Task LoadProfile_WhenApiReturnsProfile_PopulatesProfileAndSetsSuccessState()
+    public async Task LoadProfile_WhenApiReturnsProfile_ShouldPopulateProfileAndSetSuccessState()
     {
         // Arrange
         const int userId = 7;
@@ -43,7 +43,7 @@ public class PersonalInfoViewModelTests
     }
 
     [Fact]
-    public async Task LoadProfile_WhenApiFails_SetsErrorStateAndLeavesDefaultProfile()
+    public async Task LoadProfile_WhenApiFails_ShouldSetErrorStateAndLeaveDefaultProfile()
     {
         // Arrange
         var viewModel = new PersonalInfoViewModel(_profileClientService.Object, NullLogger<PersonalInfoViewModel>.Instance);
@@ -63,7 +63,7 @@ public class PersonalInfoViewModelTests
     }
 
     [Fact]
-    public async Task UpdatePersonalInfo_WhenUserIdIsNull_SetsErrorState()
+    public async Task UpdatePersonalInfo_WhenUserIdIsNull_ShouldSetErrorState()
     {
         // Arrange
         var viewModel = new PersonalInfoViewModel(_profileClientService.Object, NullLogger<PersonalInfoViewModel>.Instance);
@@ -77,7 +77,7 @@ public class PersonalInfoViewModelTests
     }
 
     [Fact]
-    public async Task UpdatePersonalInfo_WhenApiSucceeds_TrimsInputPreservesExistingFieldsAndUpdatesProfile()
+    public async Task UpdatePersonalInfo_WhenApiSucceeds_ShouldTrimInputPreserveExistingFieldsAndUpdateProfile()
     {
         // Arrange
         const int userId = 7;
@@ -122,7 +122,7 @@ public class PersonalInfoViewModelTests
     }
 
     [Fact]
-    public async Task UpdatePersonalInfo_WhenOptionalInputsAreBlank_UsesNullsAndKeepsExistingFullName()
+    public async Task UpdatePersonalInfo_WhenOptionalInputsAreBlank_ShouldUseNullsAndKeepExistingFullName()
     {
         // Arrange
         UpdateProfileRequest? sentRequest = null;
@@ -158,7 +158,7 @@ public class PersonalInfoViewModelTests
     }
 
     [Fact]
-    public async Task UpdatePersonalInfo_WhenApiFails_DoesNotMutateProfileAndSetsErrorState()
+    public async Task UpdatePersonalInfo_WhenApiFails_ShouldNotMutateProfileAndSetErrorState()
     {
         // Arrange
         var viewModel = new PersonalInfoViewModel(_profileClientService.Object, NullLogger<PersonalInfoViewModel>.Instance)
@@ -188,7 +188,7 @@ public class PersonalInfoViewModelTests
     }
 
     [Fact]
-    public async Task VerifyPassword_WhenUserIdIsNull_SetsErrorState()
+    public async Task VerifyPassword_WhenUserIdIsNull_ShouldSetErrorState()
     {
         // Arrange
         var viewModel = new PersonalInfoViewModel(_profileClientService.Object, NullLogger<PersonalInfoViewModel>.Instance);
@@ -202,7 +202,7 @@ public class PersonalInfoViewModelTests
     }
 
     [Fact]
-    public async Task VerifyPassword_WhenApiReturnsTrue_SetsSuccessState()
+    public async Task VerifyPassword_WhenApiReturnsTrue_ShouldSetSuccessState()
     {
         // Arrange
         var viewModel = new PersonalInfoViewModel(_profileClientService.Object, NullLogger<PersonalInfoViewModel>.Instance)
@@ -226,7 +226,7 @@ public class PersonalInfoViewModelTests
     }
 
     [Fact]
-    public async Task VerifyPassword_WhenApiReturnsFalse_SetsErrorState()
+    public async Task VerifyPassword_WhenApiReturnsFalse_ShouldSetErrorState()
     {
         // Arrange
         var viewModel = new PersonalInfoViewModel(_profileClientService.Object, NullLogger<PersonalInfoViewModel>.Instance)
@@ -250,7 +250,7 @@ public class PersonalInfoViewModelTests
     }
 
     [Fact]
-    public async Task VerifyPassword_WhenApiFails_SetsErrorState()
+    public async Task VerifyPassword_WhenApiFails_ShouldSetErrorState()
     {
         // Arrange
         var viewModel = new PersonalInfoViewModel(_profileClientService.Object, NullLogger<PersonalInfoViewModel>.Instance)

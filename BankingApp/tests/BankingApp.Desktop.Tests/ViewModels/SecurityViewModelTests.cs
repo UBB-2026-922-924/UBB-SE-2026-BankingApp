@@ -20,7 +20,7 @@ public class SecurityViewModelTests
     }
 
     [Fact]
-    public async Task ChangePassword_WhenPasswordTooShort_ReturnsFalseWithLengthError()
+    public async Task ChangePassword_WhenPasswordTooShort_ShouldReturnFalseWithLengthError()
     {
         // Act
         (bool Success, string ErrorMessage) result = await _viewModel.ChangePassword(1, "OldPass123!", "Short1!", "Short1!");
@@ -31,7 +31,7 @@ public class SecurityViewModelTests
     }
 
     [Fact]
-    public async Task ChangePassword_WhenPasswordsDoNotMatch_ReturnsFalseWithMismatchError()
+    public async Task ChangePassword_WhenPasswordsDoNotMatch_ShouldReturnFalseWithMismatchError()
     {
         // Act
         (bool Success, string ErrorMessage) result = await _viewModel.ChangePassword(1, "OldPass123!", "NewPass123!", "Different123!");
@@ -42,7 +42,7 @@ public class SecurityViewModelTests
     }
 
     [Fact]
-    public async Task ChangePassword_WhenDataIsValid_ReturnsSuccessAndUpdatesState()
+    public async Task ChangePassword_WhenDataIsValid_ShouldReturnSuccessAndUpdateState()
     {
         // Arrange
         _profileClientService
@@ -58,7 +58,7 @@ public class SecurityViewModelTests
     }
 
     [Fact]
-    public async Task ChangePassword_WhenApiReturnsIncorrectPasswordError_UpdatesStateAndReturnsSpecificMessage()
+    public async Task ChangePassword_WhenApiReturnsIncorrectPasswordError_ShouldUpdateStateAndReturnSpecificMessage()
     {
         // Arrange
         var error = Error.Validation("incorrect_password", "Description");
@@ -76,7 +76,7 @@ public class SecurityViewModelTests
     }
 
     [Fact]
-    public async Task ChangePassword_WhenApiReturnsGenericError_UpdatesStateAndReturnsGenericMessage()
+    public async Task ChangePassword_WhenApiReturnsGenericError_ShouldUpdateStateAndReturnGenericMessage()
     {
         // Arrange
         var error = Error.Failure("server_error", "Description");

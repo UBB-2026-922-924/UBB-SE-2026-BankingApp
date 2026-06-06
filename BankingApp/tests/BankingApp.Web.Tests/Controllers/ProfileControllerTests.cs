@@ -51,7 +51,7 @@ public sealed class ProfileControllerTests : IDisposable
     public void Dispose() => _controller.Dispose();
 
     [Fact]
-    public void Index_ShouldRedirectToPersonalInfo()
+    public void Index_WhenCalled_ShouldRedirectToPersonalInfo()
     {
         // Act
         IActionResult result = _controller.Index();
@@ -262,7 +262,7 @@ public sealed class ProfileControllerTests : IDisposable
     }
 
     [Fact]
-    public void CancelUpdate_ShouldClearTempDataAndRedirect()
+    public void CancelUpdate_WhenCalled_ShouldClearTempDataAndRedirect()
     {
         // Arrange
         _controller.TempData["Profile_VerifiedPassword"] = "VerifiedPassword!";
