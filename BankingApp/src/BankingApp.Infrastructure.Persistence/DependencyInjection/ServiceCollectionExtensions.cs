@@ -2,12 +2,12 @@ namespace BankingApp.Infrastructure.Persistence.DependencyInjection;
 
 using System.Text;
 using Application.Common.Security;
+using Application.Features.Transactions.Services;
 using Application.Shared.Persistence;
-using Domain.Repositories;
 using Common.Security;
 using Data;
 using Data.Seeders;
-using Repositories;
+using Domain.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Repositories;
 
 public static class ServiceCollectionExtensions
 {
