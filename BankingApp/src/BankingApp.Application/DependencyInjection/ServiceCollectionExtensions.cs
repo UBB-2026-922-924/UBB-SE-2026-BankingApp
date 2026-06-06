@@ -1,5 +1,6 @@
 namespace BankingApp.Application.DependencyInjection;
 
+using Application.Features.Transactions.Services;
 using System.Reflection;
 using Features.Chat.Services;
 using Features.AccountOverview.Services;

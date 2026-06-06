@@ -19,11 +19,12 @@ public sealed class TransactionHistoryRepository(AppDbContext dbContext) : ITran
             {
                 Id = transaction.Id,
                 AccountId = account.Id,
+                CardId = transaction.CardId,
                 AccountName = account.AccountName ?? $"Account {account.Id}",
                 AccountIban = account.Iban.Value,
                 Timestamp = transaction.CreatedAt,
-                TransactionType = transaction.TransactionType,
-                ReferenceNumber = transaction.Reference ?? string.Empty,
+                TransactionType = transaction.Type,
+                ReferenceNumber = transaction.TransactionRef,
                 Description = transaction.Description,
                 CounterpartyOrMerchant = transaction.CounterpartyName ?? transaction.MerchantName ?? string.Empty,
                 MerchantName = transaction.MerchantName,
@@ -33,7 +34,8 @@ public sealed class TransactionHistoryRepository(AppDbContext dbContext) : ITran
                 Direction = transaction.Direction.ToString(),
                 RunningBalanceAfterTransaction = transaction.BalanceAfter.Amount,
                 Status = transaction.Status.ToString(),
-                Fee = decimal.Zero
+                Fee = transaction.Fee.HasValue ? transaction.Fee.Value.Amount : decimal.Zero,
+                ExchangeRate = transaction.ExchangeRate
             }))
             .ToList();
     }
@@ -47,11 +49,12 @@ public sealed class TransactionHistoryRepository(AppDbContext dbContext) : ITran
             {
                 Id = transaction.Id,
                 AccountId = account.Id,
+                CardId = transaction.CardId,
                 AccountName = account.AccountName ?? $"Account {account.Id}",
                 AccountIban = account.Iban.Value,
                 Timestamp = transaction.CreatedAt,
-                TransactionType = transaction.TransactionType,
-                ReferenceNumber = transaction.Reference ?? string.Empty,
+                TransactionType = transaction.Type,
+                ReferenceNumber = transaction.TransactionRef,
                 Description = transaction.Description,
                 CounterpartyOrMerchant = transaction.CounterpartyName ?? transaction.MerchantName ?? string.Empty,
                 MerchantName = transaction.MerchantName,
@@ -61,7 +64,8 @@ public sealed class TransactionHistoryRepository(AppDbContext dbContext) : ITran
                 Direction = transaction.Direction.ToString(),
                 RunningBalanceAfterTransaction = transaction.BalanceAfter.Amount,
                 Status = transaction.Status.ToString(),
-                Fee = decimal.Zero
+                Fee = transaction.Fee.HasValue ? transaction.Fee.Value.Amount : decimal.Zero,
+                ExchangeRate = transaction.ExchangeRate
             }))
             .FirstOrDefault(dto => dto.Id == transactionId);
     }
