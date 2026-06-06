@@ -27,7 +27,8 @@ public class AccountOverviewController(IAccountOverviewService accountOverviewSe
         int userId = GetAuthenticatedUserId();
 
         IReadOnlyCollection<Account> accounts = await accountService.GetAccountsByUserIdAsync(userId, cancellationToken);
-        return Ok(accounts);
+
+        return Ok(accounts.ToList());
     }
 
 

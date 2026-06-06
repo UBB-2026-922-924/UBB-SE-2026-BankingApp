@@ -56,6 +56,7 @@ public static class HttpInfrastructureServiceCollectionExtensions
         services.Add(ServiceDescriptor.Describe(typeof(ILoanApplicationPresentationRepoProxy), typeof(LoanApplicationPresentationRepoProxy), lifetime));
         services.Add(ServiceDescriptor.Describe(typeof(IStatisticsRepoProxy), typeof(StatisticsRepoProxy), lifetime));
         services.Add(ServiceDescriptor.Describe(typeof(IChatRepoProxy), typeof(ChatRepoProxy), lifetime));
+        services.Add(ServiceDescriptor.Describe(typeof(IAccountService), typeof(AccountService), lifetime));
 
         return services;
     }

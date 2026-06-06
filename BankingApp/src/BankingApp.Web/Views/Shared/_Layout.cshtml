@@ -59,6 +59,13 @@
                                     }
                                 </a>
                             </li>
+                            
+                            <li class="nav-item">
+                                <a class="nav-link @(IsActive("Accounts") ? "active" : string.Empty)"
+                                   asp-controller="Accounts" asp-action="Index">
+                                    <i class="bi bi-arrow-left-right me-1"></i>Transfers
+                                </a>
+                            </li>
 
                             <li class="nav-item">
                                 <a class="nav-link @(IsActive("Transfers") ? "active" : string.Empty)"
