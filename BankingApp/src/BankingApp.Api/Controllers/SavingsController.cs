@@ -140,7 +140,7 @@ public class SavingsController(ISavingsService savingsService) : ApiControllerBa
     [HttpGet(ApiEndpoints.Savings.Transactions)]
     public async Task<IActionResult> GetTransactionsAsync(
         int accountId,
-        [FromQuery] string filter = string.Empty,
+        [FromQuery] string filter = "",
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
