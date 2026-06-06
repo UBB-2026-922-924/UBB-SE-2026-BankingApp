@@ -74,6 +74,14 @@ public sealed partial class BillPayView
         }
     }
 
+    private async void RemoveSavedBiller_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: SavedBillerDto savedBiller })
+        {
+            await ViewModel.ExecuteRemoveSavedBillerAsync(savedBiller);
+        }
+    }
+
     private void AmountBox_ValueChanged(
         NumberBox sender,
         NumberBoxValueChangedEventArgs numberBoxValueChangedEventArgs)

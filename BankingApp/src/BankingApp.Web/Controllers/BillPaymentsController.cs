@@ -130,6 +130,19 @@ public class BillPaymentsController(
         return View("Success", success);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemoveSavedBiller(int savedBillerId, CancellationToken cancellationToken)
+    {
+        ErrorOr<Success> result = await billerService.DeleteSavedBillerAsync(savedBillerId, cancellationToken);
+
+        TempData[result.IsError ? "Error" : "Success"] = result.IsError
+            ? "Could not remove saved biller."
+            : "Saved biller removed.";
+
+        return RedirectToAction(nameof(Index));
+    }
+
     public async Task<IActionResult> History(CancellationToken cancellationToken)
     {
         ErrorOr<List<BillPayResponse>> result = await billPaymentService.GetHistoryAsync(cancellationToken);

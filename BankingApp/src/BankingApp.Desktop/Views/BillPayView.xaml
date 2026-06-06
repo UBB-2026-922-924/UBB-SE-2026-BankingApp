@@ -12,6 +12,7 @@
 
     <Page.Resources>
         <converters1:StepToVisibilityConverter x:Key="StepToVisibility" />
+        <converters1:DecimalToAmountTextConverter x:Key="AmountText" />
 
         <Style x:Key="CardBorder" TargetType="Border">
             <Setter Property="Background" Value="#EEF0F5" />
@@ -153,8 +154,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Saved billers sidebar -->
-                    <Border Grid.Column="0" Style="{StaticResource CardBorder}"
-                            Visibility="{Binding SavedBillersVisibility}">
+                    <Border Grid.Column="0" Style="{StaticResource CardBorder}">
                         <StackPanel Spacing="12">
                             <TextBlock Text="Saved Billers"
                                        FontSize="16" FontWeight="SemiBold"
@@ -162,8 +162,14 @@
                             <TextBlock Text="Tap to quickly fill the form."
                                        FontSize="12" Foreground="#6B7280" />
 
+                            <TextBlock Text="No saved billers yet. Save one while paying a bill to see it here."
+                                       FontSize="12" Foreground="#6B7280"
+                                       TextWrapping="Wrap"
+                                       Visibility="{Binding EmptySavedBillersVisibility}" />
+
                             <ListView x:Name="SavedBillersList"
                                       ItemsSource="{Binding SavedBillers}"
+                                      Visibility="{Binding SavedBillersListVisibility}"
                                       IsItemClickEnabled="True"
                                       ItemClick="SavedBillersList_ItemClick"
                                       SelectionMode="None">
@@ -179,15 +185,30 @@
                                         <Border Padding="12,10" CornerRadius="8"
                                                 Background="#EEF3FF"
                                                 BorderBrush="#93C5FD" BorderThickness="1">
-                                            <StackPanel Spacing="2">
-                                                <TextBlock Text="{Binding DisplayName}"
-                                                           FontWeight="SemiBold"
-                                                           FontSize="13"
-                                                           Foreground="#1A1A2E" />
-                                                <TextBlock Text="{Binding DisplayCategory}"
-                                                           FontSize="11"
-                                                           Foreground="#6B7280" />
-                                            </StackPanel>
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" Spacing="2">
+                                                    <TextBlock Text="{Binding DisplayName}"
+                                                               FontWeight="SemiBold"
+                                                               FontSize="13"
+                                                               Foreground="#1A1A2E" />
+                                                    <TextBlock Text="{Binding DisplayCategory}"
+                                                               FontSize="11"
+                                                               Foreground="#6B7280" />
+                                                </StackPanel>
+                                                <Button Grid.Column="1"
+                                                        Click="RemoveSavedBiller_Click"
+                                                        Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Padding="6"
+                                                        VerticalAlignment="Top"
+                                                        ToolTipService.ToolTip="Remove saved biller">
+                                                    <FontIcon Glyph="&#xE711;" FontSize="12" Foreground="#B91C1C" />
+                                                </Button>
+                                            </Grid>
                                         </Border>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
@@ -249,6 +270,7 @@
                                         <SolidColorBrush x:Key="ComboBoxPlaceholderTextForegroundFocused" Color="#6B7280" />
                                         <SolidColorBrush x:Key="ComboBoxPlaceholderTextForegroundDisabled" Color="#9CA3AF" />
                                     </ComboBox.Resources>
+                                    <ComboBoxItem Content="All categories" />
                                     <ComboBoxItem Content="Utilities" />
                                     <ComboBoxItem Content="Telecom" />
                                     <ComboBoxItem Content="Insurance" />
@@ -266,7 +288,7 @@
                                       IsItemClickEnabled="True"
                                       ItemClick="BillersList_ItemClick"
                                       SelectionMode="Single"
-                                      MaxHeight="400">
+                                      Height="400">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
                                         <Setter Property="Padding" Value="0" />
@@ -399,14 +421,16 @@
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Padding="4,2" Spacing="1">
-                                                <TextBlock Text="{Binding AccountName}"
+                                                <TextBlock Text="{Binding Iban}"
                                                            FontWeight="SemiBold"
                                                            FontSize="13"
                                                            Foreground="#1A1A2E" />
                                                 <TextBlock FontSize="12" Foreground="#6B7280">
                                                     <Run Text="Card ending " />
                                                     <Run Text="{Binding CardLastFourDigits}" />
-                                                    <Run Text=" · " />
+                                                    <Run Text=" · Balance " />
+                                                    <Run Text="{Binding Balance, Converter={StaticResource AmountText}}" />
+                                                    <Run Text=" " />
                                                     <Run Text="{Binding Currency}" />
                                                 </TextBlock>
                                             </StackPanel>
@@ -543,7 +567,7 @@
                                                Style="{StaticResource SectionLabel}"
                                                VerticalAlignment="Center" />
                                     <StackPanel Grid.Column="1" Spacing="1">
-                                        <TextBlock Text="{Binding SelectedAccount.AccountName}"
+                                        <TextBlock Text="{Binding SelectedAccount.Iban}"
                                                    Style="{StaticResource ValueText}" />
                                         <TextBlock FontSize="12" Foreground="#6B7280">
                                             <Run Text="Card ending " />

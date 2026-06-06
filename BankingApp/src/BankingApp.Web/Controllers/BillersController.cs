@@ -84,7 +84,12 @@ public class BillersController(IBillerService billerService) : Controller
     [Route("Billers/Unsave/{savedBillerId:int}")]
     public async Task<IActionResult> Unsave(int savedBillerId, CancellationToken cancellationToken)
     {
-        TempData["Error"] = "Unsave is not yet supported.";
+        ErrorOr<Success> result = await billerService.DeleteSavedBillerAsync(savedBillerId, cancellationToken);
+
+        TempData[result.IsError ? "Error" : "Success"] = result.IsError
+            ? "Could not remove saved biller."
+            : "Saved biller removed.";
+
         return RedirectToAction(nameof(Saved));
     }
 }

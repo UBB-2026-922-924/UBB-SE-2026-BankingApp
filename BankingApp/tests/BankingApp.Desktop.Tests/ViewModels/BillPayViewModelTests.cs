@@ -297,6 +297,181 @@ public class BillPayViewModelTests
     }
 
     [Fact]
+    public async Task SelectBiller_WhenBillerAlreadySaved_ShouldEnableSaveToggle()
+    {
+        // Arrange
+        SetupSuccessfulLoad();
+        BillPayViewModel vm = CreateViewModel();
+        await vm.LoadAsync();
+
+        // Act - biller id 1 matches the saved biller from the mock data.
+        vm.ExecuteSelectBiller(new BillerDto { Id = 1, Name = "Enel Energie", Category = "Utilities" });
+
+        // Assert
+        vm.ShouldSaveBiller.Should().BeTrue();
+        vm.BillerReference.Should().Be("EL-001");
+    }
+
+    [Fact]
+    public async Task SelectBiller_WhenBillerNotSaved_ShouldDisableSaveToggle()
+    {
+        // Arrange
+        SetupSuccessfulLoad();
+        BillPayViewModel vm = CreateViewModel();
+        await vm.LoadAsync();
+
+        // Act - biller id 2 is not in the saved list.
+        vm.ExecuteSelectBiller(new BillerDto { Id = 2, Name = "Digi RCS-RDS", Category = "Internet" });
+
+        // Assert
+        vm.ShouldSaveBiller.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ExecutePayBillAsync_WhenSavedReferenceChanged_ShouldReplaceSavedBillerWithoutDuplicating()
+    {
+        // Arrange
+        SetupSuccessfulLoad();
+        _billPaymentClientService
+            .Setup(service => service.PayBillAsync(It.IsAny<BillPayRequest>()))
+            .ReturnsAsync(new BillPayResponse
+            {
+                Id = 1,
+                ReceiptNumber = "RCP-TEST",
+                Fee = 0.50m,
+                Amount = 100m,
+                Status = "Completed",
+            });
+        _billerClientService
+            .Setup(service => service.SaveBillerAsync(It.IsAny<SaveBillerRequest>()))
+            .ReturnsAsync(new SavedBillerDto
+            {
+                Id = 1,
+                UserId = 1,
+                BillerId = 1,
+                DefaultReference = "NEW-REF",
+                Biller = new BillerDto { Id = 1, Name = "Enel Energie", Category = "Utilities" },
+            });
+
+        BillPayViewModel vm = CreateViewModel();
+        await vm.LoadAsync();
+        vm.ExecuteSelectBiller(new BillerDto { Id = 1, Name = "Enel Energie", Category = "Utilities" });
+        vm.BillerReference = "NEW-REF";
+        vm.SelectedAccount = new AccountDto { Id = 1, AccountName = "RON Account" };
+        vm.Amount = 100m;
+        vm.ShouldSaveBiller = true;
+
+        // Act
+        await vm.ExecutePayBillAsync();
+
+        // Assert
+        vm.SavedBillers.Should().HaveCount(1);
+        vm.SavedBillers[0].DefaultReference.Should().Be("NEW-REF");
+        _billerClientService.Verify(service => service.SaveBillerAsync(It.IsAny<SaveBillerRequest>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteRemoveSavedBillerAsync_WhenSuccess_ShouldRemoveFromSavedBillers()
+    {
+        // Arrange
+        SetupSuccessfulLoad();
+        _billerClientService
+            .Setup(service => service.DeleteSavedBillerAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success);
+        BillPayViewModel vm = CreateViewModel();
+        await vm.LoadAsync();
+        SavedBillerDto saved = vm.SavedBillers.Single();
+
+        // Act
+        await vm.ExecuteRemoveSavedBillerAsync(saved);
+
+        // Assert
+        vm.SavedBillers.Should().BeEmpty();
+        vm.ErrorMessage.Should().BeEmpty();
+        _billerClientService.Verify(service => service.DeleteSavedBillerAsync(saved.Id, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteRemoveSavedBillerAsync_WhenApiFails_ShouldKeepBillerAndSetError()
+    {
+        // Arrange
+        SetupSuccessfulLoad();
+        _billerClientService
+            .Setup(service => service.DeleteSavedBillerAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Error.Failure(description: "Server error"));
+        BillPayViewModel vm = CreateViewModel();
+        await vm.LoadAsync();
+        SavedBillerDto saved = vm.SavedBillers.Single();
+
+        // Act
+        await vm.ExecuteRemoveSavedBillerAsync(saved);
+
+        // Assert
+        vm.SavedBillers.Should().HaveCount(1);
+        vm.ErrorMessage.Should().Contain("Failed to remove saved biller");
+    }
+
+    [Fact]
+    public async Task ExecuteRemoveSavedBillerAsync_WhenNull_ShouldNotCallServiceOrChangeState()
+    {
+        // Arrange
+        SetupSuccessfulLoad();
+        BillPayViewModel vm = CreateViewModel();
+        await vm.LoadAsync();
+
+        // Act
+        await vm.ExecuteRemoveSavedBillerAsync(null);
+
+        // Assert
+        vm.SavedBillers.Should().HaveCount(1);
+        _billerClientService.Verify(
+            service => service.DeleteSavedBillerAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task SearchBillersAsync_WhenAllCategoriesSelected_ShouldQueryWithoutCategoryFilter()
+    {
+        // Arrange
+        _billerClientService
+            .Setup(service => service.GetBillersAsync(It.IsAny<string?>(), It.IsAny<string?>(), default))
+            .ReturnsAsync(new List<BillerDto>());
+        BillPayViewModel vm = CreateViewModel();
+        vm.SearchQuery = "vodafone";
+        vm.SelectedCategory = "All categories";
+
+        // Act
+        await vm.SearchBillersAsync();
+
+        // Assert
+        _billerClientService.Verify(
+            service => service.GetBillersAsync("vodafone", null, default),
+            Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public void ResetForm_WhenCalled_ShouldClearFiltersAndReloadBillers()
+    {
+        // Arrange
+        _billerClientService
+            .Setup(service => service.GetBillersAsync(It.IsAny<string?>(), It.IsAny<string?>(), default))
+            .ReturnsAsync(new List<BillerDto>());
+        BillPayViewModel vm = CreateViewModel();
+        vm.SearchQuery = "filtered";
+        vm.SelectedCategory = "Telecom";
+
+        // Act
+        vm.ResetForm();
+
+        // Assert
+        vm.SearchQuery.Should().BeEmpty();
+        vm.SelectedCategory.Should().BeNull();
+        _billerClientService.Verify(
+            service => service.GetBillersAsync(string.Empty, null, default),
+            Times.AtLeastOnce);
+    }
+
+    [Fact]
     public void ResetForm_WhenCalled_ShouldClearAllState()
     {
         BillPayViewModel vm = CreateViewModel();

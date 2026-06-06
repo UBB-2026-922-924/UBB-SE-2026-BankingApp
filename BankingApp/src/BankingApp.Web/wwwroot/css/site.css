@@ -939,3 +939,22 @@ body {
         font-size: .78rem;
     }
 }
+
+/* Saved billers list (bill payments page) */
+.saved-billers-list .saved-biller-item {
+    cursor: pointer;
+    color: inherit;
+    transition: background-color .15s ease-in-out;
+}
+
+.saved-billers-list .saved-biller-item:hover {
+    background-color: rgba(0, 0, 0, .04);
+}
+
+.saved-billers-list .saved-biller-item.active {
+    background-color: rgba(13, 110, 253, .08);
+}
+
+.saved-billers-list .saved-biller-remove {
+    line-height: 1;
+}
