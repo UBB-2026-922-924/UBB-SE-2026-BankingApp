@@ -1,14 +1,13 @@
 namespace BankingApp.Application.DependencyInjection;
 
-using Application.Features.Transactions.Services;
 using System.Reflection;
-using Features.Chat.Services;
 using Features.AccountOverview.Services;
 using Features.Authentication.Services;
 using Features.Beneficiaries.Services;
 using Features.Billers.Services;
 using Features.BillPayments.Services;
 using Features.Cards.Services;
+using Features.Chat.Services;
 using Features.Forex.Services;
 using Features.Investments.Services;
 using Features.Loans.Services;
