@@ -17,7 +17,14 @@ string apiBaseUrl = builder.Configuration["ApiBaseUrl"]
 int defaultCookieExpiryTime = 8;
 int defaultLoginExpiryTime = 12;
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    AuthorizationPolicy policy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+    options.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter(policy));
+});
+
 builder.Services.AddWebClientServices(apiBaseUrl);
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
