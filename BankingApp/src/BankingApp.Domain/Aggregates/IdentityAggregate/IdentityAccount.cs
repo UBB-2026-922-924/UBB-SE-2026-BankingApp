@@ -22,14 +22,20 @@ public sealed class IdentityAccount : AggregateRoot<int>
 
     public int FailedLoginAttempts { get; private set; }
 
+    public bool Is2FAEnabled { get; private set; }
+
+    public string? Preferred2FAMethod { get; private set; }
+
     public IReadOnlyCollection<Session> Sessions => _sessions.AsReadOnly();
 
-    public static IdentityAccount Create(int userId, HashedPassword? passwordHash)
+    public static IdentityAccount Create(int userId, HashedPassword? passwordHash, bool is2FAEnabled = false, string? preferred2FAMethod = null)
     {
         return new IdentityAccount
         {
             UserId = userId,
-            PasswordHash = passwordHash
+            PasswordHash = passwordHash,
+            Is2FAEnabled = is2FAEnabled,
+            Preferred2FAMethod = preferred2FAMethod
         };
     }
 
@@ -77,6 +83,12 @@ public sealed class IdentityAccount : AggregateRoot<int>
         var session = Session.Create(Id, token, expiresAt, createdAt, deviceInfo, browser, ipAddress);
         _sessions.Add(session);
         return session;
+    }
+
+    public void Update2FAPreferences(bool enabled, string? method)
+    {
+        Is2FAEnabled = enabled;
+        Preferred2FAMethod = method;
     }
 
 }
