@@ -7,7 +7,7 @@ using ErrorOr;
 
 public sealed class TransactionService(
     ITransactionHistoryRepository transactionHistoryRepository,
-    ITransactionExportService transactionExportService)
+    ITransactionExportService? transactionExportService = null)
     : ITransactionService
 {
     private const string FiltersLoadedMessage = "Transaction filters loaded successfully.";
@@ -106,19 +106,29 @@ public sealed class TransactionService(
     public Task<ErrorOr<TransactionExportResult>> ExportTransactionsAsync(
         int userId, TransactionExportRequest request, CancellationToken cancellationToken = default)
     {
+        if (transactionExportService is null)
+        {
+            return Task.FromResult<ErrorOr<TransactionExportResult>>(
+                Error.Failure("Export.NotAvailable", "Export functionality is not yet available."));
+        }
+
         TransactionHistoryRequest normalizedRequest = NormalizeRequest(request);
         List<TransactionHistoryItemDto> transactions = transactionHistoryRepository.GetTransactionsByUserId(userId);
         List<TransactionHistoryItemDto> filtered = ApplyFiltersAndSort(transactions, normalizedRequest);
         TransactionExportResult result = transactionExportService.ExportStatement(filtered, normalizedRequest, request.Format);
-
         return Task.FromResult<ErrorOr<TransactionExportResult>>(result);
     }
 
     public Task<ErrorOr<TransactionExportResult>> ExportReceiptAsync(
         int userId, int transactionId, CancellationToken cancellationToken = default)
     {
-        TransactionHistoryItemDto? transaction = transactionHistoryRepository.GetTransactionById(userId, transactionId);
+        if (transactionExportService is null)
+        {
+            return Task.FromResult<ErrorOr<TransactionExportResult>>(
+                Error.Failure("Export.NotAvailable", "Export functionality is not yet available."));
+        }
 
+        TransactionHistoryItemDto? transaction = transactionHistoryRepository.GetTransactionById(userId, transactionId);
         if (transaction is null)
         {
             return Task.FromResult<ErrorOr<TransactionExportResult>>(
