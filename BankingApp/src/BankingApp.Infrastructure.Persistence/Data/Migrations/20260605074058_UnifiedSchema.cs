@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -11,504 +11,322 @@ namespace BankingApp.Infrastructure.Persistence.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "Is2FAEnabled",
-                table: "IdentityAccounts",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
+            // Idempotent column additions — skip if the column already exists
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'[IdentityAccounts]') AND name = 'Is2FAEnabled')
+                    ALTER TABLE [IdentityAccounts] ADD [Is2FAEnabled] bit NOT NULL DEFAULT CAST(0 AS bit);");
 
-            migrationBuilder.AddColumn<string>(
-                name: "Preferred2FAMethod",
-                table: "IdentityAccounts",
-                type: "nvarchar(64)",
-                maxLength: 64,
-                nullable: true);
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'[IdentityAccounts]') AND name = 'Preferred2FAMethod')
+                    ALTER TABLE [IdentityAccounts] ADD [Preferred2FAMethod] nvarchar(64) NULL;");
 
-            migrationBuilder.CreateTable(
-                name: "Categories",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Icon = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    IsSystem = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Categories", x => x.Id);
-                });
+            // Idempotent table creations — skip if the table already exists
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[Categories]') IS NULL
+                CREATE TABLE [Categories] (
+                    [Id] int NOT NULL IDENTITY,
+                    [Name] nvarchar(100) NOT NULL,
+                    [Icon] nvarchar(100) NULL,
+                    [IsSystem] bit NOT NULL DEFAULT CAST(1 AS bit),
+                    CONSTRAINT [PK_Categories] PRIMARY KEY ([Id])
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "ChatSession",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    Subject = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: true),
-                    Feedback = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChatSession", x => x.Id);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[ChatSession]') IS NULL
+                CREATE TABLE [ChatSession] (
+                    [Id] int NOT NULL IDENTITY,
+                    [UserId] int NOT NULL,
+                    [Subject] nvarchar(500) NOT NULL,
+                    [Status] nvarchar(20) NOT NULL,
+                    [Rating] int NULL,
+                    [Feedback] nvarchar(2000) NULL,
+                    [CreatedAt] datetime2 NOT NULL,
+                    [UpdatedAt] datetime2 NOT NULL,
+                    CONSTRAINT [PK_ChatSession] PRIMARY KEY ([Id])
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "Loan",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    LoanType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Principal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    OutstandingBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    InterestRate = table.Column<decimal>(type: "decimal(6,4)", nullable: false),
-                    MonthlyInstallment = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RemainingMonths = table.Column<int>(type: "int", nullable: false),
-                    LoanStatus = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    TermInMonths = table.Column<int>(type: "int", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Loan", x => x.Id);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[Loan]') IS NULL
+                CREATE TABLE [Loan] (
+                    [Id] int NOT NULL IDENTITY,
+                    [UserId] int NOT NULL,
+                    [LoanType] nvarchar(20) NOT NULL,
+                    [Principal] decimal(18,2) NOT NULL,
+                    [OutstandingBalance] decimal(18,2) NOT NULL,
+                    [InterestRate] decimal(6,4) NOT NULL,
+                    [MonthlyInstallment] decimal(18,2) NOT NULL,
+                    [RemainingMonths] int NOT NULL,
+                    [LoanStatus] nvarchar(20) NOT NULL,
+                    [TermInMonths] int NOT NULL,
+                    [StartDate] datetime2 NOT NULL,
+                    CONSTRAINT [PK_Loan] PRIMARY KEY ([Id])
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "LoanApplication",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    LoanType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    DesiredAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PreferredTermMonths = table.Column<int>(type: "int", nullable: false),
-                    Purpose = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    ApplicationStatus = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    RejectionReason = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LoanApplication", x => x.Id);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[LoanApplication]') IS NULL
+                CREATE TABLE [LoanApplication] (
+                    [Id] int NOT NULL IDENTITY,
+                    [UserId] int NOT NULL,
+                    [LoanType] nvarchar(20) NOT NULL,
+                    [DesiredAmount] decimal(18,2) NOT NULL,
+                    [PreferredTermMonths] int NOT NULL,
+                    [Purpose] nvarchar(500) NOT NULL,
+                    [ApplicationStatus] nvarchar(20) NOT NULL,
+                    [RejectionReason] nvarchar(500) NULL,
+                    CONSTRAINT [PK_LoanApplication] PRIMARY KEY ([Id])
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "LoanEstimates",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IndicativeRate = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    MonthlyInstallment = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    TotalRepayable = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LoanEstimates", x => x.Id);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[LoanEstimates]') IS NULL
+                CREATE TABLE [LoanEstimates] (
+                    [Id] int NOT NULL IDENTITY,
+                    [IndicativeRate] decimal(18,4) NOT NULL,
+                    [MonthlyInstallment] decimal(18,2) NOT NULL,
+                    [TotalRepayable] decimal(18,2) NOT NULL,
+                    CONSTRAINT [PK_LoanEstimates] PRIMARY KEY ([Id])
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "OAuthLinks",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    Provider = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    ProviderUserId = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
-                    ProviderEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    LinkedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OAuthLinks", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_OAuthLinks_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[OAuthLinks]') IS NULL
+                CREATE TABLE [OAuthLinks] (
+                    [Id] int NOT NULL IDENTITY,
+                    [UserId] int NOT NULL,
+                    [Provider] nvarchar(100) NOT NULL,
+                    [ProviderUserId] nvarchar(256) NOT NULL,
+                    [ProviderEmail] nvarchar(256) NULL,
+                    [LinkedAt] datetime2 NOT NULL,
+                    CONSTRAINT [PK_OAuthLinks] PRIMARY KEY ([Id]),
+                    CONSTRAINT [FK_OAuthLinks_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [Users] ([Id]) ON DELETE CASCADE
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "PasswordResetTokens",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    TokenHash = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
-                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UsedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PasswordResetTokens", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PasswordResetTokens_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[PasswordResetTokens]') IS NULL
+                CREATE TABLE [PasswordResetTokens] (
+                    [Id] int NOT NULL IDENTITY,
+                    [UserId] int NOT NULL,
+                    [TokenHash] nvarchar(512) NOT NULL,
+                    [ExpiresAt] datetime2 NOT NULL,
+                    [UsedAt] datetime2 NULL,
+                    [CreatedAt] datetime2 NOT NULL,
+                    CONSTRAINT [PK_PasswordResetTokens] PRIMARY KEY ([Id]),
+                    CONSTRAINT [FK_PasswordResetTokens_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [Users] ([Id]) ON DELETE CASCADE
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "Portfolio",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Portfolio", x => x.Id);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[Portfolio]') IS NULL
+                CREATE TABLE [Portfolio] (
+                    [Id] int NOT NULL IDENTITY,
+                    [UserId] int NOT NULL,
+                    CONSTRAINT [PK_Portfolio] PRIMARY KEY ([Id])
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "SavingsAccount",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    SavingsType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Balance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    AccruedInterest = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    AnnualPercentageYield = table.Column<decimal>(type: "decimal(6,4)", nullable: false),
-                    MaturityDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    AccountStatus = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    AccountName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    FundingAccountId = table.Column<int>(type: "int", nullable: true),
-                    TargetAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    TargetDate = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SavingsAccount", x => x.Id);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[SavingsAccount]') IS NULL
+                CREATE TABLE [SavingsAccount] (
+                    [Id] int NOT NULL IDENTITY,
+                    [UserId] int NOT NULL,
+                    [SavingsType] nvarchar(50) NOT NULL,
+                    [Balance] decimal(18,2) NOT NULL,
+                    [AccruedInterest] decimal(18,2) NOT NULL,
+                    [AnnualPercentageYield] decimal(6,4) NOT NULL,
+                    [MaturityDate] datetime2 NULL,
+                    [AccountStatus] nvarchar(20) NOT NULL,
+                    [CreatedAt] datetime2 NOT NULL,
+                    [UpdatedAt] datetime2 NULL,
+                    [AccountName] nvarchar(100) NULL,
+                    [FundingAccountId] int NULL,
+                    [TargetAmount] decimal(18,2) NULL,
+                    [TargetDate] datetime2 NULL,
+                    CONSTRAINT [PK_SavingsAccount] PRIMARY KEY ([Id])
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "TransactionCategoryOverrides",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TransactionId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TransactionCategoryOverrides", x => x.Id);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[TransactionCategoryOverrides]') IS NULL
+                CREATE TABLE [TransactionCategoryOverrides] (
+                    [Id] int NOT NULL IDENTITY,
+                    [TransactionId] int NOT NULL,
+                    [UserId] int NOT NULL,
+                    [CategoryId] int NOT NULL,
+                    CONSTRAINT [PK_TransactionCategoryOverrides] PRIMARY KEY ([Id])
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "UserCardPreferences",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    SortOption = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserCardPreferences", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserCardPreferences_Users_Id",
-                        column: x => x.Id,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[UserCardPreferences]') IS NULL
+                CREATE TABLE [UserCardPreferences] (
+                    [Id] int NOT NULL,
+                    [SortOption] nvarchar(100) NOT NULL,
+                    [UpdatedAt] datetime2 NOT NULL,
+                    CONSTRAINT [PK_UserCardPreferences] PRIMARY KEY ([Id]),
+                    CONSTRAINT [FK_UserCardPreferences_Users_Id] FOREIGN KEY ([Id]) REFERENCES [Users] ([Id]) ON DELETE CASCADE
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "ChatMessage",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ChatSessionId = table.Column<int>(type: "int", nullable: false),
-                    Sender = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
-                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChatMessage", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ChatMessage_ChatSession_ChatSessionId",
-                        column: x => x.ChatSessionId,
-                        principalTable: "ChatSession",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[ChatMessage]') IS NULL
+                CREATE TABLE [ChatMessage] (
+                    [Id] int NOT NULL IDENTITY,
+                    [ChatSessionId] int NOT NULL,
+                    [Sender] nvarchar(20) NOT NULL,
+                    [Content] nvarchar(4000) NOT NULL,
+                    [SentAt] datetime2 NOT NULL,
+                    CONSTRAINT [PK_ChatMessage] PRIMARY KEY ([Id]),
+                    CONSTRAINT [FK_ChatMessage_ChatSession_ChatSessionId] FOREIGN KEY ([ChatSessionId]) REFERENCES [ChatSession] ([Id]) ON DELETE CASCADE
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "AmortizationRow",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    LoanId = table.Column<int>(type: "int", nullable: false),
-                    InstallmentNumber = table.Column<int>(type: "int", nullable: false),
-                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PrincipalPortion = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    InterestPortion = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RemainingBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    IsCurrent = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AmortizationRow", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AmortizationRow_Loan_LoanId",
-                        column: x => x.LoanId,
-                        principalTable: "Loan",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[AmortizationRow]') IS NULL
+                CREATE TABLE [AmortizationRow] (
+                    [Id] int NOT NULL IDENTITY,
+                    [LoanId] int NOT NULL,
+                    [InstallmentNumber] int NOT NULL,
+                    [DueDate] datetime2 NOT NULL,
+                    [PrincipalPortion] decimal(18,2) NOT NULL,
+                    [InterestPortion] decimal(18,2) NOT NULL,
+                    [RemainingBalance] decimal(18,2) NOT NULL,
+                    [IsCurrent] bit NOT NULL,
+                    CONSTRAINT [PK_AmortizationRow] PRIMARY KEY ([Id]),
+                    CONSTRAINT [FK_AmortizationRow_Loan_LoanId] FOREIGN KEY ([LoanId]) REFERENCES [Loan] ([Id]) ON DELETE CASCADE
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "InvestmentHolding",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PortfolioId = table.Column<int>(type: "int", nullable: false),
-                    Ticker = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    AssetType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Quantity = table.Column<decimal>(type: "decimal(18,8)", nullable: false),
-                    AvgPurchasePrice = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    CurrentPrice = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    UnrealizedGainLoss = table.Column<decimal>(type: "decimal(18,4)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_InvestmentHolding", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_InvestmentHolding_Portfolio_PortfolioId",
-                        column: x => x.PortfolioId,
-                        principalTable: "Portfolio",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[InvestmentHolding]') IS NULL
+                CREATE TABLE [InvestmentHolding] (
+                    [Id] int NOT NULL IDENTITY,
+                    [PortfolioId] int NOT NULL,
+                    [Ticker] nvarchar(20) NOT NULL,
+                    [AssetType] nvarchar(50) NOT NULL,
+                    [Quantity] decimal(18,8) NOT NULL,
+                    [AvgPurchasePrice] decimal(18,4) NOT NULL,
+                    [CurrentPrice] decimal(18,4) NOT NULL,
+                    [UnrealizedGainLoss] decimal(18,4) NOT NULL,
+                    CONSTRAINT [PK_InvestmentHolding] PRIMARY KEY ([Id]),
+                    CONSTRAINT [FK_InvestmentHolding_Portfolio_PortfolioId] FOREIGN KEY ([PortfolioId]) REFERENCES [Portfolio] ([Id]) ON DELETE CASCADE
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "AutoDeposit",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SavingsAccountId = table.Column<int>(type: "int", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Frequency = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    NextRunDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    SourceAccountId = table.Column<int>(type: "int", nullable: true),
-                    DayOfMonth = table.Column<int>(type: "int", nullable: true),
-                    DayOfWeek = table.Column<int>(type: "int", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AutoDeposit", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AutoDeposit_SavingsAccount_SavingsAccountId",
-                        column: x => x.SavingsAccountId,
-                        principalTable: "SavingsAccount",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[AutoDeposit]') IS NULL
+                CREATE TABLE [AutoDeposit] (
+                    [Id] int NOT NULL IDENTITY,
+                    [SavingsAccountId] int NOT NULL,
+                    [Amount] decimal(18,2) NOT NULL,
+                    [Frequency] nvarchar(20) NOT NULL,
+                    [NextRunDate] datetime2 NOT NULL,
+                    [IsActive] bit NOT NULL,
+                    [SourceAccountId] int NULL,
+                    [DayOfMonth] int NULL,
+                    [DayOfWeek] int NULL,
+                    [UpdatedAt] datetime2 NULL,
+                    CONSTRAINT [PK_AutoDeposit] PRIMARY KEY ([Id]),
+                    CONSTRAINT [FK_AutoDeposit_SavingsAccount_SavingsAccountId] FOREIGN KEY ([SavingsAccountId]) REFERENCES [SavingsAccount] ([Id]) ON DELETE CASCADE
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "SavingsTransaction",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SavingsAccountId = table.Column<int>(type: "int", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Source = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    AccountId = table.Column<int>(type: "int", nullable: false),
-                    BalanceAfter = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SavingsTransaction", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SavingsTransaction_SavingsAccount_SavingsAccountId",
-                        column: x => x.SavingsAccountId,
-                        principalTable: "SavingsAccount",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[SavingsTransaction]') IS NULL
+                CREATE TABLE [SavingsTransaction] (
+                    [Id] int NOT NULL IDENTITY,
+                    [SavingsAccountId] int NOT NULL,
+                    [Amount] decimal(18,2) NOT NULL,
+                    [Type] nvarchar(20) NOT NULL,
+                    [Source] nvarchar(100) NULL,
+                    [AccountId] int NOT NULL,
+                    [BalanceAfter] decimal(18,2) NOT NULL,
+                    [CreatedAt] datetime2 NOT NULL,
+                    [Description] nvarchar(500) NULL,
+                    CONSTRAINT [PK_SavingsTransaction] PRIMARY KEY ([Id]),
+                    CONSTRAINT [FK_SavingsTransaction_SavingsAccount_SavingsAccountId] FOREIGN KEY ([SavingsAccountId]) REFERENCES [SavingsAccount] ([Id]) ON DELETE CASCADE
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "ChatAttachment",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    messageId = table.Column<int>(type: "int", nullable: false),
-                    attachmentName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    fileType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    fileSizeBytes = table.Column<long>(type: "bigint", nullable: false),
-                    storageUrl = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChatAttachment", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_ChatAttachment_ChatMessage_messageId",
-                        column: x => x.messageId,
-                        principalTable: "ChatMessage",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[ChatAttachment]') IS NULL
+                CREATE TABLE [ChatAttachment] (
+                    [id] int NOT NULL IDENTITY,
+                    [messageId] int NOT NULL,
+                    [attachmentName] nvarchar(255) NOT NULL,
+                    [fileType] nvarchar(50) NOT NULL,
+                    [fileSizeBytes] bigint NOT NULL,
+                    [storageUrl] nvarchar(255) NOT NULL,
+                    CONSTRAINT [PK_ChatAttachment] PRIMARY KEY ([id]),
+                    CONSTRAINT [FK_ChatAttachment_ChatMessage_messageId] FOREIGN KEY ([messageId]) REFERENCES [ChatMessage] ([Id]) ON DELETE CASCADE
+                );");
 
-            migrationBuilder.CreateTable(
-                name: "InvestmentTransaction",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    HoldingId = table.Column<int>(type: "int", nullable: false),
-                    Ticker = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    ActionType = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Quantity = table.Column<decimal>(type: "decimal(18,8)", nullable: false),
-                    PricePerUnit = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    Fees = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    OrderType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    ExecutedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    InvestmentHoldingId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_InvestmentTransaction", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_InvestmentTransaction_InvestmentHolding_InvestmentHoldingId",
-                        column: x => x.InvestmentHoldingId,
-                        principalTable: "InvestmentHolding",
-                        principalColumn: "Id");
-                });
+            migrationBuilder.Sql(@"
+                IF OBJECT_ID(N'[InvestmentTransaction]') IS NULL
+                CREATE TABLE [InvestmentTransaction] (
+                    [Id] int NOT NULL IDENTITY,
+                    [HoldingId] int NOT NULL,
+                    [Ticker] nvarchar(20) NOT NULL,
+                    [ActionType] nvarchar(10) NOT NULL,
+                    [Quantity] decimal(18,8) NOT NULL,
+                    [PricePerUnit] decimal(18,4) NOT NULL,
+                    [Fees] decimal(18,4) NOT NULL,
+                    [OrderType] nvarchar(50) NOT NULL,
+                    [ExecutedAt] datetime2 NOT NULL,
+                    [InvestmentHoldingId] int NULL,
+                    CONSTRAINT [PK_InvestmentTransaction] PRIMARY KEY ([Id]),
+                    CONSTRAINT [FK_InvestmentTransaction_InvestmentHolding_InvestmentHoldingId] FOREIGN KEY ([InvestmentHoldingId]) REFERENCES [InvestmentHolding] ([Id])
+                );");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_AmortizationRow_LoanId",
-                table: "AmortizationRow",
-                column: "LoanId");
+            // Idempotent index creations — skip if the index already exists
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_AmortizationRow_LoanId' AND object_id = OBJECT_ID(N'[AmortizationRow]'))
+                CREATE INDEX [IX_AmortizationRow_LoanId] ON [AmortizationRow] ([LoanId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_AutoDeposit_SavingsAccountId",
-                table: "AutoDeposit",
-                column: "SavingsAccountId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_AutoDeposit_SavingsAccountId' AND object_id = OBJECT_ID(N'[AutoDeposit]'))
+                CREATE INDEX [IX_AutoDeposit_SavingsAccountId] ON [AutoDeposit] ([SavingsAccountId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_ChatAttachment_messageId",
-                table: "ChatAttachment",
-                column: "messageId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_ChatAttachment_messageId' AND object_id = OBJECT_ID(N'[ChatAttachment]'))
+                CREATE INDEX [IX_ChatAttachment_messageId] ON [ChatAttachment] ([messageId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_ChatMessage_ChatSessionId",
-                table: "ChatMessage",
-                column: "ChatSessionId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_ChatMessage_ChatSessionId' AND object_id = OBJECT_ID(N'[ChatMessage]'))
+                CREATE INDEX [IX_ChatMessage_ChatSessionId] ON [ChatMessage] ([ChatSessionId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_ChatSession_UserId",
-                table: "ChatSession",
-                column: "UserId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_ChatSession_UserId' AND object_id = OBJECT_ID(N'[ChatSession]'))
+                CREATE INDEX [IX_ChatSession_UserId] ON [ChatSession] ([UserId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_InvestmentHolding_PortfolioId_Ticker",
-                table: "InvestmentHolding",
-                columns: new[] { "PortfolioId", "Ticker" },
-                unique: true);
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_InvestmentHolding_PortfolioId_Ticker' AND object_id = OBJECT_ID(N'[InvestmentHolding]'))
+                CREATE UNIQUE INDEX [IX_InvestmentHolding_PortfolioId_Ticker] ON [InvestmentHolding] ([PortfolioId], [Ticker]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_InvestmentTransaction_HoldingId",
-                table: "InvestmentTransaction",
-                column: "HoldingId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_InvestmentTransaction_HoldingId' AND object_id = OBJECT_ID(N'[InvestmentTransaction]'))
+                CREATE INDEX [IX_InvestmentTransaction_HoldingId] ON [InvestmentTransaction] ([HoldingId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_InvestmentTransaction_InvestmentHoldingId",
-                table: "InvestmentTransaction",
-                column: "InvestmentHoldingId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_InvestmentTransaction_InvestmentHoldingId' AND object_id = OBJECT_ID(N'[InvestmentTransaction]'))
+                CREATE INDEX [IX_InvestmentTransaction_InvestmentHoldingId] ON [InvestmentTransaction] ([InvestmentHoldingId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Loan_UserId",
-                table: "Loan",
-                column: "UserId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Loan_UserId' AND object_id = OBJECT_ID(N'[Loan]'))
+                CREATE INDEX [IX_Loan_UserId] ON [Loan] ([UserId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_LoanApplication_UserId",
-                table: "LoanApplication",
-                column: "UserId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_LoanApplication_UserId' AND object_id = OBJECT_ID(N'[LoanApplication]'))
+                CREATE INDEX [IX_LoanApplication_UserId] ON [LoanApplication] ([UserId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_OAuthLinks_Provider_ProviderUserId",
-                table: "OAuthLinks",
-                columns: new[] { "Provider", "ProviderUserId" },
-                unique: true);
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_OAuthLinks_Provider_ProviderUserId' AND object_id = OBJECT_ID(N'[OAuthLinks]'))
+                CREATE UNIQUE INDEX [IX_OAuthLinks_Provider_ProviderUserId] ON [OAuthLinks] ([Provider], [ProviderUserId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_OAuthLinks_UserId",
-                table: "OAuthLinks",
-                column: "UserId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_OAuthLinks_UserId' AND object_id = OBJECT_ID(N'[OAuthLinks]'))
+                CREATE INDEX [IX_OAuthLinks_UserId] ON [OAuthLinks] ([UserId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_PasswordResetTokens_TokenHash",
-                table: "PasswordResetTokens",
-                column: "TokenHash");
+            migrationBuilder.Sql(@"IF (NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_PasswordResetTokens_TokenHash' AND object_id = OBJECT_ID(N'[PasswordResetTokens]'))
+               AND EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'[PasswordResetTokens]') AND name = 'TokenHash'))
+                CREATE INDEX [IX_PasswordResetTokens_TokenHash] ON [PasswordResetTokens] ([TokenHash]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_PasswordResetTokens_UserId",
-                table: "PasswordResetTokens",
-                column: "UserId");
+            migrationBuilder.Sql(@"IF (NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_PasswordResetTokens_UserId' AND object_id = OBJECT_ID(N'[PasswordResetTokens]'))
+               AND EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'[PasswordResetTokens]') AND name = 'UserId'))
+                CREATE INDEX [IX_PasswordResetTokens_UserId] ON [PasswordResetTokens] ([UserId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Portfolio_UserId",
-                table: "Portfolio",
-                column: "UserId",
-                unique: true);
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Portfolio_UserId' AND object_id = OBJECT_ID(N'[Portfolio]'))
+                CREATE UNIQUE INDEX [IX_Portfolio_UserId] ON [Portfolio] ([UserId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_SavingsAccount_UserId",
-                table: "SavingsAccount",
-                column: "UserId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_SavingsAccount_UserId' AND object_id = OBJECT_ID(N'[SavingsAccount]'))
+                CREATE INDEX [IX_SavingsAccount_UserId] ON [SavingsAccount] ([UserId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_SavingsTransaction_SavingsAccountId",
-                table: "SavingsTransaction",
-                column: "SavingsAccountId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_SavingsTransaction_SavingsAccountId' AND object_id = OBJECT_ID(N'[SavingsTransaction]'))
+                CREATE INDEX [IX_SavingsTransaction_SavingsAccountId] ON [SavingsTransaction] ([SavingsAccountId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_TransactionCategoryOverrides_CategoryId",
-                table: "TransactionCategoryOverrides",
-                column: "CategoryId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_TransactionCategoryOverrides_CategoryId' AND object_id = OBJECT_ID(N'[TransactionCategoryOverrides]'))
+                CREATE INDEX [IX_TransactionCategoryOverrides_CategoryId] ON [TransactionCategoryOverrides] ([CategoryId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_TransactionCategoryOverrides_TransactionId",
-                table: "TransactionCategoryOverrides",
-                column: "TransactionId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_TransactionCategoryOverrides_TransactionId' AND object_id = OBJECT_ID(N'[TransactionCategoryOverrides]'))
+                CREATE INDEX [IX_TransactionCategoryOverrides_TransactionId] ON [TransactionCategoryOverrides] ([TransactionId]);");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_TransactionCategoryOverrides_UserId",
-                table: "TransactionCategoryOverrides",
-                column: "UserId");
+            migrationBuilder.Sql(@"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_TransactionCategoryOverrides_UserId' AND object_id = OBJECT_ID(N'[TransactionCategoryOverrides]'))
+                CREATE INDEX [IX_TransactionCategoryOverrides_UserId] ON [TransactionCategoryOverrides] ([UserId]);");
         }
 
         /// <inheritdoc />

@@ -22,7 +22,7 @@ public sealed class ForexService(
     ISystemClock clock)
     : IForexService
 {
-    private static readonly TimeSpan _rateTtl = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan _rateTtl = TimeSpan.FromSeconds(300);
 
     public Task<ErrorOr<ForexRatePreviewResponse>> GetRatePreviewAsync(
         int userId, string sourceCurrency, string targetCurrency, decimal sourceAmount, CancellationToken cancellationToken = default)

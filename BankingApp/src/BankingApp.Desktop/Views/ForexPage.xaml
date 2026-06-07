@@ -57,8 +57,27 @@
                               Header="From Account"
                               ItemsSource="{Binding Accounts}"
                               SelectedItem="{Binding SelectedSourceAccount, Mode=TwoWay}"
-                              DisplayMemberPath="AccountName"
-                              HorizontalAlignment="Stretch" />
+                              HorizontalAlignment="Stretch">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Padding="4" Spacing="2">
+                                    <TextBlock Text="{Binding DisplayName}"
+                                               FontWeight="SemiBold"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                                    <TextBlock Text="{Binding Iban}"
+                                               FontFamily="Consolas"
+                                               FontSize="12"
+                                               Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding Balance}"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Text="{Binding Currency}"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
 
                     <ComboBox x:Name="SourceCurrencyCombo"
                               Header="From Currency"
@@ -80,8 +99,27 @@
                               Header="To Account"
                               ItemsSource="{Binding Accounts}"
                               SelectedItem="{Binding SelectedTargetAccount, Mode=TwoWay}"
-                              DisplayMemberPath="AccountName"
-                              HorizontalAlignment="Stretch" />
+                              HorizontalAlignment="Stretch">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Padding="4" Spacing="2">
+                                    <TextBlock Text="{Binding DisplayName}"
+                                               FontWeight="SemiBold"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                                    <TextBlock Text="{Binding Iban}"
+                                               FontFamily="Consolas"
+                                               FontSize="12"
+                                               Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding Balance}"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Text="{Binding Currency}"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
 
                     <ComboBox x:Name="TargetCurrencyCombo"
                               Header="To Currency"

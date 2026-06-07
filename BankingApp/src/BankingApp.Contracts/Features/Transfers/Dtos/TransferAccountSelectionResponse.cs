@@ -19,4 +19,9 @@ public class TransferAccountSelectionResponse
 
     /// <summary>Gets or sets the account display name.</summary>
     public string AccountName { get; set; } = string.Empty;
+
+    /// <summary>Gets the display name for the account.</summary>
+    public string DisplayName => string.IsNullOrWhiteSpace(AccountName)
+        ? $"{Currency} Account ({(Iban.Length >= 4 ? "*" + Iban[^4..] : Iban)})"
+        : AccountName;
 }

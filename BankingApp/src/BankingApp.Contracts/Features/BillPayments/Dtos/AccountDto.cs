@@ -36,6 +36,13 @@ public class AccountDto
     public string AccountName { get; set; } = string.Empty;
 
     /// <summary>
+    ///     Gets the display name for the account.
+    /// </summary>
+    public string DisplayName => string.IsNullOrWhiteSpace(AccountName)
+        ? $"{Currency} Account ({(Iban.Length >= 4 ? "*" + Iban[^4..] : Iban)})"
+        : AccountName;
+
+    /// <summary>
     ///     Gets or sets the last four digits of the primary card linked to this account.
     ///     <c>null</c> when the account has no card.
     /// </summary>

@@ -7,7 +7,7 @@ using Currency = NodaMoney.Currency;
 
 public sealed class MemoryLockedRateCache(IMemoryCache memoryCache) : ILockedRateCache
 {
-    private static readonly TimeSpan _lockTtl = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan _lockTtl = TimeSpan.FromSeconds(300);
 
     public void Store(int userId, Currency baseCurrency, Currency quoteCurrency, decimal rate, DateTime lockedAt)
     {
