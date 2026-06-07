@@ -1,4 +1,4 @@
-namespace BankingApp.Application.Features.Transactions.Services;
+namespace BankingApp.Contracts.Features.Transactions.Dtos;
 
 /// <summary>Holds the raw bytes and metadata for a generated export file.</summary>
 public sealed class TransactionExportResult

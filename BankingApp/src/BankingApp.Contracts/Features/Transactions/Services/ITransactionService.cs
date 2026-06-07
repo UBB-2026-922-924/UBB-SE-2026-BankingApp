@@ -5,9 +5,9 @@ using ErrorOr;
 
 public interface ITransactionService
 {
-    public Task<TransactionFilterMetadataResponse?> GetFilterMetadataAsync(CancellationToken ct = default);
-    public Task<TransactionHistoryResponse?> GetHistoryAsync(TransactionHistoryRequest request, CancellationToken ct = default);
-    public Task<TransactionDetailsResponse?> GetTransactionByIdAsync(int transactionId, CancellationToken ct = default);
-    public Task<ExportedFileResult?> ExportTransactionsAsync(TransactionExportRequest request, CancellationToken ct = default);
-    public Task<ExportedFileResult?> ExportReceiptAsync(int transactionId, CancellationToken ct = default);
+    public Task<ErrorOr<TransactionFilterMetadataResponse>> GetFilterMetadataAsync(CancellationToken ct = default);
+    public Task<ErrorOr<TransactionHistoryResponse>> GetHistoryAsync(TransactionHistoryRequest request, CancellationToken ct = default);
+    public Task<ErrorOr<TransactionDetailsResponse>> GetTransactionByIdAsync(int transactionId, CancellationToken ct = default);
+    public Task<ErrorOr<TransactionExportResult>> ExportTransactionsAsync(TransactionExportRequest request, CancellationToken ct = default);
+    public Task<ErrorOr<TransactionExportResult>> ExportReceiptAsync(int transactionId, CancellationToken ct = default);
 }
