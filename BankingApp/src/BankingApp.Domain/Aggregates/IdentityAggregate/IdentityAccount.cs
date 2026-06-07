@@ -22,20 +22,20 @@ public sealed class IdentityAccount : AggregateRoot<int>
 
     public int FailedLoginAttempts { get; private set; }
 
-    public bool Is2FAEnabled { get; private set; }
+    public bool Is2FaEnabled { get; private set; }
 
-    public string? Preferred2FAMethod { get; private set; }
+    public string? Preferred2FaMethod { get; private set; }
 
     public IReadOnlyCollection<Session> Sessions => _sessions.AsReadOnly();
 
-    public static IdentityAccount Create(int userId, HashedPassword? passwordHash, bool is2FAEnabled = false, string? preferred2FAMethod = null)
+    public static IdentityAccount Create(int userId, HashedPassword? passwordHash, bool is2FaEnabled = false, string? preferred2FaMethod = null)
     {
         return new IdentityAccount
         {
             UserId = userId,
             PasswordHash = passwordHash,
-            Is2FAEnabled = is2FAEnabled,
-            Preferred2FAMethod = preferred2FAMethod
+            Is2FaEnabled = is2FaEnabled,
+            Preferred2FaMethod = preferred2FaMethod
         };
     }
 
@@ -85,10 +85,10 @@ public sealed class IdentityAccount : AggregateRoot<int>
         return session;
     }
 
-    public void Update2FAPreferences(bool enabled, string? method)
+    public void Update2FaPreferences(bool enabled, string? method)
     {
-        Is2FAEnabled = enabled;
-        Preferred2FAMethod = method;
+        Is2FaEnabled = enabled;
+        Preferred2FaMethod = method;
     }
 
 }
