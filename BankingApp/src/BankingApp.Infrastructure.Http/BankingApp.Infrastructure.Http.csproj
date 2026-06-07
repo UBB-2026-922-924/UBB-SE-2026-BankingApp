@@ -17,4 +17,8 @@
       <ProjectReference Include="..\BankingApp.Application\BankingApp.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Features\Transactions\" />
+    </ItemGroup>
+
 </Project>
