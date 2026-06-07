@@ -2,7 +2,7 @@
 
 using Contracts.Features.Transactions.Dtos;
 
-public class TransactionsPageViewModel
+public class TransactionHistoryPageViewModel
 {
     public List<TransactionHistoryItemDto> Transactions { get; set; } = new();
 
